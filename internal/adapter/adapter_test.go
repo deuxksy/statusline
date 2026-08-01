@@ -53,7 +53,11 @@ func TestAntigravityAdapter(t *testing.T) {
 	a := &adapter.AntigravityAdapter{}
 	jsonPayload := []byte(`{
 		"model": "gemini-2.5-pro",
-		"antigravity": true
+		"antigravity": true,
+		"contextTokens": 55,
+		"thinkingState": "thinking",
+		"activeSkills": ["superpowers:systematic-debugging"],
+		"lastTool": "replace_file_content"
 	}`)
 
 	status, err := a.Parse(jsonPayload, map[string]string{})
@@ -66,6 +70,59 @@ func TestAntigravityAdapter(t *testing.T) {
 	}
 	if status.Model != "gemini-2.5-pro" {
 		t.Errorf("expected model gemini-2.5-pro, got %s", status.Model)
+	}
+	if status.ContextTokens != 55 {
+		t.Errorf("expected context tokens 55, got %d", status.ContextTokens)
+	}
+	if status.ThinkingState != "thinking" {
+		t.Errorf("expected thinking state thinking, got %s", status.ThinkingState)
+	}
+	if len(status.ActiveSkills) != 1 || status.ActiveSkills[0] != "superpowers:systematic-debugging" {
+		t.Errorf("expected active skill 'superpowers:systematic-debugging', got %v", status.ActiveSkills)
+	}
+	if status.LastTool != "replace_file_content" {
+		t.Errorf("expected last tool replace_file_content, got %s", status.LastTool)
+	}
+}
+
+func TestAntigravityAdapterRealPayload(t *testing.T) {
+	a := &adapter.AntigravityAdapter{}
+	jsonPayload := []byte(`{
+		"product": "antigravity",
+		"model": {
+			"id": "Gemini 3.6 Flash (Medium)",
+			"display_name": "Gemini 3.6 Flash (Medium)",
+			"effort": "medium"
+		},
+		"context_window": {
+			"total_input_tokens": 50527,
+			"used_percentage": 4.81863
+		},
+		"agent_state": "tool_use",
+		"workspace": {
+			"current_dir": "/home/crong/git/statusline"
+		}
+	}`)
+
+	status, err := a.Parse(jsonPayload, map[string]string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if status.EngineName != "antigravity" {
+		t.Errorf("expected engine antigravity, got %s", status.EngineName)
+	}
+	if status.Model != "Gemini 3.6 Flash (Medium)" {
+		t.Errorf("expected model Gemini 3.6 Flash (Medium), got %s", status.Model)
+	}
+	if status.ContextTokens != 5 {
+		t.Errorf("expected context tokens 5, got %d", status.ContextTokens)
+	}
+	if status.ThinkingState != "tool_use" {
+		t.Errorf("expected thinking state tool_use, got %s", status.ThinkingState)
+	}
+	if status.Cwd != "/home/crong/git/statusline" {
+		t.Errorf("expected cwd /home/crong/git/statusline, got %s", status.Cwd)
 	}
 }
 

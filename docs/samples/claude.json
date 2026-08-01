@@ -1,0 +1,17 @@
+{
+  "omcLabel": "OMC",
+  "model": {
+    "displayName": "Claude 3.7 Sonnet"
+  },
+  "contextBar": {
+    "percentage": 45
+  },
+  "thinking": {
+    "state": "thinking"
+  },
+  "activeSkills": [
+    "superpowers:brainstorming"
+  ],
+  "lastTool": "view_file",
+  "cwd": "/home/crong/git/statusline"
+}

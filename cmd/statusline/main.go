@@ -61,7 +61,13 @@ func main() {
 
 	// Enrich Git status asynchronously with 10ms budget
 	cwd, _ := os.Getwd()
-	vcs.EnrichGit(status, cwd, 10)
+	if status.Cwd == "" {
+		status.Cwd = cwd
+	}
+	if status.Hostname == "" {
+		status.Hostname, _ = os.Hostname()
+	}
+	vcs.EnrichGit(status, status.Cwd, 10)
 
 	output := render.Render(status, cfg)
 	if output != "" {

@@ -9,10 +9,10 @@ type HostCapabilities struct {
 }
 
 type UnifiedStatus struct {
-	EngineName    string
-	Model         string
-	Cwd           string
-	Hostname      string
+	EngineName string
+	Model      string
+	Cwd        string
+	Hostname   string
 
 	GitRepo   string
 	GitBranch string

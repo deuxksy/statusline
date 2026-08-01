@@ -54,7 +54,7 @@ func DefaultConfig() *Config {
 			GitStatus:    true,
 			Cwd:          true,
 			CwdFormat:    "folder",
-			Hostname:     true,
+			Hostname:     false,
 			ContextBar:   true,
 			ShowTokens:   true,
 			ActiveSkills: true,
