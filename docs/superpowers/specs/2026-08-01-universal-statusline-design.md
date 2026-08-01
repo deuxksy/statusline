@@ -20,6 +20,7 @@ It takes JSON data from `stdin`, environmental context, and configuration rules 
 ```bash
 # Auto-detect AI CLI environment (Default)
 statusline --auto
+statusline --cli=auto
 
 # Explicitly specify engine adapter
 statusline --cli=claude
@@ -27,11 +28,11 @@ statusline --cli=codex
 statusline --cli=antigravity
 
 # Custom configuration file path override
-statusline --config=~/.config/statusline/config.json --cli=claude
+statusline --config=~/.config/statusline/config.json --cli=auto
 ```
 
-### Auto-Detection Strategy (`--auto`)
-When `--auto` is enabled (or no `--cli` flag is provided), `statusline` detects the host environment using the following fallback order:
+### Auto-Detection Strategy (`--auto` / `--cli=auto`)
+When `--auto` or `--cli=auto` is specified (or no `--cli` flag is provided), `statusline` detects the host environment using the following fallback order:
 1. **Environment Variables**: Checks for `CLAUDE_CONFIG_DIR`, `CODEX_ENV`, `ANTIGRAVITY_APP_DIR`, etc.
 2. **Stdin JSON Schema**: Inspects unique payload keys (e.g., `omcLabel`, `sessionHealth`).
 3. **Parent Process Name**: Inspects parent process executable name via OS process tree.
