@@ -13,5 +13,5 @@ When statusline outputs multiple lines separated by `\n`, host CLI widgets often
 ## 2. Fail-Soft Principle & Performance Budget (<5ms)
 
 - **Fail-Soft**: If STDIN is empty, corrupted, or unexpected, statusline never outputs tracebacks or stderr crashes. It returns a clean minimal fallback (`ANTIGRAVITY` badge or standard status).
-- **10ms VCS Timeout**: Git commands (`git rev-parse`, `git status`) are executed with a strict 10ms context deadline so that statusline rendering never slows down terminal interactive responsiveness.
+- **10ms VCS Timeout**: The dirty check (`git status --porcelain`) runs under a strict 10ms context deadline so rendering never slows the terminal. Branch and repository name are resolved by reading `.git` metadata directly (no subprocess) — git spawns stall past 10ms under CPU load, which made the branch segment flicker between refresh frames.
 - **KISS & DRY**: No persistent background daemons, zero external database dependencies. Pure stream filter CLI.
