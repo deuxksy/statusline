@@ -39,32 +39,32 @@
 - [x] 출력: `📊 gemini 5h:93% wk:52% │ 3rd 5h:100% wk:22%`
 - [x] Claude Code 기본 어댑터 연동 (ContextTokens, Thinking, Skills)
 
-## 🔲 v0.2.1 — CLI 세부 옵션 고도화
+## 🔲 v0.3.0 — CLI 세부 옵션 고도화
 
 - [ ] `modelFormat` — 모델명 축약 (`short` / `full`)
 - [ ] `wrapMode` — 터미널 폭 초과 시 truncate 처리
 - [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
 - [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
 
-## 🔲 v0.3.0 — OpenAI (Codex) 지원 강화
+## 🔲 v0.4.0 — OpenAI (Codex) 지원 강화
 
 - [ ] OpenAI Codex 어댑터 고도화 (현재 최소 기본 구현)
 - [ ] Codex 실행 컨텍스트 및 토큰/사용량 데이터 파싱
 - [ ] OpenAI 사용량/비용 모니터링 연동
 
-## 🔲 v0.4.0 — Z.AI 지원
+## 🔲 v0.5.0 — Z.AI 지원
 
 - [ ] Z.AI CLI 전용 어댑터 신규 개발 (`internal/adapter/zai.go`)
 - [ ] Auto-detection 판별기에 Z.AI 페이로드 및 환경변수 감지 추가
 - [ ] Z.AI 모델 및 실시간 사용량 표시
 
-## 🔲 v0.5.0 — Anthropic (Claude Code) 지원 강화
+## 🔲 v0.6.0 — Anthropic (Claude Code) 지원 강화
 
 - [ ] Claude Code 페이로드의 토큰 및 누적 비용(`total_cost`) 모니터링 연동
 - [ ] 세션 및 일일/월간 Quota 잔여량 파싱 및 표시
 - [ ] Anthropic 모델별(Opus, Sonnet, Haiku) 사용량 세분화
 
-## 🔲 v0.6.0 — 구독 플랜 & 연결된 계정 비용 (Cost/Billing) 추적
+## 🔲 v0.7.0 — 구독 플랜 & 연결된 계정 비용 (Cost/Billing) 추적
 
 - [ ] AI 호스트별 구독 플랜 인식 및 표시 (Google AI Pro/Ultra, Claude Pro/Team, ChatGPT Plus/Team)
 - [ ] 연결된 계정별 API 토큰 누적 비용(`total_cost`) 및 사용 금액 실시간 추적
