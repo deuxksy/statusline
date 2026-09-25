@@ -64,9 +64,19 @@ func main() {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
 			}
-			// 플래그 값은 플로우 선택용 — 실제 provider는 env URL 기준
-			zaiProvider := adapter.ProviderFromBaseURL(os.Getenv("ANTHROPIC_BASE_URL"))
-			result := collect.RunZaiCollect(ctx, &http.Client{Timeout: 5 * time.Second}, os.Getenv("ANTHROPIC_BASE_URL"), os.Getenv("ANTHROPIC_AUTH_TOKEN"), zaiProvider, cachePath, collect.ZaiRefreshPath(cachePath))
+			// 플래그 값은 플로우 선택용 — 실제 provider는 해석된 URL 기준 (env 우선 → credentials.json 폴백)
+			baseURL, err := collect.ZaiBaseURL(credentialsPath())
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			authToken, err := collect.ZaiAuthToken(credentialsPath())
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			zaiProvider := adapter.ProviderFromBaseURL(baseURL)
+			result := collect.RunZaiCollect(ctx, &http.Client{Timeout: 5 * time.Second}, baseURL, authToken, zaiProvider, cachePath, collect.ZaiRefreshPath(cachePath))
 			if err := json.NewEncoder(os.Stdout).Encode(result); err != nil {
 				fmt.Fprintln(os.Stderr, err)
 				os.Exit(1)
@@ -85,8 +95,7 @@ func main() {
 		if err != nil {
 			result.Errors["codex"] = err.Error()
 		}
-		home, _ := os.UserHomeDir()
-		key, keyErr := collect.AdminKey(filepath.Join(home, ".config", "statusline", "credentials.json"))
+		key, keyErr := collect.AdminKey(credentialsPath())
 		if keyErr != nil {
 			result.Errors["credentials"] = keyErr.Error()
 		}
@@ -150,10 +159,22 @@ func main() {
 		}
 	}
 	vcs.EnrichGit(status, status.Cwd, 10)
-	collect.AttachZaiQuota(status, 5*time.Minute, env["ANTHROPIC_AUTH_TOKEN"])
+	zaiToken := env["ANTHROPIC_AUTH_TOKEN"]
+	if zaiToken == "" {
+		if t, err := collect.ZaiAuthToken(credentialsPath()); err == nil {
+			zaiToken = t // 폴백 실패(권한 등)는 quota 미표시로 흡수 (fail-soft)
+		}
+	}
+	collect.AttachZaiQuota(status, 5*time.Minute, zaiToken)
 
 	output := render.Render(status, cfg)
 	if output != "" {
 		fmt.Println(output)
 	}
+}
+
+// credentialsPath — 로컬 자격 증명 저장소 (~/.config/statusline/credentials.json)
+func credentialsPath() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, ".config", "statusline", "credentials.json")
 }
