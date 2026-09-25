@@ -49,7 +49,7 @@ func DefaultConfig() *Config {
 		Elements: ElementsConfig{
 			EngineLabel:  true,
 			Model:        true,
-			ModelFormat:  "short",
+			ModelFormat:  "full",
 			GitRepo:      true,
 			GitBranch:    true,
 			GitStatus:    true,
