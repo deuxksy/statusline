@@ -1,0 +1,9 @@
+{
+  "account": {
+    "type": "chatgpt",
+    "email": null,
+    "planType": "team"
+  },
+  "requiresOpenaiAuth": true,
+  "workspaceRouting": null
+}

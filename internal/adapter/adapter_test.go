@@ -1,6 +1,7 @@
 package adapter_test
 
 import (
+	"os"
 	"testing"
 
 	"statusline/internal/adapter"
@@ -46,6 +47,42 @@ func TestCodexAdapter(t *testing.T) {
 	}
 	if status.Model != "codex" {
 		t.Errorf("expected model codex, got %s", status.Model)
+	}
+}
+
+func TestCodexAdapterSessionSnapshot(t *testing.T) {
+	input, err := os.ReadFile("../../docs/samples/codex.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	status, err := (&adapter.CodexAdapter{}).Parse(input, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status.Model != "gpt-6-astra" || status.Cwd != "/workspace/statusline" || status.ReasoningEffort != "low" {
+		t.Fatalf("Codex context not parsed: %+v", status)
+	}
+	if status.TotalTokenUsage.TotalTokens != 354563 || status.LastTokenUsage.InputTokens != 42064 || status.ContextLimit != 237500 {
+		t.Fatalf("Codex token usage not parsed: %+v", status)
+	}
+	if !status.Capabilities.HasTokens || status.ContextTokens != 18 {
+		t.Fatalf("Codex context display not enabled: %+v", status)
+	}
+	if !status.Capabilities.HasQuota || len(status.Quota) != 1 || status.Quota[0].FiveH != 0.83 || status.Quota[0].Weekly != 0.39 {
+		t.Fatalf("Codex quota not parsed: %+v", status.Quota)
+	}
+	if status.Quota[0].FiveHResetsAt != 1790366542 || status.Quota[0].WeeklyResetsAt != 1790573243 {
+		t.Fatalf("Codex quota reset times not parsed: %+v", status.Quota)
+	}
+}
+
+func TestCodexAdapterPartialSnapshot(t *testing.T) {
+	status, err := (&adapter.CodexAdapter{}).Parse([]byte(`{"model":"gpt-6-sol","rate_limits":{"primary":{"used_percent":40}}}`), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status.Model != "gpt-6-sol" || status.Capabilities.HasQuota || status.Capabilities.HasTokens {
+		t.Fatalf("missing values should not render as zero usage: %+v", status)
 	}
 }
 
@@ -169,6 +206,13 @@ func TestParseInputAutoDetection(t *testing.T) {
 			input:          `{}`,
 			env:            map[string]string{"ANTIGRAVITY_APP_DIR": "/home/user/.antigravity"},
 			expectedEngine: "antigravity",
+		},
+		{
+			name:           "Auto detect Codex by payload discriminator",
+			cliFlag:        "auto",
+			input:          `{"product":"codex","model":"gpt-6-sol"}`,
+			env:            map[string]string{},
+			expectedEngine: "codex",
 		},
 		{
 			name:           "Auto detect Codex by env var",

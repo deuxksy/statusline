@@ -12,7 +12,7 @@ func ParseInput(cliFlag string, rawInput []byte, env map[string]string) (*model.
 			targetEngine = "claude"
 		} else if bytes.Contains(rawInput, []byte("antigravity")) || env["ANTIGRAVITY_APP_DIR"] != "" {
 			targetEngine = "antigravity"
-		} else if env["CODEX_ENV"] != "" {
+		} else if bytes.Contains(rawInput, []byte(`"product": "codex"`)) || bytes.Contains(rawInput, []byte(`"product":"codex"`)) || env["CODEX_ENV"] != "" {
 			targetEngine = "codex"
 		} else {
 			targetEngine = "generic"

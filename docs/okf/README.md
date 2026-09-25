@@ -30,11 +30,13 @@
 ### 2. 🛠️ [사용 방법 안내 (How-To Guides)](./how-to-guides/index.md) *(실무 중심)*
 구체적인 작업 목표를 달성하기 위한 실용적인 안내서입니다.
 - [configure-elements.md](./how-to-guides/configure-elements.md): 레이아웃 요소 커스텀, 색상 설정 및 tmux 연동 방법.
+- [use-codex.md](./how-to-guides/use-codex.md): Codex 계정·한도·사용량 수집과 로컬 이벤트 감시 방법.
 - [add-new-cli-adapter.md](./how-to-guides/add-new-cli-adapter.md): 새로운 AI 에이전트 CLI 호스트 어댑터 구현하기.
 
 ### 3. 📖 [레퍼런스 (Reference)](./reference/index.md) *(정보 중심)*
 기술 명세, 스키마 및 아키텍처 상세 정보입니다.
 - [cli-payload-spec.md](./reference/cli-payload-spec.md): Antigravity (`agy`), Claude Code, Codex용 STDIN JSON 페이로드 상세 스키마.
+- [openai-data-sources.md](./reference/openai-data-sources.md): Codex 로컬 API와 OpenAI Platform API의 수집 필드 및 사용 범위.
 - [configuration-schema.md](./reference/configuration-schema.md): `config.json` 구성 항목, 레이아웃 속성 및 임계값 옵션.
 - [architecture.md](./reference/architecture.md): 패키지 구조, 인터페이스 정의 및 데이터 처리 파이프라인.
 

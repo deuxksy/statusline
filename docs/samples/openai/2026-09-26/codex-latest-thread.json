@@ -1,0 +1,10 @@
+{
+  "cwd": "<redacted>",
+  "id": "<redacted>",
+  "model": "gpt-6-sol",
+  "reasoningEffort": "low",
+  "status": {
+    "type": "notLoaded"
+  },
+  "updatedAt": 1790353336
+}

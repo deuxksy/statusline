@@ -1,14 +1,20 @@
 package main
 
 import (
+	"context"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strconv"
+	"time"
 
 	"statusline/internal/adapter"
+	"statusline/internal/collect"
 	"statusline/internal/config"
 	"statusline/internal/render"
 	"statusline/internal/vcs"
@@ -40,6 +46,50 @@ func main() {
 			os.Exit(1)
 		}
 		fmt.Printf("Initialized default config at %s\n", configPath)
+		return
+	}
+	if flag.NArg() > 0 && flag.Arg(0) == "collect" {
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		result := struct {
+			Codex    map[string]json.RawMessage `json:"codex,omitempty"`
+			Platform *collect.PlatformSnapshot  `json:"platform,omitempty"`
+			Errors   map[string]string          `json:"errors,omitempty"`
+		}{Errors: make(map[string]string)}
+		var err error
+		result.Codex, err = collect.Codex(ctx, "codex")
+		if err != nil {
+			result.Errors["codex"] = err.Error()
+		}
+		home, _ := os.UserHomeDir()
+		key, keyErr := collect.AdminKey(filepath.Join(home, ".config", "statusline", "credentials.json"))
+		if keyErr != nil {
+			result.Errors["credentials"] = keyErr.Error()
+		}
+		if key != "" {
+			platform, platformErr := collect.Platform(ctx, &http.Client{Timeout: 5 * time.Second}, "https://api.openai.com/v1", key, time.Now().UTC().AddDate(0, 0, -1))
+			if platformErr != nil {
+				result.Errors["platform"] = platformErr.Error()
+			} else {
+				result.Platform = &platform
+			}
+		}
+		if len(result.Errors) == 0 {
+			result.Errors = nil
+		}
+		if err := json.NewEncoder(os.Stdout).Encode(result); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		return
+	}
+	if flag.NArg() > 0 && flag.Arg(0) == "watch" {
+		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer stop()
+		if err := collect.CodexWatch(ctx, "codex", os.Stdout); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 		return
 	}
 

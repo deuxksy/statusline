@@ -1,12 +1,14 @@
-# CLI Statusline STDIN Payload Samples
+# Statusline 데이터 샘플
 
-This directory stores real STDIN JSON payloads captured from different AI CLI tools (`antigravity`, `claude`, `codex`).
+이 디렉터리는 CLI 입력 fixture와 Codex·OpenAI API 응답 샘플을 보관합니다. 파일마다 실제 조회 결과인지 합성 예시인지 구분해 기록합니다.
 
 ## Files
 
-- [`antigravity.json`](file:///home/crong/git/statusline/docs/samples/antigravity.json) : Real STDIN payload from Google Antigravity (agy) CLI.
-- [`claude.json`](file:///home/crong/git/statusline/docs/samples/claude.json) : Sample STDIN payload from Claude Code / OMC.
-- [`codex.json`](file:///home/crong/git/statusline/docs/samples/codex.json) : Sample STDIN payload from Codex CLI.
+- [`antigravity.json`](./antigravity.json) : Real STDIN payload from Google Antigravity (agy) CLI.
+- [`claude.json`](./claude.json) : Sample STDIN payload from Claude Code / OMC.
+- [`codex.json`](./codex.json): 2026-09-26 로컬 Codex 세션 JSONL에서 추출한 위젯용 테스트 샘플. `turn_context`의 모델·추론 수준과 `event_msg`의 `token_count`에 있는 `info`·`rate_limits`를 합쳤으며, `product`는 식별용으로 추가했습니다. Codex가 직접 제공하는 STDIN 스키마가 아닙니다. 작업 경로는 `/workspace/statusline`으로 익명화했고 대화·세션 식별자는 제외했습니다. 사용량과 reset 시각은 수집 당시의 스냅샷입니다. Codex 어댑터는 이 값을 파싱하며, 실시간 위젯 수집은 로컬 app-server API 연결이 필요합니다.
+- [`openai/`](./openai/README.md): `statusline collect`로 실제 조회한 Codex·OpenAI Platform 응답의 익명화 스냅샷.
+- [`openai/schema-examples/`](./openai/schema-examples/README.md): API 스키마 기반 합성 예시. 실제 응답이 아닙니다.
 
 ## How to Test Statusline Output
 

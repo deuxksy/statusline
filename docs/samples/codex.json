@@ -1,5 +1,48 @@
 {
   "product": "codex",
-  "model": "codex-5",
-  "cwd": "/home/crong/git/statusline"
+  "model": "gpt-6-astra",
+  "cwd": "/workspace/statusline",
+  "effort": "low",
+  "info": {
+    "total_token_usage": {
+      "input_tokens": 353513,
+      "cached_input_tokens": 316800,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1050,
+      "reasoning_output_tokens": 46,
+      "total_tokens": 354563
+    },
+    "last_token_usage": {
+      "input_tokens": 42064,
+      "cached_input_tokens": 41600,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 132,
+      "reasoning_output_tokens": 10,
+      "total_tokens": 42196
+    },
+    "model_context_window": 237500
+  },
+  "rate_limits": {
+    "limit_id": "codex",
+    "limit_name": null,
+    "primary": {
+      "used_percent": 17.0,
+      "window_minutes": 300,
+      "resets_at": 1790366542
+    },
+    "secondary": {
+      "used_percent": 61.0,
+      "window_minutes": 10080,
+      "resets_at": 1790573243
+    },
+    "credits": {
+      "has_credits": false,
+      "unlimited": false,
+      "balance": null
+    },
+    "individual_limit": null,
+    "spend_control_reached": null,
+    "plan_type": "team",
+    "rate_limit_reached_type": null
+  }
 }

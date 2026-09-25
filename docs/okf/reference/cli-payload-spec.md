@@ -60,14 +60,12 @@ Sample location: [`docs/samples/claude.json`](file:///home/crong/git/statusline/
 
 ---
 
-## 3. Codex CLI Payload Spec
+## 3. Codex Widget Snapshot
 
-Sample location: [`docs/samples/codex.json`](file:///home/crong/git/statusline/docs/samples/codex.json)
+Sample: [`docs/samples/codex.json`](../../samples/codex.json). This is a normalized local-session snapshot for the future widget, not a Codex CLI STDIN payload. `model`, `cwd`, and `effort` come from the latest `turn_context`; `info` and `rate_limits` come from the latest `event_msg` `token_count`. The events can have different timestamps.
 
-```json
-{
-  "product": "codex",
-  "model": "codex-5",
-  "cwd": "/home/crong/git/statusline"
-}
-```
+- `info.total_token_usage`: cumulative session tokens; it can exceed one context window.
+- `info.last_token_usage`: latest reported model call, used as an approximation for the context percentage.
+- `info.model_context_window`: model context capacity.
+- `rate_limits.primary` and `secondary`: used percentages, window durations, and Unix reset times. The adapter renders remaining percentages by subtracting from 100.
+- Cost is unavailable in this local sample. OpenAI Platform organization costs and Codex subscription limits are separate data sources.

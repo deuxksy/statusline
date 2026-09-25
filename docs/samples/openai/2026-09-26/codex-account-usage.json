@@ -1,0 +1,320 @@
+{
+  "dailyUsageBuckets": [
+    {
+      "startDate": "2026-06-22",
+      "tokens": 28700140
+    },
+    {
+      "startDate": "2026-06-23",
+      "tokens": 4440995
+    },
+    {
+      "startDate": "2026-06-24",
+      "tokens": 8623689
+    },
+    {
+      "startDate": "2026-06-25",
+      "tokens": 10193905
+    },
+    {
+      "startDate": "2026-06-27",
+      "tokens": 1233164
+    },
+    {
+      "startDate": "2026-06-29",
+      "tokens": 11346433
+    },
+    {
+      "startDate": "2026-06-30",
+      "tokens": 9099796
+    },
+    {
+      "startDate": "2026-07-01",
+      "tokens": 6095693
+    },
+    {
+      "startDate": "2026-07-02",
+      "tokens": 43775289
+    },
+    {
+      "startDate": "2026-07-03",
+      "tokens": 2299171
+    },
+    {
+      "startDate": "2026-07-06",
+      "tokens": 4455964
+    },
+    {
+      "startDate": "2026-07-07",
+      "tokens": 2489698
+    },
+    {
+      "startDate": "2026-07-08",
+      "tokens": 2637533
+    },
+    {
+      "startDate": "2026-07-09",
+      "tokens": 220199980
+    },
+    {
+      "startDate": "2026-07-11",
+      "tokens": 9662496
+    },
+    {
+      "startDate": "2026-07-13",
+      "tokens": 1625067
+    },
+    {
+      "startDate": "2026-07-14",
+      "tokens": 1150168
+    },
+    {
+      "startDate": "2026-07-15",
+      "tokens": 9791559
+    },
+    {
+      "startDate": "2026-07-16",
+      "tokens": 7953465
+    },
+    {
+      "startDate": "2026-07-18",
+      "tokens": 248053
+    },
+    {
+      "startDate": "2026-07-19",
+      "tokens": 56696
+    },
+    {
+      "startDate": "2026-07-20",
+      "tokens": 13702051
+    },
+    {
+      "startDate": "2026-07-22",
+      "tokens": 17105480
+    },
+    {
+      "startDate": "2026-07-23",
+      "tokens": 45437513
+    },
+    {
+      "startDate": "2026-07-24",
+      "tokens": 85734378
+    },
+    {
+      "startDate": "2026-07-25",
+      "tokens": 2792256
+    },
+    {
+      "startDate": "2026-07-26",
+      "tokens": 24835123
+    },
+    {
+      "startDate": "2026-07-27",
+      "tokens": 52482908
+    },
+    {
+      "startDate": "2026-07-28",
+      "tokens": 42890954
+    },
+    {
+      "startDate": "2026-07-29",
+      "tokens": 122929881
+    },
+    {
+      "startDate": "2026-07-30",
+      "tokens": 43597275
+    },
+    {
+      "startDate": "2026-07-31",
+      "tokens": 4704841
+    },
+    {
+      "startDate": "2026-08-01",
+      "tokens": 103783499
+    },
+    {
+      "startDate": "2026-08-03",
+      "tokens": 53599264
+    },
+    {
+      "startDate": "2026-08-04",
+      "tokens": 7182618
+    },
+    {
+      "startDate": "2026-08-05",
+      "tokens": 39081049
+    },
+    {
+      "startDate": "2026-08-06",
+      "tokens": 16569763
+    },
+    {
+      "startDate": "2026-08-07",
+      "tokens": 19988947
+    },
+    {
+      "startDate": "2026-08-08",
+      "tokens": 5576598
+    },
+    {
+      "startDate": "2026-08-09",
+      "tokens": 32779551
+    },
+    {
+      "startDate": "2026-08-10",
+      "tokens": 10371747
+    },
+    {
+      "startDate": "2026-08-11",
+      "tokens": 1557325
+    },
+    {
+      "startDate": "2026-08-12",
+      "tokens": 169012642
+    },
+    {
+      "startDate": "2026-08-13",
+      "tokens": 4972495
+    },
+    {
+      "startDate": "2026-08-14",
+      "tokens": 6677422
+    },
+    {
+      "startDate": "2026-08-17",
+      "tokens": 22182199
+    },
+    {
+      "startDate": "2026-08-18",
+      "tokens": 106688243
+    },
+    {
+      "startDate": "2026-08-19",
+      "tokens": 12024043
+    },
+    {
+      "startDate": "2026-08-20",
+      "tokens": 668303
+    },
+    {
+      "startDate": "2026-08-22",
+      "tokens": 288608
+    },
+    {
+      "startDate": "2026-08-23",
+      "tokens": 1597818
+    },
+    {
+      "startDate": "2026-08-24",
+      "tokens": 34988455
+    },
+    {
+      "startDate": "2026-08-25",
+      "tokens": 127767829
+    },
+    {
+      "startDate": "2026-08-26",
+      "tokens": 1319357
+    },
+    {
+      "startDate": "2026-08-27",
+      "tokens": 2933823
+    },
+    {
+      "startDate": "2026-08-28",
+      "tokens": 1942140
+    },
+    {
+      "startDate": "2026-08-29",
+      "tokens": 12775867
+    },
+    {
+      "startDate": "2026-08-30",
+      "tokens": 1935393
+    },
+    {
+      "startDate": "2026-08-31",
+      "tokens": 15769909
+    },
+    {
+      "startDate": "2026-09-01",
+      "tokens": 1507891
+    },
+    {
+      "startDate": "2026-09-02",
+      "tokens": 19273822
+    },
+    {
+      "startDate": "2026-09-03",
+      "tokens": 42100900
+    },
+    {
+      "startDate": "2026-09-04",
+      "tokens": 13700043
+    },
+    {
+      "startDate": "2026-09-06",
+      "tokens": 30450
+    },
+    {
+      "startDate": "2026-09-07",
+      "tokens": 15006608
+    },
+    {
+      "startDate": "2026-09-08",
+      "tokens": 15288430
+    },
+    {
+      "startDate": "2026-09-09",
+      "tokens": 25658866
+    },
+    {
+      "startDate": "2026-09-10",
+      "tokens": 3223646
+    },
+    {
+      "startDate": "2026-09-11",
+      "tokens": 37134178
+    },
+    {
+      "startDate": "2026-09-14",
+      "tokens": 17352945
+    },
+    {
+      "startDate": "2026-09-15",
+      "tokens": 23702106
+    },
+    {
+      "startDate": "2026-09-16",
+      "tokens": 23218428
+    },
+    {
+      "startDate": "2026-09-21",
+      "tokens": 20123130
+    },
+    {
+      "startDate": "2026-09-22",
+      "tokens": 36149845
+    },
+    {
+      "startDate": "2026-09-23",
+      "tokens": 321488
+    },
+    {
+      "startDate": "2026-09-24",
+      "tokens": 19154978
+    },
+    {
+      "startDate": "2026-09-25",
+      "tokens": 437693
+    }
+  ],
+  "summary": {
+    "currentStreakDays": 5,
+    "lifetimeTokens": 1969711968,
+    "longestRunningTurnSec": 328470,
+    "longestStreakDays": 14,
+    "peakDailyTokens": 220199980
+  },
+  "threadUsage": null
+}
