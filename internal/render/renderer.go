@@ -89,6 +89,25 @@ var themes = map[string]ThemePalette{
 		WaitBg:     lipgloss.Color("#BF616A"),
 		WaitFg:     lipgloss.Color("#ECEFF4"),
 	},
+	"monokai-dark": {
+		BadgeBg:    lipgloss.Color("#FD971F"),
+		BadgeFg:    lipgloss.Color("#272822"),
+		BranchFg:   lipgloss.Color("#A6E22E"),
+		RepoFg:     lipgloss.Color("#66D9EF"),
+		StatusFg:   lipgloss.Color("#F92672"),
+		CwdFg:      lipgloss.Color("#75715E"),
+		HostnameFg: lipgloss.Color("#F8F8F2"),
+		ModelFg:    lipgloss.Color("#66D9EF"),
+		ThinkingFg: lipgloss.Color("#AE81FF"),
+		SkillsFg:   lipgloss.Color("#F92672"),
+		ToolFg:     lipgloss.Color("#E6DB74"),
+		QuotaLabel: lipgloss.Color("#AE81FF"),
+		QuotaGood:  lipgloss.Color("#A6E22E"),
+		QuotaWarn:  lipgloss.Color("#FD971F"),
+		QuotaBad:   lipgloss.Color("#F92672"),
+		WaitBg:     lipgloss.Color("#F92672"),
+		WaitFg:     lipgloss.Color("#F8F8F2"),
+	},
 }
 
 func getPalette(name string) ThemePalette {

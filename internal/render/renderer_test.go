@@ -186,7 +186,7 @@ func TestRenderThemes(t *testing.T) {
 	st := model.NewUnifiedStatus("claude")
 	st.Model = "Claude 3.7"
 
-	themes := []string{"sleek_dark", "light", "nord"}
+	themes := []string{"sleek_dark", "light", "nord", "monokai-dark"}
 	for _, theme := range themes {
 		t.Run(theme, func(t *testing.T) {
 			cfg := config.DefaultConfig()
