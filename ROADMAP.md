@@ -37,7 +37,8 @@
 
 ## 🔲 v1.0.0 — GUI 위젯 지원
 
-- [ ] 데스크톱 위젯 (macOS 메뉴바 / 시스템 트레이)
+- [ ] **macOS** — 메뉴바 위젯
+- [ ] **Windows** — 시스템 트레이 위젯
 - [ ] 실시간 quota 대시보드 (Gemini, Anthropic, OpenAI, Z.AI)
 - [ ] Context 사용량 시각화 (프로그레스 바, 차트)
 - [ ] 알림 시스템 (quota 임계치 도달 시 알림)
