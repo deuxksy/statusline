@@ -80,13 +80,18 @@
 - [ ] CLI ↔ Tray 간 공유 데이터 레이어 (IPC / 상태 파일 / 소켓 감시)
 - [ ] 다중 계정 드롭다운 메뉴 (계정별 Quota 및 활성 상태 분리 표시)
 
-## 🔲 v1.0.0 — 공식 정식 릴리스 & 비용(Cost) 추적 🚀
+## 🔲 v1.0.0 — 공식 정식 릴리스 & 상용화 (Commercial Launch) 💵
 
 - [ ] **공식 첫 정식 릴리스 (General Availability)**
-- [ ] **비용 (Cost / Billing) 모니터링 연동**:
-  - Anthropic / OpenAI 누적 토큰 비용(`total_cost`) 및 일일/월간 사용 금액 표시
-  - 예산 한도(Budget Limit) 도달 시 경고 표시
-- [ ] CLI 상태바 및 GUI 트레이 위젯 안정화 및 릴리스 배포 패키징 (Homebrew, Scoop, GoReleaser)
+- [ ] **상용 라이선스 & 유료화 모델 (Monetization)**:
+  - CLI 기본 단일행 상태바: 무료 (Community)
+  - GUI 트레이 위젯 + 다중 계정 + 알림: 유료 (Pro License)
+- [ ] **라이선스 관리 및 검증 시스템**:
+  - 라이선스 키 활성화 커맨드 (`statusline activate <license-key>`)
+  - 오프라인/온라인 라이선스 검증 레이어 (Lemon Squeezy / Polar / Gumroad 연동)
+- [ ] **릴리스 패키징 및 배포**:
+  - macOS 서명(Notarization) & Windows 코드 사이닝
+  - 공식 웹사이트/결제 페이지 오픈 및 배포 파이프라인 (GoReleaser)
 
 ## 🔲 v2.0.0 — 리치 팝업 UI & 대시보드 (`Wails`)
 
