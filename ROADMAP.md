@@ -90,6 +90,9 @@
 ## 🔲 v1.0.0 — 공식 정식 릴리스 & 상용화 (Commercial Launch) 💵
 
 - [ ] **공식 첫 정식 릴리스 (General Availability)**
+- [ ] **인증 및 자격 증명 보안 저장**:
+  - `~/.config/statusline/credentials.json` (권한 `0600` 강제, 초고속 경량 파싱)
+  - 다중 계정 API 키 및 라이선스 키 보관
 - [ ] **상용 라이선스 & 유료화 모델 (Monetization)**:
   - CLI 기본 단일행 상태바: 무료 (Community)
   - GUI 트레이 위젯 + 다중 계정 + 알림: 유료 (Pro License)
@@ -103,6 +106,8 @@
 ## 🔲 v2.0.0 — 리치 팝업 UI & 대시보드 (`Wails`)
 
 - [ ] Wails 내장 트레이 기반 마이그레이션 (기존 백엔드 Go 비즈니스 로직 100% 재사용)
+- [ ] **OS 네이티브 자격 증명(키체인) 마이그레이션**:
+  - macOS Keychain / Windows Credential Manager (`zalando/go-keyring`) 연동
 - [ ] 트레이 클릭 시 플로팅 팝업 창 (Webview 기반 미니 대시보드)
 - [ ] 실시간 Quota 모니터링 카드 (Gemini, Anthropic, OpenAI, Z.AI)
 - [ ] Context 사용량 시각화 (프로그레스 바, 실시간 차트 UI)

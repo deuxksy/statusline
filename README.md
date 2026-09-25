@@ -20,6 +20,9 @@ cat docs/samples/antigravity.json | ./statusline --cli=antigravity
 
 `statusline`의 모든 문서는 [Open Knowledge Framework (OKF)](./docs/okf/README.md) 표준에 따라 Diátaxis 프레임워크 구조로 정돈되어 있습니다.
 
+### 🗺️ 프로젝트 로드맵
+- [ROADMAP.md](./ROADMAP.md): 다중 프로바이더 지원(OpenAI, Z.AI, Anthropic), GUI 트레이 위젯 및 상용화 로드맵.
+
 ### 🎓 튜토리얼 (Tutorials)
 - [튜토리얼 개요](./docs/okf/tutorials/index.md) - [시작하기 (Getting Started)](./docs/okf/tutorials/getting-started.md): 빠른 설치, 기본 사용법 및 파이프라인 구성.
 
