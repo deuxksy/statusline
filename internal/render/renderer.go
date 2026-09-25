@@ -7,9 +7,14 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
+	"github.com/muesli/termenv"
 	"statusline/internal/config"
 	"statusline/internal/model"
 )
+
+func init() {
+	lipgloss.SetColorProfile(termenv.TrueColor)
+}
 
 type ThemePalette struct {
 	BadgeBg    lipgloss.Color
