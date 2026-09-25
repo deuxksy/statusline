@@ -1,6 +1,17 @@
 # ROADMAP
 
-> statusline — AI 코딩 어시스턴트용 고성능 상태바 생성기
+> statusline — AI 코딩 어시스턴트용 고성능 상태바 & 위젯 생성기
+
+---
+
+### 🎯 핵심 로드맵 전략
+1. **Phase 1 (~ v0.8.0)**: **터미널 CLI 상태바(statusline) 완성**
+   - Claude Code, Codex, Antigravity, Z.AI 환경에서 단일행 고성능 스트림 필터로 완벽 동작
+   - 각 프로바이더별 Quota, 토큰, 사용량 및 다중 계정 파싱 로직 안정화
+2. **Phase 2 (v1.0.0 ~)**: **OS 시스템 트레이 위젯 (`fyne-io/systray`)**
+   - CLI에서 검증된 비즈니스 로직을 100% 재사용하여 macOS 메뉴바/Windows 트레이 지원
+3. **Phase 3 (v2.0.0 ~)**: **리치 플로팅 대시보드 (`Wails`)**
+   - 트레이 클릭 시 Webview 팝업 창을 통한 차트 및 상세 카드 제공
 
 ---
 
