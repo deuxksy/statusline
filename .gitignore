@@ -24,3 +24,7 @@ Thumbs.db
 # Project specific local state
 .omc/
 .superpowers/
+
+
+# APM dependencies
+apm_modules/

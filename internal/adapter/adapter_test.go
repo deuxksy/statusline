@@ -237,8 +237,8 @@ func TestAntigravityAdapterQuota(t *testing.T) {
 	if status.Quota[0].Name != "gemini" {
 		t.Errorf("expected first category 'gemini', got %s", status.Quota[0].Name)
 	}
-	if status.Quota[1].Name != "3p" {
-		t.Errorf("expected second category '3p', got %s", status.Quota[1].Name)
+	if status.Quota[1].Name != "3rd" {
+		t.Errorf("expected second category '3rd', got %s", status.Quota[1].Name)
 	}
 
 	// gemini 값 검증
@@ -249,12 +249,12 @@ func TestAntigravityAdapterQuota(t *testing.T) {
 		t.Errorf("expected gemini weekly 0.5284749, got %f", status.Quota[0].Weekly)
 	}
 
-	// 3p 값 검증
+	// 3rd 값 검증
 	if status.Quota[1].FiveH != 1.0 {
-		t.Errorf("expected 3p 5h 1.0, got %f", status.Quota[1].FiveH)
+		t.Errorf("expected 3rd 5h 1.0, got %f", status.Quota[1].FiveH)
 	}
 	if status.Quota[1].Weekly != 0.222908 {
-		t.Errorf("expected 3p weekly 0.222908, got %f", status.Quota[1].Weekly)
+		t.Errorf("expected 3rd weekly 0.222908, got %f", status.Quota[1].Weekly)
 	}
 }
 

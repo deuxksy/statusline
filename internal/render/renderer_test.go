@@ -91,7 +91,7 @@ func TestRenderQuotaEnabled(t *testing.T) {
 	st := model.NewUnifiedStatus("antigravity")
 	st.Quota = []model.QuotaCategory{
 		{Name: "gemini", FiveH: 0.93, Weekly: 0.53},
-		{Name: "3p", FiveH: 1.0, Weekly: 0.22},
+		{Name: "3rd", FiveH: 1.0, Weekly: 0.22},
 	}
 
 	cfg := config.DefaultConfig()
@@ -103,8 +103,8 @@ func TestRenderQuotaEnabled(t *testing.T) {
 	if !strings.Contains(output, "gemini") {
 		t.Errorf("expected 'gemini' category label, got: %q", output)
 	}
-	if !strings.Contains(output, "3p") {
-		t.Errorf("expected '3p' category label, got: %q", output)
+	if !strings.Contains(output, "3rd") {
+		t.Errorf("expected '3rd' category label, got: %q", output)
 	}
 	if !strings.Contains(output, "5h:93%") {
 		t.Errorf("expected '5h:93%%' in output, got: %q", output)

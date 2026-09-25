@@ -106,7 +106,7 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 					catName = "gemini"
 					period = strings.TrimPrefix(key, "gemini-")
 				} else if strings.HasPrefix(key, "3p-") {
-					catName = "3p"
+					catName = "3rd"
 					period = strings.TrimPrefix(key, "3p-")
 				} else {
 					continue
@@ -124,7 +124,7 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 				}
 			}
 			// gemini 먼저, 3p 나중에 (안정적 순서)
-			for _, name := range []string{"gemini", "3p"} {
+			for _, name := range []string{"gemini", "3rd"} {
 				if cat, ok := categories[name]; ok {
 					st.Quota = append(st.Quota, *cat)
 				}
