@@ -3,6 +3,7 @@ package adapter
 import (
 	"encoding/json"
 	"math"
+	"strings"
 	"statusline/internal/model"
 )
 
@@ -37,6 +38,9 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 		Workspace         struct {
 			CurrentDir string `json:"current_dir"`
 		} `json:"workspace"`
+		Quota map[string]struct {
+			RemainingFraction float64 `json:"remaining_fraction"`
+		} `json:"quota"`
 	}
 
 	if err := json.Unmarshal(input, &raw); err == nil {
@@ -92,6 +96,39 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 			st.Cwd = raw.Cwd
 		} else if raw.Workspace.CurrentDir != "" {
 			st.Cwd = raw.Workspace.CurrentDir
+		}
+		// quota 파싱: gemini-*/3p-* prefix로 카테고리 그룹핑
+		if len(raw.Quota) > 0 {
+			categories := map[string]*model.QuotaCategory{}
+			for key, q := range raw.Quota {
+				var catName, period string
+				if strings.HasPrefix(key, "gemini-") {
+					catName = "gemini"
+					period = strings.TrimPrefix(key, "gemini-")
+				} else if strings.HasPrefix(key, "3p-") {
+					catName = "3p"
+					period = strings.TrimPrefix(key, "3p-")
+				} else {
+					continue
+				}
+				cat, ok := categories[catName]
+				if !ok {
+					cat = &model.QuotaCategory{Name: catName}
+					categories[catName] = cat
+				}
+				switch period {
+				case "5h":
+					cat.FiveH = q.RemainingFraction
+				case "weekly":
+					cat.Weekly = q.RemainingFraction
+				}
+			}
+			// gemini 먼저, 3p 나중에 (안정적 순서)
+			for _, name := range []string{"gemini", "3p"} {
+				if cat, ok := categories[name]; ok {
+					st.Quota = append(st.Quota, *cat)
+				}
+			}
 		}
 	}
 	return st, nil

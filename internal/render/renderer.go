@@ -45,6 +45,19 @@ var (
 
 	toolStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#EAB308"))
+
+	quotaLabelStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#8B5CF6")).
+			Bold(true)
+
+	quotaGoodStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#10B981"))
+
+	quotaWarnStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#F59E0B"))
+
+	quotaBadStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#EF4444"))
 )
 
 func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config) string {
@@ -107,8 +120,35 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config) str
 		if cfg.Elements.LastTool && st.Capabilities.HasTools && st.LastTool != "" {
 			return toolStyle.Render("🔧 " + st.LastTool)
 		}
+	case "quota":
+		if cfg.Elements.Quota && st.Capabilities.HasQuota && len(st.Quota) > 0 {
+			return renderQuota(st.Quota)
+		}
 	}
 	return ""
+}
+
+// quotaColor — 잔여 비율에 따라 색상 스타일 반환
+func quotaColor(fraction float64) lipgloss.Style {
+	pct := fraction * 100
+	if pct > 50 {
+		return quotaGoodStyle
+	} else if pct >= 20 {
+		return quotaWarnStyle
+	}
+	return quotaBadStyle
+}
+
+// renderQuota — 카테고리별 5h/wk 렌더링
+func renderQuota(categories []model.QuotaCategory) string {
+	var parts []string
+	for _, cat := range categories {
+		label := quotaLabelStyle.Render(cat.Name)
+		fiveH := quotaColor(cat.FiveH).Render(fmt.Sprintf("5h:%d%%", int(cat.FiveH*100)))
+		weekly := quotaColor(cat.Weekly).Render(fmt.Sprintf("wk:%d%%", int(cat.Weekly*100)))
+		parts = append(parts, fmt.Sprintf("%s %s %s", label, fiveH, weekly))
+	}
+	return "📊 " + strings.Join(parts, " │ ")
 }
 
 func Render(st *model.UnifiedStatus, cfg *config.Config) string {

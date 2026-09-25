@@ -1,11 +1,19 @@
 package model
 
+// QuotaCategory — gemini 또는 3p 카테고리별 quota 잔여 비율
+type QuotaCategory struct {
+	Name    string  // "gemini" 또는 "3p"
+	FiveH   float64 // 5시간 잔여 비율 (0.0~1.0)
+	Weekly  float64 // 주간 잔여 비율 (0.0~1.0)
+}
+
 type HostCapabilities struct {
 	HasTokens     bool
 	HasSkills     bool
 	HasTools      bool
 	HasThinking   bool
 	HasPermission bool
+	HasQuota      bool
 }
 
 type UnifiedStatus struct {
@@ -29,6 +37,8 @@ type UnifiedStatus struct {
 	Permission    string
 	ThinkingState string
 
+	Quota []QuotaCategory
+
 	Capabilities HostCapabilities
 }
 
@@ -40,6 +50,9 @@ func NewUnifiedStatus(engineName string) *UnifiedStatus {
 		caps.HasTools = true
 		caps.HasThinking = true
 		caps.HasPermission = true
+	}
+	if engineName == "antigravity" {
+		caps.HasQuota = true
 	}
 	return &UnifiedStatus{
 		EngineName:   engineName,

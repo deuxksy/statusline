@@ -211,3 +211,62 @@ func TestParseInputAutoDetection(t *testing.T) {
 		})
 	}
 }
+
+func TestAntigravityAdapterQuota(t *testing.T) {
+	a := &adapter.AntigravityAdapter{}
+	jsonPayload := []byte(`{
+		"model": "gemini-2.5-pro",
+		"quota": {
+			"3p-5h": {"remaining_fraction": 1.0, "reset_time": "2026-08-01T12:13:36Z"},
+			"3p-weekly": {"remaining_fraction": 0.222908, "reset_time": "2026-08-03T07:00:41Z"},
+			"gemini-5h": {"remaining_fraction": 0.933109, "reset_time": "2026-08-01T11:18:07Z"},
+			"gemini-weekly": {"remaining_fraction": 0.5284749, "reset_time": "2026-08-05T04:59:12Z"}
+		}
+	}`)
+
+	status, err := a.Parse(jsonPayload, map[string]string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if len(status.Quota) != 2 {
+		t.Fatalf("expected 2 quota categories, got %d", len(status.Quota))
+	}
+
+	// gemini가 먼저 와야 함
+	if status.Quota[0].Name != "gemini" {
+		t.Errorf("expected first category 'gemini', got %s", status.Quota[0].Name)
+	}
+	if status.Quota[1].Name != "3p" {
+		t.Errorf("expected second category '3p', got %s", status.Quota[1].Name)
+	}
+
+	// gemini 값 검증
+	if status.Quota[0].FiveH != 0.933109 {
+		t.Errorf("expected gemini 5h 0.933109, got %f", status.Quota[0].FiveH)
+	}
+	if status.Quota[0].Weekly != 0.5284749 {
+		t.Errorf("expected gemini weekly 0.5284749, got %f", status.Quota[0].Weekly)
+	}
+
+	// 3p 값 검증
+	if status.Quota[1].FiveH != 1.0 {
+		t.Errorf("expected 3p 5h 1.0, got %f", status.Quota[1].FiveH)
+	}
+	if status.Quota[1].Weekly != 0.222908 {
+		t.Errorf("expected 3p weekly 0.222908, got %f", status.Quota[1].Weekly)
+	}
+}
+
+func TestAntigravityAdapterNoQuota(t *testing.T) {
+	a := &adapter.AntigravityAdapter{}
+	jsonPayload := []byte(`{"model": "gemini-2.5-pro"}`)
+
+	status, err := a.Parse(jsonPayload, map[string]string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(status.Quota) != 0 {
+		t.Errorf("expected 0 quota categories, got %d", len(status.Quota))
+	}
+}

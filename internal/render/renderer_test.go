@@ -86,3 +86,62 @@ func TestRenderEmptyStatus(t *testing.T) {
 		t.Errorf("expected engine label 'GENERIC' in empty generic status, got: %q", output)
 	}
 }
+
+func TestRenderQuotaEnabled(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Quota = []model.QuotaCategory{
+		{Name: "gemini", FiveH: 0.93, Weekly: 0.53},
+		{Name: "3p", FiveH: 1.0, Weekly: 0.22},
+	}
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	if !strings.Contains(output, "📊") {
+		t.Errorf("expected quota emoji '📊' in output, got: %q", output)
+	}
+	if !strings.Contains(output, "gemini") {
+		t.Errorf("expected 'gemini' category label, got: %q", output)
+	}
+	if !strings.Contains(output, "3p") {
+		t.Errorf("expected '3p' category label, got: %q", output)
+	}
+	if !strings.Contains(output, "5h:93%") {
+		t.Errorf("expected '5h:93%%' in output, got: %q", output)
+	}
+	if !strings.Contains(output, "wk:53%") {
+		t.Errorf("expected 'wk:53%%' in output, got: %q", output)
+	}
+	if !strings.Contains(output, "wk:22%") {
+		t.Errorf("expected 'wk:22%%' in output, got: %q", output)
+	}
+}
+
+func TestRenderQuotaDisabled(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Quota = []model.QuotaCategory{
+		{Name: "gemini", FiveH: 0.93, Weekly: 0.53},
+	}
+
+	cfg := config.DefaultConfig()
+	cfg.Elements.Quota = false
+	output := render.Render(st, cfg)
+
+	if strings.Contains(output, "📊") {
+		t.Errorf("expected quota to be hidden when Quota=false, got: %q", output)
+	}
+}
+
+func TestRenderQuotaCapabilityFiltering(t *testing.T) {
+	st := model.NewUnifiedStatus("claude") // claude에는 HasQuota=false
+	st.Quota = []model.QuotaCategory{
+		{Name: "gemini", FiveH: 0.93, Weekly: 0.53},
+	}
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	if strings.Contains(output, "📊") {
+		t.Errorf("expected quota to be hidden for engine without HasQuota capability, got: %q", output)
+	}
+}
