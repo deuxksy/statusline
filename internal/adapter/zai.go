@@ -15,11 +15,11 @@ func ProviderFromBaseURL(rawURL string) string {
 	if err != nil || u.Host == "" {
 		return ""
 	}
-	host := strings.ToLower(u.Host)
+	host := strings.ToLower(u.Hostname())
 	switch {
-	case strings.Contains(host, "api.z.ai"):
+	case host == "api.z.ai":
 		return "zai"
-	case strings.Contains(host, "bigmodel.cn"):
+	case host == "bigmodel.cn" || strings.HasSuffix(host, ".bigmodel.cn"):
 		return "zhipu"
 	default:
 		return ""

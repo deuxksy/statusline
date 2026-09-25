@@ -15,6 +15,9 @@ func TestProviderFromBaseURL(t *testing.T) {
 		{"empty", "", ""},
 		{"no-host", "api.z.ai", ""}, // 스킴 없으면 Host 파싱 불가 → 미감지 (SSRF 보수 적용)
 		{"garbage", "://bad url", ""},
+		{"lookalike-zai", "https://api.z.ai.evil.com/api/anthropic", ""},
+		{"lookalike-zhipu", "https://evil-bigmodel.cn.attacker.net", ""},
+		{"port", "https://api.z.ai:8443/api/anthropic", "zai"},
 	}
 	for _, tc := range cases {
 		if got := adapter.ProviderFromBaseURL(tc.rawURL); got != tc.want {
