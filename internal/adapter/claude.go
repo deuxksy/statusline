@@ -26,6 +26,8 @@ func (c *ClaudeAdapter) Parse(input []byte, env map[string]string) (*model.Unifi
 		ActiveSkills  []string `json:"activeSkills"`
 		LastTool      string   `json:"lastTool"`
 		Cwd           string   `json:"cwd"`
+		Permission    string   `json:"permission"`
+		TerminalWidth int      `json:"terminal_width"`
 	}
 
 	if err := json.Unmarshal(input, &raw); err == nil {
@@ -65,6 +67,12 @@ func (c *ClaudeAdapter) Parse(input []byte, env map[string]string) (*model.Unifi
 		}
 		if raw.Cwd != "" {
 			st.Cwd = raw.Cwd
+		}
+		if raw.Permission != "" {
+			st.Permission = raw.Permission
+		}
+		if raw.TerminalWidth > 0 {
+			st.TerminalWidth = raw.TerminalWidth
 		}
 	}
 	return st, nil

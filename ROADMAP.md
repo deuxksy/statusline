@@ -39,12 +39,12 @@
 - [x] 출력: `📊 gemini 5h:93% wk:52% │ 3rd 5h:100% wk:22%`
 - [x] Claude Code 기본 어댑터 연동 (ContextTokens, Thinking, Skills)
 
-## 🔲 v0.3.0 — CLI 세부 옵션 고도화
+## ✅ v0.3.0 — CLI 세부 옵션 고도화 (완료)
 
-- [ ] `modelFormat` — 모델명 축약 (`short` / `full`)
-- [ ] `wrapMode` — 터미널 폭 초과 시 truncate 처리
-- [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
-- [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
+- [x] `modelFormat` — 모델명 축약 (`short` / `full`)
+- [x] `wrapMode` — 터미널 폭 초과 시 truncate(`…`) 처리 (단일행 유지 보장)
+- [x] `theme` — 테마 시스템 (`sleek_dark`, `light`, `nord`)
+- [x] `permission` — 권한 요청 상태 표시 (`🔒 WAITING` 배지)
 
 ## 🔲 v0.4.0 — OpenAI (Codex) 지원 강화
 

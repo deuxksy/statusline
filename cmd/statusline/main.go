@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"statusline/internal/adapter"
 	"statusline/internal/config"
@@ -66,6 +67,11 @@ func main() {
 	}
 	if status.Hostname == "" {
 		status.Hostname, _ = os.Hostname()
+	}
+	if status.TerminalWidth <= 0 {
+		if cols, err := strconv.Atoi(os.Getenv("COLUMNS")); err == nil && cols > 0 {
+			status.TerminalWidth = cols
+		}
 	}
 	vcs.EnrichGit(status, status.Cwd, 10)
 

@@ -35,4 +35,7 @@ func TestSaveDefaultConfig(t *testing.T) {
 	if loadedCfg.Theme != "sleek_dark" {
 		t.Errorf("expected loaded config theme to be sleek_dark, got %s", loadedCfg.Theme)
 	}
+	if !loadedCfg.Elements.Permission {
+		t.Errorf("expected loaded config permission to be true by default")
+	}
 }

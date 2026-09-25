@@ -145,3 +145,79 @@ func TestRenderQuotaCapabilityFiltering(t *testing.T) {
 		t.Errorf("expected quota to be hidden for engine without HasQuota capability, got: %q", output)
 	}
 }
+
+func TestRenderModelFormat(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Model = "Gemini 3.6 Flash (Medium)"
+
+	cfg := config.DefaultConfig()
+	cfg.Elements.ModelFormat = "short"
+	output := render.Render(st, cfg)
+	if !strings.Contains(output, "flash-med") {
+		t.Errorf("expected short model name 'flash-med', got: %q", output)
+	}
+
+	cfg.Elements.ModelFormat = "full"
+	outputFull := render.Render(st, cfg)
+	if !strings.Contains(outputFull, "Gemini 3.6 Flash (Medium)") {
+		t.Errorf("expected full model name, got: %q", outputFull)
+	}
+}
+
+func TestRenderPermissionPending(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Permission = "pending"
+
+	cfg := config.DefaultConfig()
+	cfg.Elements.Permission = true
+	output := render.Render(st, cfg)
+	if !strings.Contains(output, "WAITING") && !strings.Contains(output, "승인 대기") {
+		t.Errorf("expected permission pending indicator, got: %q", output)
+	}
+
+	cfg.Elements.Permission = false
+	outputDisabled := render.Render(st, cfg)
+	if strings.Contains(outputDisabled, "WAITING") || strings.Contains(outputDisabled, "승인 대기") {
+		t.Errorf("expected permission indicator to be hidden when disabled, got: %q", outputDisabled)
+	}
+}
+
+func TestRenderThemes(t *testing.T) {
+	st := model.NewUnifiedStatus("claude")
+	st.Model = "Claude 3.7"
+
+	themes := []string{"sleek_dark", "light", "nord"}
+	for _, theme := range themes {
+		t.Run(theme, func(t *testing.T) {
+			cfg := config.DefaultConfig()
+			cfg.Theme = theme
+			output := render.Render(st, cfg)
+			if output == "" {
+				t.Fatalf("expected non-empty output for theme %s", theme)
+			}
+			if !strings.Contains(output, "CLAUDE") {
+				t.Errorf("expected CLAUDE in theme %s, got: %q", theme, output)
+			}
+		})
+	}
+}
+
+func TestRenderWrapModeTruncate(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Model = "Gemini 3.6 Flash (Medium)"
+	st.GitBranch = "feature/very-very-long-branch-name-that-exceeds-terminal-width"
+	st.TerminalWidth = 30 // 매우 좁은 너비 지정
+
+	cfg := config.DefaultConfig()
+	cfg.WrapMode = "truncate"
+	output := render.Render(st, cfg)
+
+	if output == "" {
+		t.Fatalf("expected non-empty output")
+	}
+	// 터미널 줄바꿈 방지: 출력에 개행(\n)이 없어야 함
+	if strings.Contains(output, "\n") {
+		t.Errorf("expected single line output without newlines, got: %q", output)
+	}
+}
+

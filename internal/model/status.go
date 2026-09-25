@@ -39,6 +39,8 @@ type UnifiedStatus struct {
 
 	Quota []QuotaCategory
 
+	TerminalWidth int
+
 	Capabilities HostCapabilities
 }
 

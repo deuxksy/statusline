@@ -6,65 +6,139 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/x/ansi"
 	"statusline/internal/config"
 	"statusline/internal/model"
 )
 
-var (
-	badgeStyle = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#FFFFFF")).
-			Background(lipgloss.Color("#6366F1")).
-			Padding(0, 1)
+type ThemePalette struct {
+	BadgeBg    lipgloss.Color
+	BadgeFg    lipgloss.Color
+	BranchFg   lipgloss.Color
+	RepoFg     lipgloss.Color
+	StatusFg   lipgloss.Color
+	CwdFg      lipgloss.Color
+	HostnameFg lipgloss.Color
+	ModelFg    lipgloss.Color
+	ThinkingFg lipgloss.Color
+	SkillsFg   lipgloss.Color
+	ToolFg     lipgloss.Color
+	QuotaLabel lipgloss.Color
+	QuotaGood  lipgloss.Color
+	QuotaWarn  lipgloss.Color
+	QuotaBad   lipgloss.Color
+	WaitBg     lipgloss.Color
+	WaitFg     lipgloss.Color
+}
 
-	branchStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#10B981"))
+var themes = map[string]ThemePalette{
+	"sleek_dark": {
+		BadgeBg:    lipgloss.Color("#6366F1"),
+		BadgeFg:    lipgloss.Color("#FFFFFF"),
+		BranchFg:   lipgloss.Color("#10B981"),
+		RepoFg:     lipgloss.Color("#06B6D4"),
+		StatusFg:   lipgloss.Color("#F59E0B"),
+		CwdFg:      lipgloss.Color("#64748B"),
+		HostnameFg: lipgloss.Color("#94A3B8"),
+		ModelFg:    lipgloss.Color("#3B82F6"),
+		ThinkingFg: lipgloss.Color("#A855F7"),
+		SkillsFg:   lipgloss.Color("#EC4899"),
+		ToolFg:     lipgloss.Color("#EAB308"),
+		QuotaLabel: lipgloss.Color("#8B5CF6"),
+		QuotaGood:  lipgloss.Color("#10B981"),
+		QuotaWarn:  lipgloss.Color("#F59E0B"),
+		QuotaBad:   lipgloss.Color("#EF4444"),
+		WaitBg:     lipgloss.Color("#EF4444"),
+		WaitFg:     lipgloss.Color("#FFFFFF"),
+	},
+	"light": {
+		BadgeBg:    lipgloss.Color("#4F46E5"),
+		BadgeFg:    lipgloss.Color("#FFFFFF"),
+		BranchFg:   lipgloss.Color("#047857"),
+		RepoFg:     lipgloss.Color("#0891B2"),
+		StatusFg:   lipgloss.Color("#D97706"),
+		CwdFg:      lipgloss.Color("#475569"),
+		HostnameFg: lipgloss.Color("#64748B"),
+		ModelFg:    lipgloss.Color("#1D4ED8"),
+		ThinkingFg: lipgloss.Color("#7E22CE"),
+		SkillsFg:   lipgloss.Color("#BE185D"),
+		ToolFg:     lipgloss.Color("#B45309"),
+		QuotaLabel: lipgloss.Color("#6D28D9"),
+		QuotaGood:  lipgloss.Color("#047857"),
+		QuotaWarn:  lipgloss.Color("#D97706"),
+		QuotaBad:   lipgloss.Color("#B91C1C"),
+		WaitBg:     lipgloss.Color("#DC2626"),
+		WaitFg:     lipgloss.Color("#FFFFFF"),
+	},
+	"nord": {
+		BadgeBg:    lipgloss.Color("#5E81AC"),
+		BadgeFg:    lipgloss.Color("#ECEFF4"),
+		BranchFg:   lipgloss.Color("#A3BE8C"),
+		RepoFg:     lipgloss.Color("#88C0D0"),
+		StatusFg:   lipgloss.Color("#EBCB8B"),
+		CwdFg:      lipgloss.Color("#D8DEE9"),
+		HostnameFg: lipgloss.Color("#4C566A"),
+		ModelFg:    lipgloss.Color("#81A1C1"),
+		ThinkingFg: lipgloss.Color("#B48EAD"),
+		SkillsFg:   lipgloss.Color("#D08770"),
+		ToolFg:     lipgloss.Color("#EBCB8B"),
+		QuotaLabel: lipgloss.Color("#B48EAD"),
+		QuotaGood:  lipgloss.Color("#A3BE8C"),
+		QuotaWarn:  lipgloss.Color("#EBCB8B"),
+		QuotaBad:   lipgloss.Color("#BF616A"),
+		WaitBg:     lipgloss.Color("#BF616A"),
+		WaitFg:     lipgloss.Color("#ECEFF4"),
+	},
+}
 
-	repoStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#06B6D4"))
+func getPalette(name string) ThemePalette {
+	if p, ok := themes[name]; ok {
+		return p
+	}
+	return themes["sleek_dark"]
+}
 
-	statusStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#F59E0B")).
-			Bold(true)
+func formatModelName(name, format string) string {
+	if format != "short" {
+		return name
+	}
+	lower := strings.ToLower(name)
+	switch {
+	case strings.Contains(lower, "flash") && strings.Contains(lower, "med"):
+		return "flash-med"
+	case strings.Contains(lower, "flash"):
+		return "flash"
+	case strings.Contains(lower, "pro"):
+		return "gemini-pro"
+	case strings.Contains(lower, "sonnet"):
+		if strings.Contains(lower, "3.7") || strings.Contains(lower, "3-7") {
+			return "sonnet-3.7"
+		}
+		return "sonnet"
+	case strings.Contains(lower, "opus"):
+		return "opus"
+	case strings.Contains(lower, "haiku"):
+		if strings.Contains(lower, "3.5") || strings.Contains(lower, "3-5") {
+			return "haiku-3.5"
+		}
+		return "haiku"
+	default:
+		if len(name) > 12 {
+			return name[:10] + ".."
+		}
+		return name
+	}
+}
 
-	cwdStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#64748B"))
-
-	hostnameStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#94A3B8"))
-
-	modelStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#3B82F6")).
-			Bold(true)
-
-	thinkingStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#A855F7"))
-
-	skillsStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#EC4899"))
-
-	toolStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#EAB308"))
-
-	quotaLabelStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#8B5CF6")).
-			Bold(true)
-
-	quotaGoodStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#10B981"))
-
-	quotaWarnStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#F59E0B"))
-
-	quotaBadStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#EF4444"))
-)
-
-func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config) string {
+func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p ThemePalette) string {
 	switch item {
+	case "permission":
+		if cfg.Elements.Permission && st.Capabilities.HasPermission && (st.Permission == "pending" || st.Permission == "waiting") {
+			return lipgloss.NewStyle().Bold(true).Foreground(p.WaitFg).Background(p.WaitBg).Padding(0, 1).Render("🔒 WAITING")
+		}
 	case "hostname":
 		if cfg.Elements.Hostname && st.Hostname != "" {
-			return hostnameStyle.Render("@" + st.Hostname)
+			return lipgloss.NewStyle().Foreground(p.HostnameFg).Render("@" + st.Hostname)
 		}
 	case "cwd":
 		if cfg.Elements.Cwd && st.Cwd != "" {
@@ -77,32 +151,33 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config) str
 			if cfg.Elements.CwdFormat == "folder" {
 				val = folder
 			}
-			return cwdStyle.Render(val)
+			return lipgloss.NewStyle().Foreground(p.CwdFg).Render(val)
 		}
 	case "gitRepo":
 		if cfg.Elements.GitRepo && st.GitRepo != "" {
-			return repoStyle.Render(st.GitRepo)
+			return lipgloss.NewStyle().Foreground(p.RepoFg).Render(st.GitRepo)
 		}
 	case "gitBranch":
 		if cfg.Elements.GitBranch && st.GitBranch != "" {
-			return branchStyle.Render(" " + st.GitBranch)
+			return lipgloss.NewStyle().Foreground(p.BranchFg).Render(" " + st.GitBranch)
 		}
 	case "gitStatus":
 		if cfg.Elements.GitStatus && st.GitStatus != "" {
-			return statusStyle.Render(st.GitStatus)
+			return lipgloss.NewStyle().Foreground(p.StatusFg).Bold(true).Render(st.GitStatus)
 		}
 	case "engineLabel":
 		if cfg.Elements.EngineLabel && st.EngineName != "" {
 			label := strings.ToUpper(st.EngineName)
-			return badgeStyle.Render(label)
+			return lipgloss.NewStyle().Bold(true).Foreground(p.BadgeFg).Background(p.BadgeBg).Padding(0, 1).Render(label)
 		}
 	case "model":
 		if cfg.Elements.Model && st.Model != "" {
-			return modelStyle.Render(st.Model)
+			displayName := formatModelName(st.Model, cfg.Elements.ModelFormat)
+			return lipgloss.NewStyle().Foreground(p.ModelFg).Bold(true).Render(displayName)
 		}
 	case "thinking":
 		if cfg.Elements.Thinking && st.Capabilities.HasThinking && st.ThinkingState != "" {
-			return thinkingStyle.Render("🧠 " + st.ThinkingState)
+			return lipgloss.NewStyle().Foreground(p.ThinkingFg).Render("🧠 " + st.ThinkingState)
 		}
 	case "contextBar":
 		if cfg.Elements.ContextBar && cfg.Elements.ShowTokens && st.Capabilities.HasTokens && st.ContextTokens > 0 {
@@ -114,38 +189,39 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config) str
 		}
 	case "activeSkills":
 		if cfg.Elements.ActiveSkills && st.Capabilities.HasSkills && len(st.ActiveSkills) > 0 {
-			return skillsStyle.Render("⚡ " + strings.Join(st.ActiveSkills, ","))
+			return lipgloss.NewStyle().Foreground(p.SkillsFg).Render("⚡ " + strings.Join(st.ActiveSkills, ","))
 		}
 	case "lastTool":
 		if cfg.Elements.LastTool && st.Capabilities.HasTools && st.LastTool != "" {
-			return toolStyle.Render("🔧 " + st.LastTool)
+			return lipgloss.NewStyle().Foreground(p.ToolFg).Render("🔧 " + st.LastTool)
 		}
 	case "quota":
 		if cfg.Elements.Quota && st.Capabilities.HasQuota && len(st.Quota) > 0 {
-			return renderQuota(st.Quota)
+			return renderQuota(st.Quota, p)
 		}
 	}
 	return ""
 }
 
 // quotaColor — 잔여 비율에 따라 색상 스타일 반환
-func quotaColor(fraction float64) lipgloss.Style {
+func quotaColor(fraction float64, p ThemePalette) lipgloss.Style {
 	pct := fraction * 100
 	if pct > 50 {
-		return quotaGoodStyle
+		return lipgloss.NewStyle().Foreground(p.QuotaGood)
 	} else if pct >= 20 {
-		return quotaWarnStyle
+		return lipgloss.NewStyle().Foreground(p.QuotaWarn)
 	}
-	return quotaBadStyle
+	return lipgloss.NewStyle().Foreground(p.QuotaBad)
 }
 
 // renderQuota — 카테고리별 5h/wk 렌더링
-func renderQuota(categories []model.QuotaCategory) string {
+func renderQuota(categories []model.QuotaCategory, p ThemePalette) string {
+	labelStyle := lipgloss.NewStyle().Foreground(p.QuotaLabel).Bold(true)
 	var parts []string
 	for _, cat := range categories {
-		label := quotaLabelStyle.Render(cat.Name)
-		fiveH := quotaColor(cat.FiveH).Render(fmt.Sprintf("5h:%d%%", int(cat.FiveH*100)))
-		weekly := quotaColor(cat.Weekly).Render(fmt.Sprintf("wk:%d%%", int(cat.Weekly*100)))
+		label := labelStyle.Render(cat.Name)
+		fiveH := quotaColor(cat.FiveH, p).Render(fmt.Sprintf("5h:%d%%", int(cat.FiveH*100)))
+		weekly := quotaColor(cat.Weekly, p).Render(fmt.Sprintf("wk:%d%%", int(cat.Weekly*100)))
 		parts = append(parts, fmt.Sprintf("%s %s %s", label, fiveH, weekly))
 	}
 	return "📊 " + strings.Join(parts, " │ ")
@@ -156,33 +232,49 @@ func Render(st *model.UnifiedStatus, cfg *config.Config) string {
 		return ""
 	}
 
+	palette := getPalette(cfg.Theme)
+
 	var line1Segments []string
 	for _, item := range cfg.Layout.Line1 {
-		if seg := renderSegment(item, st, cfg); seg != "" {
+		if seg := renderSegment(item, st, cfg, palette); seg != "" {
 			line1Segments = append(line1Segments, seg)
 		}
 	}
 
 	var mainSegments []string
 	for _, item := range cfg.Layout.Main {
-		if seg := renderSegment(item, st, cfg); seg != "" {
+		if seg := renderSegment(item, st, cfg, palette); seg != "" {
 			mainSegments = append(mainSegments, seg)
 		}
 	}
 
 	// Fallback if layout iteration yields nothing but we have engine label
 	if len(mainSegments) == 0 && cfg.Elements.EngineLabel && st.EngineName != "" {
-		mainSegments = append(mainSegments, badgeStyle.Render(strings.ToUpper(st.EngineName)))
+		badge := lipgloss.NewStyle().Bold(true).Foreground(palette.BadgeFg).Background(palette.BadgeBg).Padding(0, 1)
+		mainSegments = append(mainSegments, badge.Render(strings.ToUpper(st.EngineName)))
 	}
 
 	line1 := strings.Join(line1Segments, " ")
 	main := strings.Join(mainSegments, " │ ")
 
+	result := ""
 	if line1 != "" {
 		if main != "" {
-			return line1 + " │ " + main
+			result = line1 + " │ " + main
+		} else {
+			result = line1
 		}
-		return line1
+	} else {
+		result = main
 	}
-	return main
+
+	// wrapMode 처리 (truncate)
+	if cfg.WrapMode == "truncate" && st.TerminalWidth > 0 {
+		w := ansi.StringWidth(result)
+		if w > st.TerminalWidth {
+			result = ansi.Truncate(result, st.TerminalWidth, "…")
+		}
+	}
+
+	return result
 }

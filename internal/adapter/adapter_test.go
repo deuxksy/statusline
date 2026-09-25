@@ -101,7 +101,9 @@ func TestAntigravityAdapterRealPayload(t *testing.T) {
 		"agent_state": "tool_use",
 		"workspace": {
 			"current_dir": "/home/crong/git/statusline"
-		}
+		},
+		"tool_confirmation_pending": true,
+		"terminal_width": 209
 	}`)
 
 	status, err := a.Parse(jsonPayload, map[string]string{})
@@ -123,6 +125,12 @@ func TestAntigravityAdapterRealPayload(t *testing.T) {
 	}
 	if status.Cwd != "/home/crong/git/statusline" {
 		t.Errorf("expected cwd /home/crong/git/statusline, got %s", status.Cwd)
+	}
+	if status.Permission != "pending" {
+		t.Errorf("expected permission pending, got %s", status.Permission)
+	}
+	if status.TerminalWidth != 209 {
+		t.Errorf("expected terminal width 209, got %d", status.TerminalWidth)
 	}
 }
 

@@ -22,6 +22,7 @@ type ElementsConfig struct {
 	LastTool     bool   `json:"lastTool"`
 	Thinking     bool   `json:"thinking"`
 	Quota        bool   `json:"quota"`
+	Permission   bool   `json:"permission"`
 }
 
 type ThresholdsConfig struct {
@@ -62,6 +63,7 @@ func DefaultConfig() *Config {
 			LastTool:     true,
 			Thinking:     true,
 			Quota:        true,
+			Permission:   true,
 		},
 		Thresholds: ThresholdsConfig{
 			ContextWarning:  70,
@@ -71,7 +73,7 @@ func DefaultConfig() *Config {
 		Theme:    "sleek_dark",
 		Layout: LayoutConfig{
 			Line1: []string{"hostname", "cwd", "gitRepo", "gitBranch", "gitStatus"},
-			Main:  []string{"engineLabel", "model", "thinking", "contextBar", "tokens", "quota", "activeSkills", "lastTool"},
+			Main:  []string{"permission", "engineLabel", "model", "thinking", "contextBar", "tokens", "quota", "activeSkills", "lastTool"},
 		},
 	}
 }

@@ -41,6 +41,8 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 		Quota map[string]struct {
 			RemainingFraction float64 `json:"remaining_fraction"`
 		} `json:"quota"`
+		ToolConfirmationPending bool `json:"tool_confirmation_pending"`
+		TerminalWidth          int  `json:"terminal_width"`
 	}
 
 	if err := json.Unmarshal(input, &raw); err == nil {
@@ -129,6 +131,12 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 					st.Quota = append(st.Quota, *cat)
 				}
 			}
+		}
+		if raw.ToolConfirmationPending {
+			st.Permission = "pending"
+		}
+		if raw.TerminalWidth > 0 {
+			st.TerminalWidth = raw.TerminalWidth
 		}
 	}
 	return st, nil
