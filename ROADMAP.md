@@ -38,17 +38,20 @@
 - [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
 - [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
 
-## 🔲 v1.0.0 — GUI 위젯 지원
+## 🔲 v1.0.0 — 경량 트레이 위젯 (`fyne-io/systray`)
 
-- [ ] **1단계: 경량 시스템 트레이/메뉴바 (`fyne-io/systray`)**
-  - **macOS** — 상단 메뉴바 위젯 (텍스트 & 아이콘 표시)
-  - **Windows** — 시스템 트레이 위젯 (툴팁 및 팝업 메뉴)
-  - 공통 단일 Go 바이너리로 최소 리소스 동작
-  - CLI → GUI 공유 데이터 레이어 (IPC / JSON 파일 / 소켓 감시)
-- [ ] **2단계: 리치 팝업 UI/대시보드 (필요 시 `Wails` 확장)**
-  - 실시간 quota 대시보드 (Gemini, Anthropic, OpenAI, Z.AI)
-  - Context 사용량 시각화 (프로그레스 바, 차트 UI)
-  - 알림 시스템 (quota 임계치 도달 시 OS 네이티브 알림)
+- [ ] **macOS** — 상단 메뉴바 위젯 (텍스트 `SetTitle` 및 아이콘 표시)
+- [ ] **Windows** — 시스템 트레이 위젯 (툴팁 및 네이티브 팝업 메뉴)
+- [ ] 단일 Go 바이너리로 최소 리소스(초경량/저전력) 구동
+- [ ] CLI ↔ Tray 간 공유 데이터 레이어 (IPC / 상태 파일 / 소켓 감시)
+
+## 🔲 v2.0.0 — 리치 팝업 UI & 대시보드 (`Wails`)
+
+- [ ] Wails 내장 트레이 기반 마이그레이션 (기존 백엔드 Go 비즈니스 로직 100% 재사용)
+- [ ] 트레이 클릭 시 플로팅 팝업 창 (Webview 기반 미니 대시보드)
+- [ ] 실시간 Quota 모니터링 카드 (Gemini, Anthropic, OpenAI, Z.AI)
+- [ ] Context 사용량 시각화 (프로그레스 바, 실시간 차트 UI)
+- [ ] OS 네이티브 알림 시스템 (Quota 고갈 위험 시 푸시 알림)
 
 ## 💡 아이디어
 
