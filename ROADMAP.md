@@ -64,6 +64,13 @@
 - [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
 - [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
 
+## 🔲 v0.7.0 — 구독 플랜 & 연결된 계정 비용 (Cost/Billing) 추적
+
+- [ ] AI 호스트별 구독 플랜 인식 및 표시 (Google AI Pro/Ultra, Claude Pro/Team, ChatGPT Plus/Team)
+- [ ] 연결된 계정별 API 토큰 누적 비용(`total_cost`) 및 사용 금액 실시간 추적
+- [ ] 일일/월간 예산 한도(Budget Limit) 설정 및 임계치 도달 경고 표시
+- [ ] 비용 표시 포맷 옵션 (통화 단위, 소수점 자릿수 등)
+
 ## 🔲 v0.8.0 — 동일 프로바이더 다중 계정 (Multiple Accounts) 지원
 
 - [ ] 동일 서비스(예: OpenAI #1 회사, OpenAI #2 개인) 다중 계정 식별 및 라벨링
