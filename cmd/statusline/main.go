@@ -126,9 +126,11 @@ func main() {
 
 	// Environment mapping
 	env := map[string]string{
-		"CLAUDE_CONFIG_DIR":   os.Getenv("CLAUDE_CONFIG_DIR"),
-		"ANTIGRAVITY_APP_DIR": os.Getenv("ANTIGRAVITY_APP_DIR"),
-		"CODEX_ENV":           os.Getenv("CODEX_ENV"),
+		"CLAUDE_CONFIG_DIR":    os.Getenv("CLAUDE_CONFIG_DIR"),
+		"ANTIGRAVITY_APP_DIR":  os.Getenv("ANTIGRAVITY_APP_DIR"),
+		"CODEX_ENV":            os.Getenv("CODEX_ENV"),
+		"ANTHROPIC_BASE_URL":   os.Getenv("ANTHROPIC_BASE_URL"),
+		"ANTHROPIC_AUTH_TOKEN": os.Getenv("ANTHROPIC_AUTH_TOKEN"),
 	}
 
 	cfg := config.LoadConfig(configPath)
@@ -148,6 +150,7 @@ func main() {
 		}
 	}
 	vcs.EnrichGit(status, status.Cwd, 10)
+	collect.AttachZaiQuota(status, 5*time.Minute, env["ANTHROPIC_AUTH_TOKEN"])
 
 	output := render.Render(status, cfg)
 	if output != "" {
