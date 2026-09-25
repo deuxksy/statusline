@@ -38,10 +38,18 @@
 - [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
 - [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
 
+## 🔲 v0.8.0 — 다중 계정 (Multiple Accounts) 지원
+
+- [ ] 페이로드 계정 메타데이터 추출 (`email`, `plan_tier`)
+- [ ] 계정별 상태 캐시 레이어 (`~/.cache/statusline/accounts/<email>.json`)
+- [ ] 다중 계정 Quota 집계 및 전환 감지
+- [ ] CLI에서 현재 활성 계정 또는 위험(잔여 최소) 계정 Quota 우선 표시 옵션
+
 ## 🔲 v1.0.0 — 경량 트레이 위젯 (`fyne-io/systray`)
 
 - [ ] **macOS** — 상단 메뉴바 위젯 (텍스트 `SetTitle` 및 아이콘 표시)
 - [ ] **Windows** — 시스템 트레이 위젯 (툴팁 및 네이티브 팝업 메뉴)
+- [ ] **다중 계정 드롭다운 메뉴** (계정별 Quota 분리 표시 및 활성 계정 상태 표시)
 - [ ] 단일 Go 바이너리로 최소 리소스(초경량/저전력) 구동
 - [ ] CLI ↔ Tray 간 공유 데이터 레이어 (IPC / 상태 파일 / 소켓 감시)
 
