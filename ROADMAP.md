@@ -72,13 +72,21 @@
 - [ ] CLI 상태바에서 활성 계정 또는 위험(잔여 최소) 계정 선택 노출 옵션
   - 예: `oai[work] 5h:80% │ oai[pers] 5h:20% ⚠️`
 
-## 🔲 v1.0.0 — 경량 트레이 위젯 (`fyne-io/systray`)
+## 🔲 v0.9.0 — GUI 트레이 위젯 최초 도입 (`fyne-io/systray`)
 
 - [ ] **macOS** — 상단 메뉴바 위젯 (텍스트 `SetTitle` 및 아이콘 표시)
 - [ ] **Windows** — 시스템 트레이 위젯 (툴팁 및 네이티브 팝업 메뉴)
-- [ ] **다중 계정 드롭다운 메뉴** (계정별 Quota 분리 표시 및 활성 계정 상태 표시)
 - [ ] 단일 Go 바이너리로 최소 리소스(초경량/저전력) 구동
 - [ ] CLI ↔ Tray 간 공유 데이터 레이어 (IPC / 상태 파일 / 소켓 감시)
+- [ ] 다중 계정 드롭다운 메뉴 (계정별 Quota 및 활성 상태 분리 표시)
+
+## 🔲 v1.0.0 — 공식 정식 릴리스 & 비용(Cost) 추적 🚀
+
+- [ ] **공식 첫 정식 릴리스 (General Availability)**
+- [ ] **비용 (Cost / Billing) 모니터링 연동**:
+  - Anthropic / OpenAI 누적 토큰 비용(`total_cost`) 및 일일/월간 사용 금액 표시
+  - 예산 한도(Budget Limit) 도달 시 경고 표시
+- [ ] CLI 상태바 및 GUI 트레이 위젯 안정화 및 릴리스 배포 패키징 (Homebrew, Scoop, GoReleaser)
 
 ## 🔲 v2.0.0 — 리치 팝업 UI & 대시보드 (`Wails`)
 
