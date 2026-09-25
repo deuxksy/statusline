@@ -19,19 +19,28 @@
 - [x] Active Skills / Last Tool 표시
 - [x] OKF/Diátaxis 문서 체계
 
-## ✅ v0.2.0 — Quota 표시 (완료)
+## ✅ v0.2.0 — Antigravity Quota 표시 (완료)
 
 - [x] Antigravity quota 파싱
   - `gemini` — Gemini 자체 모델 quota
   - `3rd` — Gemini에서 사용하는 외부 모델 quota
 - [x] 잔여 비율별 색상 (초록 >50% / 노랑 20~50% / 빨강 <20%)
 - [x] 출력: `📊 gemini 5h:93% wk:52% │ 3rd 5h:100% wk:22%`
-- [ ] 각 프로바이더 자체 사용량 추적
-  - Anthropic — Claude Code 사용량
-  - OpenAI — Codex 사용량
-  - Z.AI — Z.AI 사용량
+- [x] Claude Code 기본 어댑터 연동 (ContextTokens, Thinking, Skills)
 
-## 🔲 v0.3.0 — 미구현 (Config에 선언만 존재)
+## 🔲 v0.3.0 — OpenAI (Codex) 지원 강화
+
+- [ ] OpenAI Codex 어댑터 고도화 (현재 최소 기본 구현)
+- [ ] Codex 실행 컨텍스트 및 토큰/사용량 데이터 파싱
+- [ ] OpenAI 사용량/비용 모니터링 연동
+
+## 🔲 v0.4.0 — Z.AI 지원
+
+- [ ] Z.AI CLI 전용 어댑터 신규 개발 (`internal/adapter/zai.go`)
+- [ ] Auto-detection 판별기에 Z.AI 페이로드 및 환경변수 감지 추가
+- [ ] Z.AI 모델 및 실시간 사용량 표시
+
+## 🔲 v0.5.0 — CLI 세부 옵션 고도화
 
 - [ ] `modelFormat` — 모델명 축약 (`short` / `full`)
 - [ ] `wrapMode` — 터미널 폭 초과 시 truncate 처리
