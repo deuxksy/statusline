@@ -58,14 +58,15 @@
 - [X] Rate limits 및 잔여 쿼터 실시간 표시
 - [X] Codex / OpenAI 읽기 전용 능동 수집기 및 스트림 감시 구현 (`statusline collect`, `statusline watch`)
 
-## 🔲 v0.5.0 — Z.AI 완전 지원
+## ✅ v0.5.0 — Z.AI 완전 지원 (완료)
 
-- [ ] Z.AI CLI 전용 어댑터 신규 개발 (`internal/adapter/zai.go`)
-- [ ] Auto-detection 판별기에 Z.AI 페이로드 및 환경변수 감지 추가
-- [ ] Z.AI 모델, 잔여 크레딧 및 실시간 사용량/구독 플랜 표시
+- [X] Z.AI provider 감지 어댑터 (`internal/adapter/zai.go`) — `ANTHROPIC_BASE_URL` 도메인 + `glm-` 모델 폴백
+- [X] Auto-detection 판별기에 Z.AI provider 감지 추가 (claude 엔진 내 provider 주입)
+- [X] Z.AI quota 수집 (`collect --provider=zai`) 및 캐시 브리지 — 5h 토큰/월간 MCP 잔여율 + reset 카운트다운 상태바 표시
 
 ## 🔲 v0.6.0 — Anthropic (Claude Code) 완전 지원
 
+- [ ] Anthropic OAuth usage API 연동 (`api.anthropic.com/api/oauth/usage`, Keychain 자격 증명) — OMC HUD `usage-api.js`·claude-hud 참조
 - [ ] Claude Code 페이로드의 토큰 및 누적 비용(`total_cost`) 모니터링 연동
 - [ ] 세션 및 일일/월간 Quota 잔여량 파싱 및 표시
 - [ ] 구독 플랜 인식 (Claude Pro / Team / Enterprise)
@@ -121,10 +122,13 @@
   - macOS Keychain / Windows Credential Manager (`zalando/go-keyring`) 연동
 - [ ] 트레이 클릭 시 플로팅 팝업 창 (Webview 기반 미니 대시보드)
 - [ ] 실시간 Quota 모니터링 카드 (Gemini, Anthropic, OpenAI, Z.AI)
+- [ ] 상세 사용량 리포트 (모델별/시간별/도구별 — Z.AI `model-usage`·`tool-usage` API, `glm-plan-usage:usage-query` 참조)
 - [ ] Context 사용량 시각화 (프로그레스 바, 실시간 차트 UI)
 - [ ] OS 네이티브 알림 시스템 (Quota 고갈 위험 시 푸시 알림)
 
 ## 💡 아이디어
+
+- [ ] 제3자 provider 어댑터 확장 (MiniMax, Kimi/Moonshot) — Z.AI 어댑터 dispatch 패턴 재사용, OMC HUD `usage-api.js` 참조
 
 - [ ] Quota reset 시간 표시 (`reset_in_seconds` 활용)
 - [ ] Context 임계치 색상 (`thresholds.contextWarning/Critical` 활용)

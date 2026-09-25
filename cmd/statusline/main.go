@@ -11,6 +11,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
 
 	"statusline/internal/adapter"
@@ -49,6 +50,29 @@ func main() {
 		return
 	}
 	if flag.NArg() > 0 && flag.Arg(0) == "collect" {
+		provider := ""
+		for _, a := range flag.Args()[1:] {
+			if strings.HasPrefix(a, "--provider=") {
+				provider = strings.TrimPrefix(a, "--provider=")
+			}
+		}
+		if provider == "zai" || provider == "zhipu" {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			cachePath, err := collect.ZaiCachePath()
+			if err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			// 플래그 값은 플로우 선택용 — 실제 provider는 env URL 기준
+			zaiProvider := adapter.ProviderFromBaseURL(os.Getenv("ANTHROPIC_BASE_URL"))
+			result := collect.RunZaiCollect(ctx, &http.Client{Timeout: 5 * time.Second}, os.Getenv("ANTHROPIC_BASE_URL"), os.Getenv("ANTHROPIC_AUTH_TOKEN"), zaiProvider, cachePath, collect.ZaiRefreshPath(cachePath))
+			if err := json.NewEncoder(os.Stdout).Encode(result); err != nil {
+				fmt.Fprintln(os.Stderr, err)
+				os.Exit(1)
+			}
+			return
+		}
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		result := struct {
@@ -102,9 +126,11 @@ func main() {
 
 	// Environment mapping
 	env := map[string]string{
-		"CLAUDE_CONFIG_DIR":   os.Getenv("CLAUDE_CONFIG_DIR"),
-		"ANTIGRAVITY_APP_DIR": os.Getenv("ANTIGRAVITY_APP_DIR"),
-		"CODEX_ENV":           os.Getenv("CODEX_ENV"),
+		"CLAUDE_CONFIG_DIR":    os.Getenv("CLAUDE_CONFIG_DIR"),
+		"ANTIGRAVITY_APP_DIR":  os.Getenv("ANTIGRAVITY_APP_DIR"),
+		"CODEX_ENV":            os.Getenv("CODEX_ENV"),
+		"ANTHROPIC_BASE_URL":   os.Getenv("ANTHROPIC_BASE_URL"),
+		"ANTHROPIC_AUTH_TOKEN": os.Getenv("ANTHROPIC_AUTH_TOKEN"),
 	}
 
 	cfg := config.LoadConfig(configPath)
@@ -124,6 +150,7 @@ func main() {
 		}
 	}
 	vcs.EnrichGit(status, status.Cwd, 10)
+	collect.AttachZaiQuota(status, 5*time.Minute, env["ANTHROPIC_AUTH_TOKEN"])
 
 	output := render.Render(status, cfg)
 	if output != "" {
