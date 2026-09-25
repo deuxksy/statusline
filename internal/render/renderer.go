@@ -2,8 +2,10 @@ package render
 
 import (
 	"fmt"
+	"math"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/x/ansi"
@@ -221,6 +223,9 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 		}
 	case "quota":
 		if cfg.Elements.Quota && st.Capabilities.HasQuota && len(st.Quota) > 0 {
+			if st.Provider == "zai" || st.Provider == "zhipu" {
+				return renderZaiQuota(st.Quota, p)
+			}
 			return renderQuota(st.Quota, p)
 		}
 	}
@@ -301,4 +306,59 @@ func Render(st *model.UnifiedStatus, cfg *config.Config) string {
 	}
 
 	return result
+}
+
+// formatResetCountdown — Unix(ms) 리셋 시각을 "18d19h"/"4h46m" 카운트다운으로. 경과·무효는 ""
+func formatResetCountdown(unixMs int64, now time.Time) string {
+	if unixMs <= 0 {
+		return ""
+	}
+	d := time.UnixMilli(unixMs).Sub(now)
+	if d <= 0 {
+		return ""
+	}
+	totalHours := int(d.Hours())
+	if days := totalHours / 24; days > 0 {
+		return fmt.Sprintf("%dd%dh", days, totalHours%24)
+	}
+	return fmt.Sprintf("%dh%dm", totalHours, int(d.Minutes())%60)
+}
+
+// formatZaiQuota — Z.AI quota 순수 텍스트 형태: "zai 5h:97%(4h46m) mo:66%(18d19h)"
+// 카운트다운은 reset 값이 있을 때만 붙는다. 0%도 유효값이다.
+func formatZaiQuota(cats []model.QuotaCategory, now time.Time) string {
+	if len(cats) == 0 {
+		return ""
+	}
+	cat := cats[0]
+	fiveH := fmt.Sprintf("5h:%d%%", int(math.Round(cat.FiveH*100)))
+	if cd := formatResetCountdown(cat.FiveHResetsAt, now); cd != "" {
+		fiveH += "(" + cd + ")"
+	}
+	mcp := fmt.Sprintf("mo:%d%%", int(math.Round(cat.Monthly*100)))
+	if cd := formatResetCountdown(cat.MonthlyResetsAt, now); cd != "" {
+		mcp += "(" + cd + ")"
+	}
+	return cat.Name + " " + fiveH + " " + mcp
+}
+
+// renderZaiQuota — formatZaiQuota의 스타일 버전 (📊 prefix, 라벨·비율별 색상)
+func renderZaiQuota(cats []model.QuotaCategory, p ThemePalette) string {
+	if len(cats) == 0 {
+		return ""
+	}
+	now := time.Now()
+	cat := cats[0]
+	label := lipgloss.NewStyle().Foreground(p.QuotaLabel).Bold(true).Render(cat.Name)
+	fiveH := fmt.Sprintf("5h:%d%%", int(math.Round(cat.FiveH*100)))
+	if cd := formatResetCountdown(cat.FiveHResetsAt, now); cd != "" {
+		fiveH += "(" + cd + ")"
+	}
+	mcp := fmt.Sprintf("mo:%d%%", int(math.Round(cat.Monthly*100)))
+	if cd := formatResetCountdown(cat.MonthlyResetsAt, now); cd != "" {
+		mcp += "(" + cd + ")"
+	}
+	fiveHPart := quotaColor(cat.FiveH, p).Render(fiveH)
+	mcpPart := quotaColor(cat.Monthly, p).Render(mcp)
+	return "📊 " + label + " " + fiveHPart + " " + mcpPart
 }
