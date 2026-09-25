@@ -40,12 +40,15 @@
 
 ## 🔲 v1.0.0 — GUI 위젯 지원
 
-- [ ] **macOS** — 메뉴바 위젯
-- [ ] **Windows** — 시스템 트레이 위젯
-- [ ] 실시간 quota 대시보드 (Gemini, Anthropic, OpenAI, Z.AI)
-- [ ] Context 사용량 시각화 (프로그레스 바, 차트)
-- [ ] 알림 시스템 (quota 임계치 도달 시 알림)
-- [ ] CLI → GUI 공유 데이터 레이어 (JSON 파이프 + 소켓/IPC)
+- [ ] **1단계: 경량 시스템 트레이/메뉴바 (`fyne-io/systray`)**
+  - **macOS** — 상단 메뉴바 위젯 (텍스트 & 아이콘 표시)
+  - **Windows** — 시스템 트레이 위젯 (툴팁 및 팝업 메뉴)
+  - 공통 단일 Go 바이너리로 최소 리소스 동작
+  - CLI → GUI 공유 데이터 레이어 (IPC / JSON 파일 / 소켓 감시)
+- [ ] **2단계: 리치 팝업 UI/대시보드 (필요 시 `Wails` 확장)**
+  - 실시간 quota 대시보드 (Gemini, Anthropic, OpenAI, Z.AI)
+  - Context 사용량 시각화 (프로그레스 바, 차트 UI)
+  - 알림 시스템 (quota 임계치 도달 시 OS 네이티브 알림)
 
 ## 💡 아이디어
 
