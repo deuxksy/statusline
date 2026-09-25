@@ -58,11 +58,11 @@
 - [X] Rate limits 및 잔여 쿼터 실시간 표시
 - [X] Codex / OpenAI 읽기 전용 능동 수집기 및 스트림 감시 구현 (`statusline collect`, `statusline watch`)
 
-## 🔲 v0.5.0 — Z.AI 완전 지원
+## ✅ v0.5.0 — Z.AI 완전 지원 (완료)
 
-- [ ] Z.AI CLI 전용 어댑터 신규 개발 (`internal/adapter/zai.go`)
-- [ ] Auto-detection 판별기에 Z.AI 페이로드 및 환경변수 감지 추가
-- [ ] Z.AI 모델, 잔여 크레딧 및 실시간 사용량/구독 플랜 표시
+- [X] Z.AI provider 감지 어댑터 (`internal/adapter/zai.go`) — `ANTHROPIC_BASE_URL` 도메인 + `glm-` 모델 폴백
+- [X] Auto-detection 판별기에 Z.AI provider 감지 추가 (claude 엔진 내 provider 주입)
+- [X] Z.AI quota 수집 (`collect --provider=zai`) 및 캐시 브리지 — 5h 토큰/월간 MCP 잔여율 + reset 카운트다운 상태바 표시
 
 ## 🔲 v0.6.0 — Anthropic (Claude Code) 완전 지원
 

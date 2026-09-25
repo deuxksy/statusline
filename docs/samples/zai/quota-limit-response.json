@@ -1,0 +1,7 @@
+{
+  "limits": [
+    { "type": "TOKENS_LIMIT", "percentage": 1, "unit": 1, "nextResetTime": 1761368400000 },
+    { "type": "TOKENS_LIMIT", "percentage": 10, "unit": 6, "nextResetTime": 1762923600000 },
+    { "type": "TIME_LIMIT", "percentage": 34, "currentValue": 341, "usage": 1000, "usageDetails": { "search-prime": 303, "web-reader": 33, "zread": 5 }, "nextResetTime": 1764644400000 }
+  ]
+}

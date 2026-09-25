@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// ZaiCachePath — XDG ~/.cache/statusline/zai.json
+// ZaiCachePath — os.UserCacheDir 기반 캐시 경로 (Linux: ~/.cache/statusline/zai.json, macOS: ~/Library/Caches/statusline/zai.json)
 func ZaiCachePath() (string, error) {
 	dir, err := os.UserCacheDir()
 	if err != nil {
