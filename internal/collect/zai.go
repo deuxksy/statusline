@@ -195,3 +195,37 @@ func sortBy(xs []zaiLimit, less func(a, b zaiLimit) bool) []zaiLimit {
 	}
 	return out
 }
+
+// ZaiCollectResult — statusline collect --provider=zai 출력 형태
+type ZaiCollectResult struct {
+	Zai    *ZaiSnapshot      `json:"zai,omitempty"`
+	Errors map[string]string `json:"errors,omitempty"`
+}
+
+// RunZaiCollect — 조회 → 캐시 기록 → marker 제거까지의 CLI 플로우.
+// 실패 시 기존 캐시·marker를 유지한다(재시도 백프레셔).
+func RunZaiCollect(ctx context.Context, client *http.Client, baseURL, authToken, provider, cachePath, refreshPath string) ZaiCollectResult {
+	var result ZaiCollectResult
+	fail := func(msg string) ZaiCollectResult {
+		return ZaiCollectResult{Errors: map[string]string{"zai": msg}}
+	}
+	if baseURL == "" {
+		return fail("zai: ANTHROPIC_BASE_URL is not set")
+	}
+	if provider == "" {
+		return fail("zai: unrecognized ANTHROPIC_BASE_URL (api.z.ai / bigmodel.cn만 지원)")
+	}
+	if authToken == "" {
+		return fail("zai: ANTHROPIC_AUTH_TOKEN is not set")
+	}
+	snap, err := Zai(ctx, client, baseURL, authToken, provider)
+	if err != nil {
+		return fail(err.Error())
+	}
+	if err := WriteZaiCacheAt(cachePath, snap); err != nil {
+		return fail(err.Error())
+	}
+	ClearZaiRefreshAt(refreshPath)
+	result.Zai = &snap
+	return result
+}
