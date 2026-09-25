@@ -21,12 +21,15 @@
 
 ## ✅ v0.2.0 — Quota 표시 (완료)
 
-- [x] Antigravity quota 파싱 (gemini/3p 카테고리 그룹핑)
-- [x] 대상 프로바이더: **Gemini**, **Anthropic**, **OpenAI**, **Z.AI**
-  - `gemini` — Gemini 모델 전용 quota
-  - `3rd` — Anthropic, OpenAI, Z.AI 등 서드파티 공유 quota
+- [x] Antigravity quota 파싱
+  - `gemini` — Gemini 자체 모델 quota
+  - `3rd` — Gemini에서 사용하는 외부 모델 quota
 - [x] 잔여 비율별 색상 (초록 >50% / 노랑 20~50% / 빨강 <20%)
 - [x] 출력: `📊 gemini 5h:93% wk:52% │ 3rd 5h:100% wk:22%`
+- [ ] 각 프로바이더 자체 사용량 추적
+  - Anthropic — Claude Code 사용량
+  - OpenAI — Codex 사용량
+  - Z.AI — Z.AI 사용량
 
 ## 🔲 v0.3.0 — 미구현 (Config에 선언만 존재)
 
