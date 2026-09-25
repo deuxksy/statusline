@@ -24,6 +24,7 @@ Thumbs.db
 # Project specific local state
 .omc/
 .superpowers/
+.serena/
 key.txt
 
 

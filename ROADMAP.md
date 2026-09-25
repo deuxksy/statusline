@@ -5,79 +5,90 @@
 ---
 
 ### 🎯 핵심 로드맵 전략
-1. **Phase 1 (~ v0.8.0)**: **터미널 CLI 상태바(statusline) 완성**
+
+1. **Phase 1 (~ v0.7.0)**: **터미널 CLI 상태바(statusline) 완성**
    - Claude Code, Codex, Antigravity, Z.AI 환경에서 단일행 고성능 스트림 필터로 완벽 동작
-   - 각 프로바이더별 Quota, 토큰, 사용량 및 다중 계정 파싱 로직 안정화
-2. **Phase 2 (v1.0.0 ~)**: **OS 시스템 트레이 위젯 (`fyne-io/systray`)**
-   - CLI에서 검증된 비즈니스 로직을 100% 재사용하여 macOS 메뉴바/Windows 트레이 지원
-3. **Phase 3 (v2.0.0 ~)**: **리치 플로팅 대시보드 (`Wails`)**
+   - 각 프로바이더별 Quota, 토큰, 사용량, 구독 플랜 및 다중 계정 파싱 로직 안정화
+2. **Phase 2 (v0.8.0 ~ v0.9.0)**: **GUI 에이전트 연동 & OS 시스템 트레이 위젯 (`fyne-io/systray`)**
+   - VS Code, Antigravity IDE, Codex/Claude Work 등 GUI 에이전트 사용량 측정 및 공통 캐시 적재
+   - CLI/GUI 공통 데이터를 macOS 메뉴바/Windows 트레이에서 실시간 표출
+3. **Phase 3 (v1.0.0)**: **공식 정식 릴리스 & 상용화 (Commercial Launch)**
+   - Community(무료): CLI 상태바 / Pro(유료): GUI 위젯 + GUI 에이전트 모니터링 + 다중 계정
+4. **Phase 4 (v2.0.0 ~)**: **리치 플로팅 대시보드 (`Wails`)**
    - 트레이 클릭 시 Webview 팝업 창을 통한 차트 및 상세 카드 제공
 
 ---
 
 ## ✅ v0.1.0 — 기반 구축 (완료)
 
-- [x] Go 모듈 초기화 및 UnifiedStatus 모델
-- [x] Config 시스템 (임베디드 기본값, `statusline init`)
-- [x] CLI 어댑터 (Claude, Codex, Antigravity)
-- [x] Auto-detection 판별기 (stdin JSON + 환경변수)
-- [x] Git 메타데이터 직접 읽기 (repo, branch, dirty)
-- [x] 10ms deadline Git status 체크
-- [x] Lipgloss ANSI 렌더러
-- [x] 레이아웃 시스템 (line1 + main)
-- [x] Context 토큰 사용량 (bar/percentage)
-- [x] Thinking/Agent 상태 표시
-- [x] Active Skills / Last Tool 표시
-- [x] OKF/Diátaxis 문서 체계
+- [X] Go 모듈 초기화 및 UnifiedStatus 모델
+- [X] Config 시스템 (임베디드 기본값, `statusline init`)
+- [X] CLI 어댑터 (Claude, Codex, Antigravity)
+- [X] Auto-detection 판별기 (stdin JSON + 환경변수)
+- [X] Git 메타데이터 직접 읽기 (repo, branch, dirty)
+- [X] 10ms deadline Git status 체크
+- [X] Lipgloss ANSI 렌더러
+- [X] 레이아웃 시스템 (line1 + main)
+- [X] Context 토큰 사용량 (bar/percentage)
+- [X] Thinking/Agent 상태 표시
+- [X] Active Skills / Last Tool 표시
+- [X] OKF/Diátaxis 문서 체계
 
 ## ✅ v0.2.0 — Antigravity Quota 표시 (완료)
 
-- [x] Antigravity quota 파싱
+- [X] Antigravity quota 파싱
   - `gemini` — Gemini 자체 모델 quota
   - `3rd` — Gemini에서 사용하는 외부 모델 quota
-- [x] 잔여 비율별 색상 (초록 >50% / 노랑 20~50% / 빨강 <20%)
-- [x] 출력: `📊 gemini 5h:93% wk:52% │ 3rd 5h:100% wk:22%`
-- [x] Claude Code 기본 어댑터 연동 (ContextTokens, Thinking, Skills)
+- [X] 잔여 비율별 색상 (초록 >50% / 노랑 20~50% / 빨강 <20%)
+- [X] 출력: `📊 gemini 5h:93% wk:52% │ 3rd 5h:100% wk:22%`
+- [X] Claude Code 기본 어댑터 연동 (ContextTokens, Thinking, Skills)
 
 ## ✅ v0.3.0 — CLI 세부 옵션 고도화 (완료)
 
-- [x] `modelFormat` — 모델명 축약 (`short` / `full`)
-- [x] `wrapMode` — 터미널 폭 초과 시 truncate(`…`) 처리 (단일행 유지 보장)
-- [x] `theme` — 테마 시스템 (`sleek_dark`, `light`, `nord`)
-- [x] `permission` — 권한 요청 상태 표시 (`🔒 WAITING` 배지)
+- [X] `modelFormat` — 모델명 축약 (`short` / `full`)
+- [X] `wrapMode` — 터미널 폭 초과 시 truncate(`…`) 처리 (단일행 유지 보장)
+- [X] `theme` — 테마 시스템 (`sleek_dark`, `light`, `nord`)
+- [X] `permission` — 권한 요청 상태 표시 (`🔒 WAITING` 배지)
 
-## 🔲 v0.4.0 — OpenAI (Codex) 지원 강화
+## ✅ v0.4.0 — OpenAI (Codex / Platform) 완전 지원 (완료)
 
-- [ ] OpenAI Codex 어댑터 고도화 (현재 최소 기본 구현)
-- [ ] Codex 실행 컨텍스트 및 토큰/사용량 데이터 파싱
-- [ ] OpenAI 사용량/비용 모니터링 연동
+- [X] OpenAI Codex 어댑터 고도화 및 컨텍스트/토큰 파싱
+- [X] 구독 플랜 인식 및 표시 (ChatGPT Plus / Team / Enterprise)
+- [X] OpenAI Platform Admin API 연동 및 누적 비용(`total_cost`) 실시간 추적
+- [X] Rate limits 및 잔여 쿼터 실시간 표시
+- [X] Codex / OpenAI 읽기 전용 능동 수집기 및 스트림 감시 구현 (`statusline collect`, `statusline watch`)
 
-## 🔲 v0.5.0 — Z.AI 지원
+## 🔲 v0.5.0 — Z.AI 완전 지원
 
 - [ ] Z.AI CLI 전용 어댑터 신규 개발 (`internal/adapter/zai.go`)
 - [ ] Auto-detection 판별기에 Z.AI 페이로드 및 환경변수 감지 추가
-- [ ] Z.AI 모델 및 실시간 사용량 표시
+- [ ] Z.AI 모델, 잔여 크레딧 및 실시간 사용량/구독 플랜 표시
 
-## 🔲 v0.6.0 — Anthropic (Claude Code) 지원 강화
+## 🔲 v0.6.0 — Anthropic (Claude Code) 완전 지원
 
 - [ ] Claude Code 페이로드의 토큰 및 누적 비용(`total_cost`) 모니터링 연동
 - [ ] 세션 및 일일/월간 Quota 잔여량 파싱 및 표시
+- [ ] 구독 플랜 인식 (Claude Pro / Team / Enterprise)
 - [ ] Anthropic 모델별(Opus, Sonnet, Haiku) 사용량 세분화
 
-## 🔲 v0.7.0 — 구독 플랜 & 연결된 계정 비용 (Cost/Billing) 추적
+## 🔲 v0.7.0 — 다중 계정(Multi-Accounts) & 공통 예산·캐시 인프라
 
-- [ ] AI 호스트별 구독 플랜 인식 및 표시 (Google AI Pro/Ultra, Claude Pro/Team, ChatGPT Plus/Team)
-- [ ] 연결된 계정별 API 토큰 누적 비용(`total_cost`) 및 사용 금액 실시간 추적
-- [ ] 일일/월간 예산 한도(Budget Limit) 설정 및 임계치 도달 경고 표시
-- [ ] 비용 표시 포맷 옵션 (통화 단위, 소수점 자릿수 등)
-
-## 🔲 v0.8.0 — 동일 프로바이더 다중 계정 (Multiple Accounts) 지원
-
-- [ ] 동일 서비스(예: OpenAI #1 회사, OpenAI #2 개인) 다중 계정 식별 및 라벨링
-- [ ] API Key / Org ID / Profile별 사용량 및 잔여 Quota 분리 수집
+- [ ] 동일 프로바이더 다중 계정(회사용/개인용) 식별 및 라벨링
 - [ ] 계정별 독립 캐시 레이어 (`~/.cache/statusline/accounts/<provider>/<profile>.json`)
+- [ ] 일일/월간 예산 한도(Budget Limit) 설정 및 임계치 도달 경고 표시
+- [ ] 비용 표시 포맷 옵션 (통화 단위 `USD`/`KRW`, 소수점 자릿수 등)
 - [ ] CLI 상태바에서 활성 계정 또는 위험(잔여 최소) 계정 선택 노출 옵션
   - 예: `oai[work] 5h:80% │ oai[pers] 5h:20% ⚠️`
+
+## 🔲 v0.8.0 — 통합 수집기 & GUI 에이전트 모니터링 (Local Watcher & Daemon) 🌟
+
+- [ ] **통합 `collect` 서브커맨드 확장**: 현재 Codex/Platform 전용인 `statusline collect`를 Antigravity, Claude, Codex, Platform 등 전 프로바이더 통합 수집(`--provider=all|antigravity|claude|codex`)으로 확장
+- [ ] **Antigravity IDE** 로컬 세션 및 브레인 로그(`~/.gemini/antigravity/...`) 감시 어댑터
+- [ ] **Codex Work** 로컬 app-server 세션 및 작업 공간(Workspace) 쿼터/사용량 파싱
+- [ ] **Claude Work** (Enterprise/Desktop) 로컬 세션 및 사용량 이벤트 감시
+- [ ] **VS Code** 확장 프로그램 작업 공간(`workspaceStorage`) 및 AI 확장 상태 감시
+- [ ] GUI/CLI 수집 데이터를 공통 캐시(`~/.cache/statusline/live_session.json`)로 표준화 적재
+- [ ] 백그라운드 수집 데몬 프로세스 지원 (`statusline daemon` 또는 `statusline collect --watch-gui`)
 
 ## 🔲 v0.9.0 — GUI 트레이 위젯 최초 도입 (`fyne-io/systray`)
 
@@ -85,7 +96,7 @@
 - [ ] **Windows** — 시스템 트레이 위젯 (툴팁 및 네이티브 팝업 메뉴)
 - [ ] 단일 Go 바이너리로 최소 리소스(초경량/저전력) 구동
 - [ ] CLI ↔ Tray 간 공유 데이터 레이어 (IPC / 상태 파일 / 소켓 감시)
-- [ ] 다중 계정 드롭다운 메뉴 (계정별 Quota 및 활성 상태 분리 표시)
+- [ ] 다중 계정 및 CLI/GUI 에이전트 통합 드롭다운 메뉴 (계정별 Quota 및 활성 상태 분리 표시)
 
 ## 🔲 v1.0.0 — 공식 정식 릴리스 & 상용화 (Commercial Launch) 💵
 
@@ -95,7 +106,7 @@
   - 다중 계정 API 키 및 라이선스 키 보관
 - [ ] **상용 라이선스 & 유료화 모델 (Monetization)**:
   - CLI 기본 단일행 상태바: 무료 (Community)
-  - GUI 트레이 위젯 + 다중 계정 + 알림: 유료 (Pro License)
+  - GUI 트레이 위젯 + 다중 계정 + GUI 에이전트(VS Code/Antigravity/Codex/Claude Work) 통합 모니터링 + 알림: 유료 (Pro License)
 - [ ] **라이선스 관리 및 검증 시스템**:
   - 라이선스 키 활성화 커맨드 (`statusline activate <license-key>`)
   - 오프라인/온라인 라이선스 검증 레이어 (Lemon Squeezy / Polar / Gumroad 연동)

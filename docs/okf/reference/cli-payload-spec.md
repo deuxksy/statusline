@@ -6,36 +6,37 @@ This reference specifies the exact STDIN JSON payload structures received from A
 
 ## 1. Antigravity (`agy`) Payload Spec
 
-Sample location: [`docs/samples/antigravity.json`](file:///home/crong/git/statusline/docs/samples/antigravity.json)
+Sample location: [`docs/samples/antigravity.json`](file:///Users/crong/git/statusline/docs/samples/antigravity.json)
 
 ```json
 {
   "product": "antigravity",
-  "version": "1.1.8",
-  "cwd": "/home/crong/git/statusline",
-  "session_id": "b18fda04-43ae-4c34-b7f3-836db300be59",
-  "conversation_id": "b18fda04-43ae-4c34-b7f3-836db300be59",
+  "version": "1.2.11",
+  "cwd": "/Users/crong/git/statusline",
+  "session_id": "b2443d60-4e81-4fb4-b229-d084868b9f98",
+  "conversation_id": "b2443d60-4e81-4fb4-b229-d084868b9f98",
   "model": {
-    "id": "Gemini 3.6 Flash (Medium)",
-    "display_name": "Gemini 3.6 Flash (Medium)",
+    "id": "Gemini 3.8 Flash (Medium)",
+    "display_name": "Gemini 3.8 Flash (Medium)",
     "effort": "medium"
   },
   "workspace": {
-    "current_dir": "/home/crong/git/statusline",
-    "project_dir": "/home/crong/git/statusline"
+    "current_dir": "/Users/crong/git/statusline",
+    "project_dir": "/Users/crong/git/statusline"
   },
   "context_window": {
-    "total_input_tokens": 50527,
-    "total_output_tokens": 9665,
+    "total_input_tokens": 44068,
+    "total_output_tokens": 4420,
     "context_window_size": 1048576,
-    "used_percentage": 4.81863,
-    "remaining_percentage": 95.18137
+    "used_percentage": 4.20265,
+    "remaining_percentage": 95.79735
   },
   "quota": {
-    "gemini-5h": { "remaining_fraction": 0.933, "reset_in_seconds": 12740 },
-    "gemini-weekly": { "remaining_fraction": 0.528, "reset_in_seconds": 335605 }
+    "gemini-5h": { "remaining_fraction": 0.752, "reset_in_seconds": 15236 },
+    "gemini-weekly": { "remaining_fraction": 0.340, "reset_in_seconds": 400398 }
   },
-  "agent_state": "tool_use",
+  "agent_state": "working",
+  "cycle_mode": "accept-edits",
   "plan_tier": "Google AI Pro",
   "email": "deuxksy@gmail.com"
 }
