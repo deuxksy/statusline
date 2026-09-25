@@ -2,11 +2,13 @@ package model
 
 // QuotaCategory — 공급자별 quota 잔여 비율과 reset 시각
 type QuotaCategory struct {
-	Name           string
-	FiveH          float64 // 5시간 잔여 비율 (0.0~1.0)
-	Weekly         float64 // 주간 잔여 비율 (0.0~1.0)
-	FiveHResetsAt  int64
-	WeeklyResetsAt int64
+	Name            string
+	FiveH           float64 // 5시간 잔여 비율 (0.0~1.0)
+	Weekly          float64 // 주간 잔여 비율 (0.0~1.0)
+	Monthly         float64 // 월간 잔여 비율 (Z.AI MCP 등, 0.0~1.0)
+	FiveHResetsAt   int64   // Unix 밀리초
+	WeeklyResetsAt  int64   // Unix 밀리초
+	MonthlyResetsAt int64   // Unix 밀리초
 }
 
 type TokenUsage struct {
@@ -29,6 +31,7 @@ type HostCapabilities struct {
 
 type UnifiedStatus struct {
 	EngineName string
+	Provider   string // 백엔드 provider ("" | "zai" | "zhipu") — engine과 별개
 	Model      string
 	Cwd        string
 	Hostname   string
