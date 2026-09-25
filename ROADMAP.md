@@ -40,7 +40,13 @@
 - [ ] Auto-detection 판별기에 Z.AI 페이로드 및 환경변수 감지 추가
 - [ ] Z.AI 모델 및 실시간 사용량 표시
 
-## 🔲 v0.5.0 — CLI 세부 옵션 고도화
+## 🔲 v0.5.0 — Anthropic (Claude Code) 지원 강화
+
+- [ ] Claude Code 페이로드의 토큰 및 누적 비용(`total_cost`) 모니터링 연동
+- [ ] 세션 및 일일/월간 Quota 잔여량 파싱 및 표시
+- [ ] Anthropic 모델별(Opus, Sonnet, Haiku) 사용량 세분화
+
+## 🔲 v0.6.0 — CLI 세부 옵션 고도화
 
 - [ ] `modelFormat` — 모델명 축약 (`short` / `full`)
 - [ ] `wrapMode` — 터미널 폭 초과 시 truncate 처리
