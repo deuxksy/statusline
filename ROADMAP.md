@@ -57,19 +57,19 @@
 - [ ] 세션 및 일일/월간 Quota 잔여량 파싱 및 표시
 - [ ] Anthropic 모델별(Opus, Sonnet, Haiku) 사용량 세분화
 
-## 🔲 v0.6.0 — CLI 세부 옵션 고도화
-
-- [ ] `modelFormat` — 모델명 축약 (`short` / `full`)
-- [ ] `wrapMode` — 터미널 폭 초과 시 truncate 처리
-- [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
-- [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
-
-## 🔲 v0.7.0 — 구독 플랜 & 연결된 계정 비용 (Cost/Billing) 추적
+## 🔲 v0.6.0 — 구독 플랜 & 연결된 계정 비용 (Cost/Billing) 추적
 
 - [ ] AI 호스트별 구독 플랜 인식 및 표시 (Google AI Pro/Ultra, Claude Pro/Team, ChatGPT Plus/Team)
 - [ ] 연결된 계정별 API 토큰 누적 비용(`total_cost`) 및 사용 금액 실시간 추적
 - [ ] 일일/월간 예산 한도(Budget Limit) 설정 및 임계치 도달 경고 표시
 - [ ] 비용 표시 포맷 옵션 (통화 단위, 소수점 자릿수 등)
+
+## 🔲 v0.7.0 — CLI 세부 옵션 고도화
+
+- [ ] `modelFormat` — 모델명 축약 (`short` / `full`)
+- [ ] `wrapMode` — 터미널 폭 초과 시 truncate 처리
+- [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
+- [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
 
 ## 🔲 v0.8.0 — 동일 프로바이더 다중 계정 (Multiple Accounts) 지원
 
