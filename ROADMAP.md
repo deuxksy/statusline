@@ -53,12 +53,13 @@
 - [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
 - [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
 
-## 🔲 v0.8.0 — 다중 계정 (Multiple Accounts) 지원
+## 🔲 v0.8.0 — 동일 프로바이더 다중 계정 (Multiple Accounts) 지원
 
-- [ ] 페이로드 계정 메타데이터 추출 (`email`, `plan_tier`)
-- [ ] 계정별 상태 캐시 레이어 (`~/.cache/statusline/accounts/<email>.json`)
-- [ ] 다중 계정 Quota 집계 및 전환 감지
-- [ ] CLI에서 현재 활성 계정 또는 위험(잔여 최소) 계정 Quota 우선 표시 옵션
+- [ ] 동일 서비스(예: OpenAI #1 회사, OpenAI #2 개인) 다중 계정 식별 및 라벨링
+- [ ] API Key / Org ID / Profile별 사용량 및 잔여 Quota 분리 수집
+- [ ] 계정별 독립 캐시 레이어 (`~/.cache/statusline/accounts/<provider>/<profile>.json`)
+- [ ] CLI 상태바에서 활성 계정 또는 위험(잔여 최소) 계정 선택 노출 옵션
+  - 예: `oai[work] 5h:80% │ oai[pers] 5h:20% ⚠️`
 
 ## 🔲 v1.0.0 — 경량 트레이 위젯 (`fyne-io/systray`)
 
