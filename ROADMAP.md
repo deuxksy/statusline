@@ -39,6 +39,13 @@
 - [x] 출력: `📊 gemini 5h:93% wk:52% │ 3rd 5h:100% wk:22%`
 - [x] Claude Code 기본 어댑터 연동 (ContextTokens, Thinking, Skills)
 
+## 🔲 v0.2.1 — CLI 세부 옵션 고도화
+
+- [ ] `modelFormat` — 모델명 축약 (`short` / `full`)
+- [ ] `wrapMode` — 터미널 폭 초과 시 truncate 처리
+- [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
+- [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
+
 ## 🔲 v0.3.0 — OpenAI (Codex) 지원 강화
 
 - [ ] OpenAI Codex 어댑터 고도화 (현재 최소 기본 구현)
@@ -63,13 +70,6 @@
 - [ ] 연결된 계정별 API 토큰 누적 비용(`total_cost`) 및 사용 금액 실시간 추적
 - [ ] 일일/월간 예산 한도(Budget Limit) 설정 및 임계치 도달 경고 표시
 - [ ] 비용 표시 포맷 옵션 (통화 단위, 소수점 자릿수 등)
-
-## 🔲 v0.7.0 — CLI 세부 옵션 고도화
-
-- [ ] `modelFormat` — 모델명 축약 (`short` / `full`)
-- [ ] `wrapMode` — 터미널 폭 초과 시 truncate 처리
-- [ ] `theme` — 테마 시스템 (`sleek_dark` 외 추가 테마)
-- [ ] `permission` — 권한 요청 상태 표시 (HasPermission capability 존재)
 
 ## 🔲 v0.8.0 — 동일 프로바이더 다중 계정 (Multiple Accounts) 지원
 
