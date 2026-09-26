@@ -2,6 +2,16 @@
 
 현재 Codex 연동은 **조회용 CLI**다. `collect`는 현재 상태를 JSON으로 가져오고, `watch`는 로컬 세션에 새로 기록되는 토큰·컨텍스트 이벤트를 출력한다. 수집 결과를 상태바나 OS 위젯에 자동 표시하는 기능은 아직 없다.
 
+## collect — 전 provider 수집
+
+```bash
+statusline collect                    # 전 provider 병합 (chatgpt+zai)
+statusline collect --provider=chatgpt # Codex + OpenAI Platform (Admin key 조건부)
+statusline collect --provider=zai     # Z.AI quota (zhipu 별칭 지원)
+```
+
+`--provider`는 서비스 계정(chatgpt, zai)을, `--cli`는 호스트 CLI(claudecode, codex, agy)를 구분한다. `anthropic`·`gemini`는 아직 미지원(exit 2).
+
 ## 1. 최신 바이너리 빌드
 
 프로젝트 루트에서 실행한다.
