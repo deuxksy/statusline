@@ -64,10 +64,18 @@
 - [X] Auto-detection 판별기에 Z.AI provider 감지 추가 (claude 엔진 내 provider 주입)
 - [X] Z.AI quota 수집 (`collect --provider=zai`) 및 캐시 브리지 — 5h 토큰/월간 MCP 잔여율 + reset 카운트다운 상태바 표시
 
+## ✅ v0.5.1 — 네이티브 페이로드·자격 증명 고도화 (완료)
+
+- [X] CC `context_window` 파싱 및 컨텍스트 사용량 세그먼트 (`⚡ 57k/1M(6%)`) — `thresholds.contextWarning/Critical` 임계색
+- [X] CC native model 필드 파싱 (`display_name` → `displayName`/`name` 폴백 → `id`)
+- [X] Antigravity quota 리셋 카운트다운 및 line1 폭 고정
+- [X] Z.AI 자격 증명 `~/.config/statusline/credentials.json` 폴백 및 `ZAI_*` env 오버라이드
+- [X] collect 실측 응답 익명화 샘플 (`docs/samples/collect/`)
+
 ## 🔲 v0.6.0 — Anthropic (Claude Code) 완전 지원
 
 - [ ] Anthropic OAuth usage API 연동 (`api.anthropic.com/api/oauth/usage`, Keychain 자격 증명) — OMC HUD `usage-api.js`·claude-hud 참조
-- [ ] Claude Code 페이로드의 토큰 및 누적 비용(`total_cost`) 모니터링 연동
+- [ ] Claude Code 페이로드의 누적 비용(`cost.total_cost_usd`) 모니터링 연동 — 토큰·컨텍스트 사용량은 v0.5.1 완료
 - [ ] 세션 및 일일/월간 Quota 잔여량 파싱 및 표시
 - [ ] 구독 플랜 인식 (Claude Pro / Team / Enterprise)
 - [ ] Anthropic 모델별(Opus, Sonnet, Haiku) 사용량 세분화
@@ -130,8 +138,6 @@
 
 - [ ] 제3자 provider 어댑터 확장 (MiniMax, Kimi/Moonshot) — Z.AI 어댑터 dispatch 패턴 재사용, OMC HUD `usage-api.js` 참조
 
-- [ ] Quota reset 시간 표시 (`reset_in_seconds` 활용)
-- [ ] Context 임계치 색상 (`thresholds.contextWarning/Critical` 활용)
 - [ ] Codex 어댑터 보강 (현재 최소 구현)
 - [ ] PPID 기반 auto-detection (설계 스펙에 명시, 미구현)
 - [ ] `plan_tier` / `email` 표시 옵션
