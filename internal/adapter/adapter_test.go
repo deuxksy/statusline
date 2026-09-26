@@ -36,6 +36,34 @@ func TestClaudeAdapter(t *testing.T) {
 	}
 }
 
+func TestClaudeAdapterModelNativeFields(t *testing.T) {
+	a := &adapter.ClaudeAdapter{}
+	jsonPayload := []byte(`{
+		"model": {"id": "glm-5.3", "display_name": "GLM-5.3"}
+	}`)
+
+	status, err := a.Parse(jsonPayload, map[string]string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if status.Model != "GLM-5.3" {
+		t.Errorf("expected model GLM-5.3 from native display_name, got %s", status.Model)
+	}
+}
+
+func TestClaudeAdapterModelIDFallback(t *testing.T) {
+	a := &adapter.ClaudeAdapter{}
+	jsonPayload := []byte(`{"model": {"id": "glm-5.3"}}`)
+
+	status, err := a.Parse(jsonPayload, map[string]string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if status.Model != "glm-5.3" {
+		t.Errorf("expected model id fallback glm-5.3, got %s", status.Model)
+	}
+}
+
 func TestClaudeAdapterContextWindow(t *testing.T) {
 	a := &adapter.ClaudeAdapter{}
 	jsonPayload := []byte(`{

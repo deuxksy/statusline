@@ -41,14 +41,21 @@ func (c *ClaudeAdapter) Parse(input []byte, env map[string]string) (*model.Unifi
 				st.Model = modelStr
 			} else {
 				var modelObj struct {
-					DisplayName string `json:"displayName"`
-					Name        string `json:"name"`
+					DisplayName string `json:"display_name"` // CC 2.x 표준 stdin 필드
+					OmcDisplay  string `json:"displayName"`  // OMC 래퍼 폴백
+					Name        string `json:"name"`         // OMC 래퍼 폴백
+					ID          string `json:"id"`
 				}
 				if err := json.Unmarshal(raw.Model, &modelObj); err == nil {
-					if modelObj.DisplayName != "" {
+					switch {
+					case modelObj.DisplayName != "":
 						st.Model = modelObj.DisplayName
-					} else {
+					case modelObj.OmcDisplay != "":
+						st.Model = modelObj.OmcDisplay
+					case modelObj.Name != "":
 						st.Model = modelObj.Name
+					default:
+						st.Model = modelObj.ID
 					}
 				}
 			}

@@ -50,14 +50,15 @@ Sample location: [`docs/samples/claude.json`](file:///home/crong/git/statusline/
 
 ```json
 {
-  "omcLabel": "OMC",
-  "model": { "displayName": "Claude 3.7 Sonnet" },
+  "model": { "id": "glm-5.3", "display_name": "GLM-5.3" },
   "contextBar": { "percentage": 45 },
   "thinking": { "state": "thinking" },
   "activeSkills": ["superpowers:brainstorming"],
   "lastTool": "view_file"
 }
 ```
+
+Native CC stdin은 `model.id`/`model.display_name`(snake_case)을 보낸다. 모델명 우선순위: `display_name` → `displayName`(OMC 래퍼) → `name` → `id`.
 
 ---
 
