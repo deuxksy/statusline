@@ -11,6 +11,7 @@
 - [`openai/schema-examples/`](./openai/schema-examples/README.md): API 스키마 기반 합성 예시. 실제 응답이 아닙니다.
 - [`zai/quota-limit-response.json`](./zai/quota-limit-response.json): 2026-09-26 실측 수치 기반 Z.AI `quota/limit` API 응답 재구성 샘플 (raw 응답 미보관, 소비 필드만 포함).
 - [`zai/zai-cache.json`](./zai/zai-cache.json): `~/.cache/statusline/zai.json` 캐시 포맷 샘플 (위 응답의 정규화 결과).
+- [`collect/`](./collect/): `statusline collect` 실측 응답의 익명화 스냅샷 (`codex.json`, `zai.json`) — 이메일·계정 ID·thread ID·로컬 경로는 제네릭 값으로 치환.
 
 ## How to Test Statusline Output
 

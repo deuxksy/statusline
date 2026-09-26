@@ -46,7 +46,7 @@ Sample location: [`docs/samples/antigravity.json`](file:///Users/crong/git/statu
 
 ## 2. Claude Code Payload Spec
 
-Sample location: [`docs/samples/claude.json`](file:///home/crong/git/statusline/docs/samples/claude.json)
+Sample location: [`docs/samples/claude.json`](../../samples/claude.json) — OMC 래퍼 형식(`displayName`) 샘플. Native CC 필드(`display_name`/`id`)는 상기 스펙 참조.
 
 ```json
 {
