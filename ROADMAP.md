@@ -91,7 +91,7 @@
 
 ## 🔲 v0.8.0 — 통합 수집기 & GUI 에이전트 모니터링 (Local Watcher & Daemon) 🌟
 
-- [ ] **통합 `collect` 서브커맨드 확장**: 현재 Codex/Platform 전용인 `statusline collect`를 Antigravity, Claude, Codex, Platform 등 전 프로바이더 통합 수집(`--provider=all|antigravity|claude|codex`)으로 확장
+- [X] **통합 `collect` 서브커맨드**: `--provider=all|chatgpt|zai` 필터 + 기본 전 provider 병합 출력 (v0.5.x) — Antigravity(agy 앱 측정), Claude(로컬 감시)는 본 로드맵 후속 항목으로 유지
 - [ ] **Antigravity IDE** 로컬 세션 및 브레인 로그(`~/.gemini/antigravity/...`) 감시 어댑터
 - [ ] **Codex Work** 로컬 app-server 세션 및 작업 공간(Workspace) 쿼터/사용량 파싱
 - [ ] **Claude Work** (Enterprise/Desktop) 로컬 세션 및 사용량 이벤트 감시

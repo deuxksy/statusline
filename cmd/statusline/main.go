@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -34,6 +32,8 @@ func main() {
 	if autoFlag {
 		cliFlag = "auto"
 	}
+	// 정식 이름(claudecode, agy) → 내부 엔진 값 정규화. 기존 값은 그대로.
+	cliFlag = normalizeCliAlias(cliFlag)
 
 	if configPath == "" {
 		home, _ := os.UserHomeDir()
@@ -50,71 +50,29 @@ func main() {
 		return
 	}
 	if flag.NArg() > 0 && flag.Arg(0) == "collect" {
-		provider := ""
-		for _, a := range flag.Args()[1:] {
-			if strings.HasPrefix(a, "--provider=") {
-				provider = strings.TrimPrefix(a, "--provider=")
+		rest := flag.Args()[1:]
+		for _, a := range rest {
+			if a == "--cli" || a == "-cli" || strings.HasPrefix(a, "--cli=") || strings.HasPrefix(a, "-cli=") {
+				fmt.Fprintln(os.Stderr, "--cli is not supported for collect (ignored)")
+				break
 			}
 		}
-		if provider == "zai" || provider == "zhipu" {
-			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-			defer cancel()
-			cachePath, err := collect.ZaiCachePath()
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			// 플래그 값은 플로우 선택용 — 실제 provider는 해석된 URL 기준 (env 우선 → credentials.json 폴백)
-			baseURL, err := collect.ZaiBaseURL(credentialsPath())
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			authToken, err := collect.ZaiAuthToken(credentialsPath())
-			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			zaiProvider := adapter.ProviderFromBaseURL(baseURL)
-			result := collect.RunZaiCollect(ctx, &http.Client{Timeout: 5 * time.Second}, baseURL, authToken, zaiProvider, cachePath, collect.ZaiRefreshPath(cachePath))
-			if err := json.NewEncoder(os.Stdout).Encode(result); err != nil {
-				fmt.Fprintln(os.Stderr, err)
-				os.Exit(1)
-			}
-			return
-		}
-		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-		defer cancel()
-		result := struct {
-			Codex    map[string]json.RawMessage `json:"codex,omitempty"`
-			Platform *collect.PlatformSnapshot  `json:"platform,omitempty"`
-			Errors   map[string]string          `json:"errors,omitempty"`
-		}{Errors: make(map[string]string)}
-		var err error
-		result.Codex, err = collect.Codex(ctx, "codex")
+		provider, err := parseProviderArg(rest)
 		if err != nil {
-			result.Errors["codex"] = err.Error()
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(2)
 		}
-		key, keyErr := collect.AdminKey(credentialsPath())
-		if keyErr != nil {
-			result.Errors["credentials"] = keyErr.Error()
+		providers, err := selectProviders(provider)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(2)
 		}
-		if key != "" {
-			platform, platformErr := collect.Platform(ctx, &http.Client{Timeout: 5 * time.Second}, "https://api.openai.com/v1", key, time.Now().UTC().AddDate(0, 0, -1))
-			if platformErr != nil {
-				result.Errors["platform"] = platformErr.Error()
-			} else {
-				result.Platform = &platform
-			}
-		}
-		if len(result.Errors) == 0 {
-			result.Errors = nil
-		}
-		if err := json.NewEncoder(os.Stdout).Encode(result); err != nil {
+		cachePath, err := collect.ZaiCachePath()
+		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		return
+		os.Exit(runCollect(os.Stdout, os.Stderr, providers, credentialsPath(), cachePath))
 	}
 	if flag.NArg() > 0 && flag.Arg(0) == "watch" {
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
