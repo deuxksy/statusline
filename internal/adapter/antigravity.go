@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"math"
 	"strings"
+	"time"
+
 	"statusline/internal/model"
 )
 
@@ -40,9 +42,13 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 		} `json:"workspace"`
 		Quota map[string]struct {
 			RemainingFraction float64 `json:"remaining_fraction"`
+			ResetTime         string  `json:"reset_time"`
+			ResetTimeCamel    string  `json:"resetTime"`
+			ResetInSeconds    int64   `json:"reset_in_seconds"`
+			ResetInSecCamel   int64   `json:"resetInSeconds"`
 		} `json:"quota"`
 		ToolConfirmationPending bool `json:"tool_confirmation_pending"`
-		TerminalWidth          int  `json:"terminal_width"`
+		TerminalWidth           int  `json:"terminal_width"`
 	}
 
 	if err := json.Unmarshal(input, &raw); err == nil {
@@ -118,11 +124,34 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 					cat = &model.QuotaCategory{Name: catName}
 					categories[catName] = cat
 				}
+
+				resetTimeStr := q.ResetTime
+				if resetTimeStr == "" {
+					resetTimeStr = q.ResetTimeCamel
+				}
+				var resetsAt int64
+				if resetTimeStr != "" {
+					if t, err := time.Parse(time.RFC3339Nano, resetTimeStr); err == nil {
+						resetsAt = t.UnixMilli()
+					} else if t, err := time.Parse(time.RFC3339, resetTimeStr); err == nil {
+						resetsAt = t.UnixMilli()
+					}
+				}
+				resetInSec := q.ResetInSeconds
+				if resetInSec == 0 {
+					resetInSec = q.ResetInSecCamel
+				}
+				if resetsAt == 0 && resetInSec > 0 {
+					resetsAt = time.Now().Add(time.Duration(resetInSec) * time.Second).UnixMilli()
+				}
+
 				switch period {
 				case "5h":
 					cat.FiveH = q.RemainingFraction
+					cat.FiveHResetsAt = resetsAt
 				case "weekly":
 					cat.Weekly = q.RemainingFraction
+					cat.WeeklyResetsAt = resetsAt
 				}
 			}
 			// gemini 먼저, 3p 나중에 (안정적 순서)

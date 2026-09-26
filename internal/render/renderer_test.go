@@ -3,7 +3,9 @@ package render_test
 import (
 	"strings"
 	"testing"
+	"time"
 
+	"github.com/charmbracelet/x/ansi"
 	"statusline/internal/config"
 	"statusline/internal/model"
 	"statusline/internal/render"
@@ -33,6 +35,75 @@ func TestRenderOutput(t *testing.T) {
 	}
 	if !strings.Contains(output, "45%") {
 		t.Errorf("expected output to contain token percentage '45%%', got: %q", output)
+	}
+}
+
+func TestRenderGitStatusFixedSpacing(t *testing.T) {
+	cfg := config.DefaultConfig()
+
+	// 1. Dirty git repo
+	stDirty := model.NewUnifiedStatus("claude")
+	stDirty.GitRepo = "repo"
+	stDirty.GitBranch = "main"
+	stDirty.GitStatus = "*"
+	outDirty := render.Render(stDirty, cfg)
+
+	// 2. Clean git repo
+	stClean := model.NewUnifiedStatus("claude")
+	stClean.GitRepo = "repo"
+	stClean.GitBranch = "main"
+	stClean.GitStatus = ""
+	outClean := render.Render(stClean, cfg)
+
+	plainDirty := ansi.Strip(outDirty)
+	plainClean := ansi.Strip(outClean)
+
+	idxDirty := strings.Index(plainDirty, "│")
+	idxClean := strings.Index(plainClean, "│")
+	if idxDirty == -1 || idxClean == -1 {
+		t.Fatalf("expected separator │ in output")
+	}
+	colDirty := ansi.StringWidth(plainDirty[:idxDirty])
+	colClean := ansi.StringWidth(plainClean[:idxClean])
+	if colDirty != colClean || colClean != 29 { // 28 chars line1 + 1 space before │
+		t.Errorf("expected │ to visually align at column 29, got dirty=%d, clean=%d", colDirty, colClean)
+	}
+
+	// Long branch should be truncated to fit Line1Width and keep │ aligned
+	stLong := model.NewUnifiedStatus("claude")
+	stLong.GitRepo = "repo"
+	stLong.GitBranch = "feature/a-very-long-branch-name-12345"
+	plainLong := ansi.Strip(render.Render(stLong, cfg))
+	idxLong := strings.Index(plainLong, "│")
+	if idxLong == -1 {
+		t.Fatalf("expected separator │ in long branch output")
+	}
+	colLong := ansi.StringWidth(plainLong[:idxLong])
+	if colLong != colClean {
+		t.Errorf("expected long branch │ to visually align at column %d, got %d", colClean, colLong)
+	}
+	if !strings.Contains(plainLong, "…") {
+		t.Errorf("expected long branch to be truncated with …, got: %q", plainLong)
+	}
+
+	// 3. Unconstrained mode (Line1Width = 0)
+	cfg0 := config.DefaultConfig()
+	cfg0.Layout.Line1Width = 0
+	plainDirty0 := ansi.Strip(render.Render(stDirty, cfg0))
+	plainClean0 := ansi.Strip(render.Render(stClean, cfg0))
+	if !strings.Contains(plainDirty0, "repo  main * │") {
+		t.Errorf("expected dirty statusline to contain 'repo  main * │', got: %q", plainDirty0)
+	}
+	if !strings.Contains(plainClean0, "repo  main   │") {
+		t.Errorf("expected clean statusline to contain 'repo  main   │', got: %q", plainClean0)
+	}
+
+	// 4. Non-git directory (no branch/repo) with Line1Width = 0 should not have phantom space
+	stNonGit := model.NewUnifiedStatus("claude")
+	stNonGit.Cwd = "/tmp/testdir"
+	plainNonGit := ansi.Strip(render.Render(stNonGit, cfg0))
+	if strings.Contains(plainNonGit, "testdir  │") {
+		t.Errorf("expected non-git statusline not to have phantom space, got: %q", plainNonGit)
 	}
 }
 
@@ -114,6 +185,34 @@ func TestRenderQuotaEnabled(t *testing.T) {
 	}
 	if !strings.Contains(output, "wk:22%") {
 		t.Errorf("expected 'wk:22%%' in output, got: %q", output)
+	}
+}
+
+func TestRenderQuotaWithCountdown(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Quota = []model.QuotaCategory{
+		{
+			Name:           "gemini",
+			FiveH:          0.93,
+			Weekly:         0.53,
+			FiveHResetsAt:  time.Now().Add(4*time.Hour + 30*time.Minute + 30*time.Second).UnixMilli(),
+			WeeklyResetsAt: time.Now().Add(72*time.Hour + 30*time.Second).UnixMilli(),
+		},
+		{
+			Name:          "3rd",
+			FiveH:         0.0,
+			Weekly:        0.22,
+			FiveHResetsAt: time.Now().Add(1*time.Hour + 15*time.Minute + 30*time.Second).UnixMilli(),
+		},
+	}
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	for _, want := range []string{"5h:93%(4h30m)", "wk:53%(3d0h)", "3rd", "5h:0%(1h15m)", "wk:22%"} {
+		if !strings.Contains(output, want) {
+			t.Errorf("expected %q in output, got: %q", want, output)
+		}
 	}
 }
 
@@ -220,4 +319,3 @@ func TestRenderWrapModeTruncate(t *testing.T) {
 		t.Errorf("expected single line output without newlines, got: %q", output)
 	}
 }
-

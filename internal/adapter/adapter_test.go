@@ -3,6 +3,7 @@ package adapter_test
 import (
 	"os"
 	"testing"
+	"time"
 
 	"statusline/internal/adapter"
 )
@@ -300,6 +301,14 @@ func TestAntigravityAdapterQuota(t *testing.T) {
 	if status.Quota[0].Weekly != 0.5284749 {
 		t.Errorf("expected gemini weekly 0.5284749, got %f", status.Quota[0].Weekly)
 	}
+	expGemini5h, _ := time.Parse(time.RFC3339, "2026-08-01T11:18:07Z")
+	if status.Quota[0].FiveHResetsAt != expGemini5h.UnixMilli() {
+		t.Errorf("expected gemini 5h reset %d, got %d", expGemini5h.UnixMilli(), status.Quota[0].FiveHResetsAt)
+	}
+	expGeminiWk, _ := time.Parse(time.RFC3339, "2026-08-05T04:59:12Z")
+	if status.Quota[0].WeeklyResetsAt != expGeminiWk.UnixMilli() {
+		t.Errorf("expected gemini weekly reset %d, got %d", expGeminiWk.UnixMilli(), status.Quota[0].WeeklyResetsAt)
+	}
 
 	// 3rd 값 검증
 	if status.Quota[1].FiveH != 1.0 {
@@ -307,6 +316,14 @@ func TestAntigravityAdapterQuota(t *testing.T) {
 	}
 	if status.Quota[1].Weekly != 0.222908 {
 		t.Errorf("expected 3rd weekly 0.222908, got %f", status.Quota[1].Weekly)
+	}
+	exp3p5h, _ := time.Parse(time.RFC3339, "2026-08-01T12:13:36Z")
+	if status.Quota[1].FiveHResetsAt != exp3p5h.UnixMilli() {
+		t.Errorf("expected 3rd 5h reset %d, got %d", exp3p5h.UnixMilli(), status.Quota[1].FiveHResetsAt)
+	}
+	exp3pWk, _ := time.Parse(time.RFC3339, "2026-08-03T07:00:41Z")
+	if status.Quota[1].WeeklyResetsAt != exp3pWk.UnixMilli() {
+		t.Errorf("expected 3rd weekly reset %d, got %d", exp3pWk.UnixMilli(), status.Quota[1].WeeklyResetsAt)
 	}
 }
 

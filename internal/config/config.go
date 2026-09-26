@@ -31,8 +31,9 @@ type ThresholdsConfig struct {
 }
 
 type LayoutConfig struct {
-	Line1 []string `json:"line1"`
-	Main  []string `json:"main"`
+	Line1      []string `json:"line1"`
+	Main       []string `json:"main"`
+	Line1Width int      `json:"line1Width,omitempty"`
 }
 
 type Config struct {
@@ -72,8 +73,9 @@ func DefaultConfig() *Config {
 		WrapMode: "truncate",
 		Theme:    "sleek_dark",
 		Layout: LayoutConfig{
-			Line1: []string{"hostname", "cwd", "gitRepo", "gitBranch", "gitStatus"},
-			Main:  []string{"permission", "engineLabel", "model", "thinking", "contextBar", "tokens", "quota", "activeSkills", "lastTool"},
+			Line1:      []string{"hostname", "cwd", "gitRepo", "gitBranch", "gitStatus"},
+			Main:       []string{"permission", "engineLabel", "model", "thinking", "contextBar", "tokens", "quota", "activeSkills", "lastTool"},
+			Line1Width: 28,
 		},
 	}
 }
@@ -83,7 +85,7 @@ func LoadConfig(path string) *Config {
 	if err != nil {
 		return DefaultConfig()
 	}
-	var cfg Config
+	cfg := *DefaultConfig()
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		return DefaultConfig()
 	}

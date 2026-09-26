@@ -188,8 +188,13 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 			return lipgloss.NewStyle().Foreground(p.BranchFg).Render(" " + st.GitBranch)
 		}
 	case "gitStatus":
-		if cfg.Elements.GitStatus && st.GitStatus != "" {
-			return lipgloss.NewStyle().Foreground(p.StatusFg).Bold(true).Render(st.GitStatus)
+		if cfg.Elements.GitStatus {
+			if st.GitStatus != "" {
+				return lipgloss.NewStyle().Foreground(p.StatusFg).Bold(true).Render(st.GitStatus)
+			}
+			if st.GitBranch != "" {
+				return " "
+			}
 		}
 	case "engineLabel":
 		if cfg.Elements.EngineLabel && st.EngineName != "" {
@@ -246,11 +251,20 @@ func quotaColor(fraction float64, p ThemePalette) lipgloss.Style {
 // renderQuota — 카테고리별 5h/wk 렌더링
 func renderQuota(categories []model.QuotaCategory, p ThemePalette) string {
 	labelStyle := lipgloss.NewStyle().Foreground(p.QuotaLabel).Bold(true)
+	now := time.Now()
 	var parts []string
 	for _, cat := range categories {
 		label := labelStyle.Render(cat.Name)
-		fiveH := quotaColor(cat.FiveH, p).Render(fmt.Sprintf("5h:%d%%", int(cat.FiveH*100)))
-		weekly := quotaColor(cat.Weekly, p).Render(fmt.Sprintf("wk:%d%%", int(cat.Weekly*100)))
+		fiveHStr := fmt.Sprintf("5h:%d%%", int(math.Round(cat.FiveH*100)))
+		if cd := formatResetCountdown(cat.FiveHResetsAt, now); cd != "" {
+			fiveHStr += "(" + cd + ")"
+		}
+		weeklyStr := fmt.Sprintf("wk:%d%%", int(math.Round(cat.Weekly*100)))
+		if cd := formatResetCountdown(cat.WeeklyResetsAt, now); cd != "" {
+			weeklyStr += "(" + cd + ")"
+		}
+		fiveH := quotaColor(cat.FiveH, p).Render(fiveHStr)
+		weekly := quotaColor(cat.Weekly, p).Render(weeklyStr)
 		parts = append(parts, fmt.Sprintf("%s %s %s", label, fiveH, weekly))
 	}
 	return "📊 " + strings.Join(parts, " │ ")
@@ -284,6 +298,14 @@ func Render(st *model.UnifiedStatus, cfg *config.Config) string {
 	}
 
 	line1 := strings.Join(line1Segments, " ")
+	if cfg.Layout.Line1Width > 0 && line1 != "" {
+		curWidth := ansi.StringWidth(line1)
+		if curWidth < cfg.Layout.Line1Width {
+			line1 = line1 + strings.Repeat(" ", cfg.Layout.Line1Width-curWidth)
+		} else if curWidth > cfg.Layout.Line1Width {
+			line1 = ansi.Truncate(line1, cfg.Layout.Line1Width, "…")
+		}
+	}
 	main := strings.Join(mainSegments, " │ ")
 
 	result := ""

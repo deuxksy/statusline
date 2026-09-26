@@ -16,6 +16,9 @@ func TestLoadConfigEmbeddedDefault(t *testing.T) {
 	if cfg.Thresholds.ContextWarning != 70 {
 		t.Errorf("expected 70 contextWarning, got %d", cfg.Thresholds.ContextWarning)
 	}
+	if cfg.Layout.Line1Width != 28 {
+		t.Errorf("expected 28 line1Width, got %d", cfg.Layout.Line1Width)
+	}
 }
 
 func TestSaveDefaultConfig(t *testing.T) {
@@ -37,5 +40,8 @@ func TestSaveDefaultConfig(t *testing.T) {
 	}
 	if !loadedCfg.Elements.Permission {
 		t.Errorf("expected loaded config permission to be true by default")
+	}
+	if loadedCfg.Layout.Line1Width != 28 {
+		t.Errorf("expected loaded config line1Width to be 28, got %d", loadedCfg.Layout.Line1Width)
 	}
 }
