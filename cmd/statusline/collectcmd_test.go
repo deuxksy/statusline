@@ -209,3 +209,27 @@ func TestRunCollectZaiStandaloneMissingCredsExit1(t *testing.T) {
 		t.Error("stderr에 오류 메시지 필요")
 	}
 }
+
+// 자격 증명은 있으나 HTTP 실패 — allowlist 거부가 아닌 실제 조회 실패 경로를
+// 검증하기 위해 provider 주입 후 500 서버로 실행한다.
+func TestRunCollectZaiStandaloneFetchFailExit0(t *testing.T) {
+	stubZaiProvider(t)
+	// 즉시 500을 반환하는 서버
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusInternalServerError)
+	}))
+	t.Cleanup(srv.Close)
+	t.Setenv("ZAI_BASE_URL", srv.URL)
+	t.Setenv("ZAI_AUTH_TOKEN", "test-token")
+	tmp := t.TempDir()
+	creds := writeCreds(t, tmp, `{}`)
+
+	var out, errOut bytes.Buffer
+	code := runCollect(&out, &errOut, []string{"zai"}, creds, filepath.Join(tmp, "cache"))
+	if code != 0 {
+		t.Fatalf("zai 단독 조회 실패는 errors JSON + exit 0 (exit 1 아님), got %d", code)
+	}
+	if !bytes.Contains(out.Bytes(), []byte(`"errors"`)) || !bytes.Contains(out.Bytes(), []byte("zai")) {
+		t.Errorf("expected errors.zai in stdout, got: %s", out.String())
+	}
+}
