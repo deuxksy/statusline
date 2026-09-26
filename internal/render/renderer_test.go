@@ -148,6 +148,64 @@ func TestRenderConfigElementsDisabled(t *testing.T) {
 	}
 }
 
+func TestRenderContextBarTokensAndLimit(t *testing.T) {
+	st := model.NewUnifiedStatus("claude")
+	st.ContextTokens = 57340
+	st.ContextLimit = 1000000
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	if !strings.Contains(ansi.Strip(output), "⚡ 57k/1M(6%)") {
+		t.Errorf("expected combined context segment '⚡ 57k/1M(6%%)', got: %q", ansi.Strip(output))
+	}
+}
+
+func TestRenderContextBarPercentFallbackWithoutLimit(t *testing.T) {
+	st := model.NewUnifiedStatus("claude")
+	st.ContextTokens = 45 // OMC/antigravity 경로: ContextLimit 없이 percent만 있음
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	if !strings.Contains(output, "[45%]") {
+		t.Errorf("expected percent fallback '[45%%]' when ContextLimit is unset, got: %q", ansi.Strip(output))
+	}
+}
+
+func TestRenderContextBarThresholdColors(t *testing.T) {
+	cfg := config.DefaultConfig()
+
+	low := model.NewUnifiedStatus("claude")
+	low.ContextTokens = 57000
+	low.ContextLimit = 1000000
+
+	critical := model.NewUnifiedStatus("claude")
+	critical.ContextTokens = 970000
+	critical.ContextLimit = 1000000
+
+	outLow := render.Render(low, cfg)
+	outCritical := render.Render(critical, cfg)
+
+	if outLow == outCritical {
+		t.Errorf("expected different styling for low vs critical context usage: %q", outLow)
+	}
+	if !strings.Contains(ansi.Strip(outCritical), "(97%)") {
+		t.Errorf("expected '(97%%)' in critical output, got: %q", ansi.Strip(outCritical))
+	}
+}
+
+func TestRenderContextBarHiddenAfterCompact(t *testing.T) {
+	st := model.NewUnifiedStatus("claude") // /compact 직후: 토큰 정보 없음
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	if strings.Contains(output, "⚡") {
+		t.Errorf("expected context segment hidden when no token data, got: %q", ansi.Strip(output))
+	}
+}
+
 func TestRenderEmptyStatus(t *testing.T) {
 	st := model.NewUnifiedStatus("generic")
 	cfg := config.DefaultConfig()

@@ -36,6 +36,56 @@ func TestClaudeAdapter(t *testing.T) {
 	}
 }
 
+func TestClaudeAdapterContextWindow(t *testing.T) {
+	a := &adapter.ClaudeAdapter{}
+	jsonPayload := []byte(`{
+		"model": {"id": "glm-5.3", "display_name": "GLM-5.3"},
+		"transcript_path": "/home/user/.claude/projects/-x/edd837a0.jsonl",
+		"context_window": {
+			"total_input_tokens": 57340,
+			"total_output_tokens": 1574,
+			"context_window_size": 1000000,
+			"used_percentage": 5.7,
+			"current_usage": {
+				"input_tokens": 124,
+				"output_tokens": 1574,
+				"cache_creation_input_tokens": 0,
+				"cache_read_input_tokens": 57216
+			}
+		}
+	}`)
+
+	status, err := a.Parse(jsonPayload, map[string]string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if status.ContextTokens != 57340 {
+		t.Errorf("expected context tokens 57340, got %d", status.ContextTokens)
+	}
+	if status.ContextLimit != 1000000 {
+		t.Errorf("expected context limit 1000000, got %d", status.ContextLimit)
+	}
+}
+
+func TestClaudeAdapterContextWindowPrecedenceOverLegacyFields(t *testing.T) {
+	a := &adapter.ClaudeAdapter{}
+	jsonPayload := []byte(`{
+		"contextBar": {"percentage": 45},
+		"context_window": {
+			"total_input_tokens": 20000,
+			"context_window_size": 200000
+		}
+	}`)
+
+	status, err := a.Parse(jsonPayload, map[string]string{})
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if status.ContextTokens != 20000 || status.ContextLimit != 200000 {
+		t.Errorf("expected context_window to take precedence (20000/200000), got %d/%d", status.ContextTokens, status.ContextLimit)
+	}
+}
+
 func TestCodexAdapter(t *testing.T) {
 	a := &adapter.CodexAdapter{}
 	status, err := a.Parse([]byte{}, map[string]string{})

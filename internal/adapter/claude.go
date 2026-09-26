@@ -19,7 +19,11 @@ func (c *ClaudeAdapter) Parse(input []byte, env map[string]string) (*model.Unifi
 			Percentage int `json:"percentage"`
 		} `json:"contextBar"`
 		ContextTokens int `json:"contextTokens"`
-		Thinking      struct {
+		ContextWindow struct {
+			TotalInputTokens  int `json:"total_input_tokens"`
+			ContextWindowSize int `json:"context_window_size"`
+		} `json:"context_window"`
+		Thinking struct {
 			State string `json:"state"`
 		} `json:"thinking"`
 		ThinkingState string   `json:"thinkingState"`
@@ -49,7 +53,11 @@ func (c *ClaudeAdapter) Parse(input []byte, env map[string]string) (*model.Unifi
 				}
 			}
 		}
-		if raw.ContextTokens > 0 {
+		// CC 2.x 표준 stdin 필드가 우선. contextBar/contextTokens는 OMC 래퍼 폴백.
+		if raw.ContextWindow.TotalInputTokens > 0 {
+			st.ContextTokens = raw.ContextWindow.TotalInputTokens
+			st.ContextLimit = raw.ContextWindow.ContextWindowSize
+		} else if raw.ContextTokens > 0 {
 			st.ContextTokens = raw.ContextTokens
 		} else if raw.ContextBar.Percentage > 0 {
 			st.ContextTokens = raw.ContextBar.Percentage

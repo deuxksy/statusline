@@ -212,6 +212,12 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 		}
 	case "contextBar":
 		if cfg.Elements.ContextBar && cfg.Elements.ShowTokens && st.Capabilities.HasTokens && st.ContextTokens > 0 {
+			if st.ContextLimit > 0 {
+				pct := int(math.Round(float64(st.ContextTokens) / float64(st.ContextLimit) * 100))
+				text := fmt.Sprintf("%s/%s(%d%%)", humanizeTokens(st.ContextTokens), humanizeTokens(st.ContextLimit), pct)
+				return "⚡ " + contextColor(pct, cfg, p).Render(text)
+			}
+			// ContextLimit 미제공(OMC/antigravity percent 경로) 폴백
 			return fmt.Sprintf("[%d%%]", st.ContextTokens)
 		}
 	case "tokens":
@@ -235,6 +241,33 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 		}
 	}
 	return ""
+}
+
+// humanizeTokens — 토큰수 축약: 57340 → "57k", 200000 → "200k", 1000000 → "1M", 1234567 → "1.2M"
+func humanizeTokens(n int) string {
+	switch {
+	case n >= 1_000_000:
+		m := float64(n) / 1_000_000
+		if m == math.Trunc(m) {
+			return fmt.Sprintf("%dM", int(m))
+		}
+		return fmt.Sprintf("%.1fM", m)
+	case n >= 1_000:
+		return fmt.Sprintf("%dk", n/1_000)
+	default:
+		return fmt.Sprintf("%d", n)
+	}
+}
+
+// contextColor — 컨텍스트 사용률(%)에 따라 색상 스타일 반환
+func contextColor(pct int, cfg *config.Config, p ThemePalette) lipgloss.Style {
+	if pct >= cfg.Thresholds.ContextCritical {
+		return lipgloss.NewStyle().Foreground(p.QuotaBad)
+	}
+	if pct >= cfg.Thresholds.ContextWarning {
+		return lipgloss.NewStyle().Foreground(p.QuotaWarn)
+	}
+	return lipgloss.NewStyle().Foreground(p.QuotaGood)
 }
 
 // quotaColor — 잔여 비율에 따라 색상 스타일 반환
