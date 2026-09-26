@@ -56,6 +56,19 @@ func selectProviders(provider string) ([]string, error) {
 	}
 }
 
+// normalizeCliAlias — 정식 호스트 이름을 내부 엔진 값으로 정규화.
+// internal/adapter/auto.go 분기는 무수정 유지 (스펙 구현 범위).
+func normalizeCliAlias(s string) string {
+	switch s {
+	case "claudecode":
+		return "claude"
+	case "agy":
+		return "antigravity"
+	default:
+		return s
+	}
+}
+
 // zaiProviderFromBaseURL — provider 식별 시임(var 주입). SSRF 가드 주체는 adapter
 // allowlist이며 프로덕션 기본값은 그대로 — 테스트가 httptest 로컬 URL을 통과시키는
 // 주입점일 뿐이다.
