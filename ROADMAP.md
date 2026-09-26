@@ -72,6 +72,14 @@
 - [X] Z.AI 자격 증명 `~/.config/statusline/credentials.json` 폴백 및 `ZAI_*` env 오버라이드
 - [X] collect 실측 응답 익명화 샘플 (`docs/samples/collect/`)
 
+## ✅ v0.5.2 — collect 전 provider 통합 수집 (완료)
+
+- [X] `--cli`(호스트 도구) / `--provider`(서비스 계정) 2축 네임스페이스 확립 — collect에서 `--cli`는 경고 후 무시
+- [X] provider별 **병렬 수집 → 단일 병합 출력** (race-free 고루틴, 부분 실패는 `errors` JSON fail-soft)
+- [X] `--provider=all|chatgpt|zai|zhipu` 필터 + 기본 전 provider 병합 — `chatgpt` = codex 로컬 + Platform Admin 번들
+- [X] `anthropic`/`gemini` provider 명시적 미지원 거부 (exit 2 사용법 안내)
+- [X] `--cli` 정식 호스트명 별칭 정규화 (`claudecode`→`claude`, `agy`→`antigravity`)
+
 ## 🔲 v0.6.0 — Anthropic (Claude Code) 완전 지원
 
 - [ ] Anthropic OAuth usage API 연동 (`api.anthropic.com/api/oauth/usage`, Keychain 자격 증명) — OMC HUD `usage-api.js`·claude-hud 참조
@@ -91,7 +99,7 @@
 
 ## 🔲 v0.8.0 — 통합 수집기 & GUI 에이전트 모니터링 (Local Watcher & Daemon) 🌟
 
-- [X] **통합 `collect` 서브커맨드**: `--provider=all|chatgpt|zai` 필터 + 기본 전 provider 병합 출력 (v0.5.x) — Antigravity(agy 앱 측정), Claude(로컬 감시)는 본 로드맵 후속 항목으로 유지
+- [X] **통합 `collect` 서브커맨드**: `--provider=all|chatgpt|zai` 필터 + 기본 전 provider 병합 출력 (v0.5.2) — Antigravity(agy 앱 측정), Claude(로컬 감시)는 본 로드맵 후속 항목으로 유지
 - [ ] **Antigravity IDE** 로컬 세션 및 브레인 로그(`~/.gemini/antigravity/...`) 감시 어댑터
 - [ ] **Codex Work** 로컬 app-server 세션 및 작업 공간(Workspace) 쿼터/사용량 파싱
 - [ ] **Claude Work** (Enterprise/Desktop) 로컬 세션 및 사용량 이벤트 감시
