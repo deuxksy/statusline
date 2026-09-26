@@ -233,3 +233,27 @@ func TestRunCollectZaiStandaloneFetchFailExit0(t *testing.T) {
 		t.Errorf("expected errors.zai in stdout, got: %s", out.String())
 	}
 }
+
+func TestRunCollectAllFailErrorsJSON(t *testing.T) {
+	t.Setenv("ZAI_BASE_URL", "")
+	t.Setenv("ZAI_AUTH_TOKEN", "")
+	t.Setenv("ANTHROPIC_BASE_URL", "")
+	t.Setenv("ANTHROPIC_AUTH_TOKEN", "")
+	t.Setenv("OPENAI_ADMIN_KEY", "") // platform 실망 호출 차단 — 테스트 상동성
+	// codex도 실패하도록 PATH에서 codex 제거 시도 — 최소한 빈 출력이 아니라는 것을 검증
+	tmp := t.TempDir()
+	creds := writeCreds(t, tmp, `{}`)
+
+	var out, errOut bytes.Buffer
+	code := runCollect(&out, &errOut, []string{"chatgpt"}, creds, filepath.Join(tmp, "cache"))
+	if code != 0 {
+		t.Fatalf("expected exit 0, got %d", code)
+	}
+	trimmed := bytes.TrimSpace(out.Bytes())
+	if len(trimmed) == 0 || trimmed[len(trimmed)-1] != '}' {
+		t.Fatalf("stdout은 JSON이어야 함 (빈 출력 금지), got: %q", out.String())
+	}
+	if !bytes.Contains(trimmed, []byte("codex")) && !bytes.Contains(trimmed, []byte("errors")) {
+		t.Errorf("codex 키 또는 errors.codex 필요, got: %s", out.String())
+	}
+}
