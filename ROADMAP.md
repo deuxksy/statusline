@@ -9,12 +9,15 @@
 1. **Phase 1 (~ v0.7.0)**: **터미널 CLI 상태바(statusline) 완성**
    - Claude Code, Codex, Antigravity, Z.AI 환경에서 단일행 고성능 스트림 필터로 완벽 동작
    - 각 프로바이더별 Quota, 토큰, 사용량, 구독 플랜 및 다중 계정 파싱 로직 안정화
-2. **Phase 2 (v0.8.0 ~ v0.9.0)**: **GUI 에이전트 연동 & OS 시스템 트레이 위젯 (`fyne-io/systray`)**
-   - VS Code, Antigravity IDE, Codex/Claude Work 등 GUI 에이전트 사용량 측정 및 공통 캐시 적재
-   - CLI/GUI 공통 데이터를 macOS 메뉴바/Windows 트레이에서 실시간 표출
-3. **Phase 3 (v1.0.0)**: **공식 정식 릴리스 & 상용화 (Commercial Launch)**
-   - Community(무료): CLI 상태바 / Pro(유료): GUI 위젯 + GUI 에이전트 모니터링 + 다중 계정
-4. **Phase 4 (v2.0.0 ~)**: **리치 플로팅 대시보드 (`Wails`)**
+2. **Phase 2 (v0.8.0)**: **GUI 트레이 위젯 최초 도입 (`fyne-io/systray`)**
+   - collect 캐시 파일 폴링 기반으로 macOS 메뉴바/Windows 트레이에서 실시간 표출
+3. **Phase 3 (v0.9.0)**: **Beta — 공개 베타 & 안정화**
+   - 공개 베타 배포 및 피드백 수집, 수집기 백오프·렌더 성능 하드닝
+4. **Phase 4 (v1.0.0)**: **공식 정식 릴리스 & 상용화 (Commercial Launch)**
+   - Community(무료): CLI 상태바 / Pro(유료): 트레이 위젯 + 다중 계정
+5. **Phase 5 (v1.1.0)**: **IDE 에이전트 로컬 감시 & 데몬 (Local Watcher & Daemon)**
+   - VS Code, Antigravity IDE, Codex/Claude Work 등 IDE 에이전트 사용량 측정 및 공통 캐시 적재
+6. **Phase 6 (v2.0.0 ~)**: **리치 플로팅 대시보드 (`Wails`)**
    - 트레이 클릭 시 Webview 팝업 창을 통한 차트 및 상세 카드 제공
 
 ---
@@ -82,11 +85,14 @@
 
 ## 🔲 v0.6.0 — Anthropic (Claude Code) 완전 지원
 
-- [ ] Anthropic OAuth usage API 연동 (`api.anthropic.com/api/oauth/usage`, Keychain 자격 증명) — OMC HUD `usage-api.js`·claude-hud 참조
+> 설계 스펙 작성 완료: [Anthropic OAuth Usage 수집 설계](./docs/superpowers/specs/2026-09-27-anthropic-oauth-usage-design.md) (2026-09-27, 구현 전)
+> **보류 중** — Anthropic 유료 계정(OAuth 자격 증명) 확보 전까지 라이브 실측 불가. v0.8.0 트레이 위젯을 선행 진행
+
+- [ ] Anthropic OAuth usage API 연동 (`api.anthropic.com/api/oauth/usage`, Keychain 자격 증명, 토큰 refresh + write-back) — OMC HUD `usage-api.js`·claude-hud 참조
 - [ ] Claude Code 페이로드의 누적 비용(`cost.total_cost_usd`) 모니터링 연동 — 토큰·컨텍스트 사용량은 v0.5.1 완료
-- [ ] 세션 및 일일/월간 Quota 잔여량 파싱 및 표시
-- [ ] 구독 플랜 인식 (Claude Pro / Team / Enterprise)
-- [ ] Anthropic 모델별(Opus, Sonnet, Haiku) 사용량 세분화
+- [ ] 5h/주간(7d) 창 Quota 잔여량 파싱 및 표시 — API가 세션/일일/월간 이력은 미제공(5h/7d 창만 제공)
+- [ ] 구독 플랜 인식 (`subscriptionType` — Claude Pro / Team / Enterprise)
+- [ ] Anthropic 모델별 주간 quota 세분화 (sonnet/opus + 미인식 패밀리 generic bucket) — opt-in config
 
 ## 🔲 v0.7.0 — 다중 계정(Multi-Accounts) & 공통 예산·캐시 인프라
 
@@ -97,23 +103,23 @@
 - [ ] CLI 상태바에서 활성 계정 또는 위험(잔여 최소) 계정 선택 노출 옵션
   - 예: `oai[work] 5h:80% │ oai[pers] 5h:20% ⚠️`
 
-## 🔲 v0.8.0 — 통합 수집기 & GUI 에이전트 모니터링 (Local Watcher & Daemon) 🌟
+## 🔲 v0.8.0 — GUI 트레이 위젯 최초 도입 (`fyne-io/systray`) 🌟
 
-- [X] **통합 `collect` 서브커맨드**: `--provider=all|chatgpt|zai` 필터 + 기본 전 provider 병합 출력 (v0.5.2) — Antigravity(agy 앱 측정), Claude(로컬 감시)는 본 로드맵 후속 항목으로 유지
-- [ ] **Antigravity IDE** 로컬 세션 및 브레인 로그(`~/.gemini/antigravity/...`) 감시 어댑터
-- [ ] **Codex Work** 로컬 app-server 세션 및 작업 공간(Workspace) 쿼터/사용량 파싱
-- [ ] **Claude Work** (Enterprise/Desktop) 로컬 세션 및 사용량 이벤트 감시
-- [ ] **VS Code** 확장 프로그램 작업 공간(`workspaceStorage`) 및 AI 확장 상태 감시
-- [ ] GUI/CLI 수집 데이터를 공통 캐시(`~/.cache/statusline/live_session.json`)로 표준화 적재
-- [ ] 백그라운드 수집 데몬 프로세스 지원 (`statusline daemon` 또는 `statusline collect --watch-gui`)
+- [ ] **v0.8.1 — macOS** 상단 메뉴바 위젯 (텍스트 `SetTitle` 및 아이콘 표시) — 우선 구현
+- [ ] **v0.8.5 — Windows** 시스템 트레이 위젯 (툴팁 및 네이티브 팝업 메뉴)
+- [ ] 단일 Go 바이너리로 최소 리소스(초경량/저전력) 구동 (`statusline tray` 서브커맨드)
+- [ ] collect 전 provider 캐시 적재 확장 — `live_session.json` 표준화 (v1.1.0에서 조기 이관)
+- [ ] 캐시 mtime 감시 + TTL 만료 시 자가 스폰 갱신 (`SpawnSelfCollect` 패턴 확장)
+- [ ] 메뉴바 타이틀 = 메인 provider 잔여 요약 (기본 zai), 드롭다운에서 메인 전환
+- [ ] provider별 Quota 드롭다운 메뉴 — CLI 수집 데이터 기준 (다중 계정 표시는 v0.7.0 완료 후 확장, IDE 에이전트 데이터 통합은 v1.1.0)
+- [ ] CLI ↔ Tray 간 공유 데이터 레이어 — collect 캐시 파일 폴링 (IPC/소켓은 v1.1.0 데몬 시점 검토)
 
-## 🔲 v0.9.0 — GUI 트레이 위젯 최초 도입 (`fyne-io/systray`)
+## 🔲 v0.9.0 — Beta (공개 베타 & 안정화)
 
-- [ ] **macOS** — 상단 메뉴바 위젯 (텍스트 `SetTitle` 및 아이콘 표시)
-- [ ] **Windows** — 시스템 트레이 위젯 (툴팁 및 네이티브 팝업 메뉴)
-- [ ] 단일 Go 바이너리로 최소 리소스(초경량/저전력) 구동
-- [ ] CLI ↔ Tray 간 공유 데이터 레이어 (IPC / 상태 파일 / 소켓 감시)
-- [ ] 다중 계정 및 CLI/GUI 에이전트 통합 드롭다운 메뉴 (계정별 Quota 및 활성 상태 분리 표시)
+- [ ] 공개 베타 배포 채널 오픈 및 피드백 수집
+- [ ] 트레이 상시 폴링 도입에 따른 수집기 백오프 상태기계 (지수 백오프·per-identity, anthropic 스펙 향후작업 이관)
+- [ ] 렌더링 성능 하드닝 — <5ms 렌더 예산 준수 검증
+- [ ] 크로스플랫폼 빌드·배포 파이프라인 (GoReleaser 베타 채널)
 
 ## 🔲 v1.0.0 — 공식 정식 릴리스 & 상용화 (Commercial Launch) 💵
 
@@ -123,13 +129,23 @@
   - 다중 계정 API 키 및 라이선스 키 보관
 - [ ] **상용 라이선스 & 유료화 모델 (Monetization)**:
   - CLI 기본 단일행 상태바: 무료 (Community)
-  - GUI 트레이 위젯 + 다중 계정 + GUI 에이전트(VS Code/Antigravity/Codex/Claude Work) 통합 모니터링 + 알림: 유료 (Pro License)
+  - GUI 트레이 위젯 + 다중 계정: 유료 (Pro License) — IDE 에이전트 통합 모니터링은 v1.1.0, OS 알림은 v2.0.0에서 Pro 추가 기능으로 제공
 - [ ] **라이선스 관리 및 검증 시스템**:
   - 라이선스 키 활성화 커맨드 (`statusline activate <license-key>`)
   - 오프라인/온라인 라이선스 검증 레이어 (Lemon Squeezy / Polar / Gumroad 연동)
 - [ ] **릴리스 패키징 및 배포**:
   - macOS 서명(Notarization) & Windows 코드 사이닝
-  - 공식 웹사이트/결제 페이지 오픈 및 배포 파이프라인 (GoReleaser)
+  - 공식 웹사이트/결제 페이지 오픈 (배포 파이프라인은 v0.9.0 Beta에서 구축)
+
+## 🔲 v1.1.0 — IDE 에이전트 로컬 감시 & 데몬 (Local Watcher & Daemon) 🌟
+
+- [ ] **Antigravity IDE** 로컬 세션 및 브레인 로그(`~/.gemini/antigravity/...`) 감시 어댑터
+- [ ] **Codex Work** 로컬 app-server 세션 및 작업 공간(Workspace) 쿼터/사용량 파싱
+- [ ] **Claude Work** (Enterprise/Desktop) 로컬 세션 및 사용량 이벤트 감시
+- [ ] **VS Code** 확장 프로그램 작업 공간(`workspaceStorage`) 및 AI 확장 상태 감시
+- [ ] IDE/CLI 수집 데이터를 공통 캐시(`~/.cache/statusline/live_session.json`)로 표준화 적재
+- [ ] 백그라운드 수집 데몬 프로세스 지원 (`statusline daemon` 또는 `statusline collect --watch-gui`)
+- [ ] 트레이 위젯(v0.8.0) 드롭다운에 IDE 에이전트 감시 데이터 통합 표시
 
 ## 🔲 v2.0.0 — 리치 팝업 UI & 대시보드 (`Wails`)
 
