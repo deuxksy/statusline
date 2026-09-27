@@ -72,7 +72,12 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
-		os.Exit(runCollect(os.Stdout, os.Stderr, providers, credentialsPath(), cachePath))
+		liveCachePath, err := collect.LiveCachePath()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		os.Exit(runCollect(os.Stdout, os.Stderr, providers, credentialsPath(), cachePath, liveCachePath))
 	}
 	if flag.NArg() > 0 && flag.Arg(0) == "watch" {
 		ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt)
@@ -82,6 +87,9 @@ func main() {
 			os.Exit(1)
 		}
 		return
+	}
+	if flag.NArg() > 0 && flag.Arg(0) == "tray" {
+		os.Exit(runTray(configPath))
 	}
 
 	// Fail-soft stdin read

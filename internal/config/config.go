@@ -36,6 +36,10 @@ type LayoutConfig struct {
 	Line1Width int      `json:"line1Width,omitempty"`
 }
 
+type TrayConfig struct {
+	Primary string `json:"primary"` // 메뉴바 타이틀에 노출할 메인 provider (zai | chatgpt)
+}
+
 type Config struct {
 	Schema     string           `json:"$schema,omitempty"`
 	Elements   ElementsConfig   `json:"elements"`
@@ -43,6 +47,7 @@ type Config struct {
 	WrapMode   string           `json:"wrapMode"`
 	Theme      string           `json:"theme"`
 	Layout     LayoutConfig     `json:"layout"`
+	Tray       TrayConfig       `json:"tray"`
 }
 
 func DefaultConfig() *Config {
@@ -77,6 +82,7 @@ func DefaultConfig() *Config {
 			Main:       []string{"permission", "engineLabel", "model", "thinking", "contextBar", "tokens", "quota", "activeSkills", "lastTool"},
 			Line1Width: 28,
 		},
+		Tray: TrayConfig{Primary: "zai"},
 	}
 }
 
@@ -93,11 +99,20 @@ func LoadConfig(path string) *Config {
 }
 
 func SaveDefaultConfig(path string) error {
+	return saveConfigAt(path, DefaultConfig())
+}
+
+// SaveConfig — 트레이 메인 provider 전환 등 런타임 변경 사항을 기존 파일 규약(0600)으로 저장.
+func SaveConfig(path string, cfg *Config) error {
+	return saveConfigAt(path, cfg)
+}
+
+func saveConfigAt(path string, cfg *Config) error {
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return err
 	}
-	data, err := json.MarshalIndent(DefaultConfig(), "", "  ")
+	data, err := json.MarshalIndent(cfg, "", "  ")
 	if err != nil {
 		return err
 	}

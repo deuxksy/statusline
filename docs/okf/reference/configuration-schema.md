@@ -25,6 +25,14 @@ The configuration file is loaded from `~/.config/statusline/config.json`.
 - `line1`: List of elements to render (merged onto single line in statusbar mode).
 - `main`: List of main status bar elements.
 
+### `tray` (object)
+
+Tray widget (`statusline tray`, v0.8.1) settings. `primary` is saved back to the config file when the main provider is switched from the tray dropdown.
+
+| Field | Type | Default | Description |
+|---|---|---|---|
+| `primary` | string | `"zai"` | Provider shown in the menu bar title (`zai`, `chatgpt`). Invalid values fall back to `zai`. |
+
 ---
 
 ## Credential File (`credentials.json`)

@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"testing"
+
+	"statusline/internal/collect"
 )
 
 func TestParseProviderArg(t *testing.T) {
@@ -149,7 +151,7 @@ func TestRunCollectAllMergesZai(t *testing.T) {
 
 	var out bytes.Buffer
 	var errOut bytes.Buffer
-	code := runCollect(&out, &errOut, []string{"chatgpt", "zai"}, creds, filepath.Join(tmp, "cache"))
+	code := runCollect(&out, &errOut, []string{"chatgpt", "zai"}, creds, filepath.Join(tmp, "cache"), filepath.Join(tmp, "live_session.json"))
 	if code != 0 {
 		t.Fatalf("expected exit 0, got %d, stderr: %s", code, errOut.String())
 	}
@@ -179,7 +181,7 @@ func TestRunCollectAllOmitsZaiWithoutCreds(t *testing.T) {
 
 	var out bytes.Buffer
 	var errOut bytes.Buffer
-	code := runCollect(&out, &errOut, []string{"chatgpt", "zai"}, creds, filepath.Join(tmp, "cache"))
+	code := runCollect(&out, &errOut, []string{"chatgpt", "zai"}, creds, filepath.Join(tmp, "cache"), filepath.Join(tmp, "live_session.json"))
 	if code != 0 {
 		t.Fatalf("기본 모드 자격 증명 부재는 exit 0이어야 함, got %d", code)
 	}
@@ -201,7 +203,7 @@ func TestRunCollectZaiStandaloneMissingCredsExit1(t *testing.T) {
 	creds := writeCreds(t, tmp, `{}`)
 
 	var out, errOut bytes.Buffer
-	code := runCollect(&out, &errOut, []string{"zai"}, creds, filepath.Join(tmp, "cache"))
+	code := runCollect(&out, &errOut, []string{"zai"}, creds, filepath.Join(tmp, "cache"), filepath.Join(tmp, "live_session.json"))
 	if code != 1 {
 		t.Fatalf("zai 단독 자격 증명 부재는 exit 1 (현행 계약), got %d", code)
 	}
@@ -225,7 +227,7 @@ func TestRunCollectZaiStandaloneFetchFailExit0(t *testing.T) {
 	creds := writeCreds(t, tmp, `{}`)
 
 	var out, errOut bytes.Buffer
-	code := runCollect(&out, &errOut, []string{"zai"}, creds, filepath.Join(tmp, "cache"))
+	code := runCollect(&out, &errOut, []string{"zai"}, creds, filepath.Join(tmp, "cache"), filepath.Join(tmp, "live_session.json"))
 	if code != 0 {
 		t.Fatalf("zai 단독 조회 실패는 errors JSON + exit 0 (exit 1 아님), got %d", code)
 	}
@@ -245,7 +247,7 @@ func TestRunCollectAllFailErrorsJSON(t *testing.T) {
 	creds := writeCreds(t, tmp, `{}`)
 
 	var out, errOut bytes.Buffer
-	code := runCollect(&out, &errOut, []string{"chatgpt"}, creds, filepath.Join(tmp, "cache"))
+	code := runCollect(&out, &errOut, []string{"chatgpt"}, creds, filepath.Join(tmp, "cache"), filepath.Join(tmp, "live_session.json"))
 	if code != 0 {
 		t.Fatalf("expected exit 0, got %d", code)
 	}
@@ -255,5 +257,61 @@ func TestRunCollectAllFailErrorsJSON(t *testing.T) {
 	}
 	if !bytes.Contains(trimmed, []byte("codex")) && !bytes.Contains(trimmed, []byte("errors")) {
 		t.Errorf("codex 키 또는 errors.codex 필요, got: %s", out.String())
+	}
+}
+
+func TestRunCollectWritesLiveCache(t *testing.T) {
+	stubZaiProvider(t)
+	srv := newZaiMockServer(t)
+	t.Setenv("ZAI_BASE_URL", srv.URL)
+	t.Setenv("ZAI_AUTH_TOKEN", "test-token")
+	t.Setenv("OPENAI_ADMIN_KEY", "") // platform 실망 호출 차단 — 테스트 상동성
+	tmp := t.TempDir()
+	creds := writeCreds(t, tmp, `{}`)
+	livePath := filepath.Join(tmp, "live_session.json")
+
+	var out, errOut bytes.Buffer
+	code := runCollect(&out, &errOut, []string{"zai"}, creds, filepath.Join(tmp, "cache"), livePath)
+	if code != 0 {
+		t.Fatalf("expected exit 0, got %d, stderr: %s", code, errOut.String())
+	}
+	live, ok := collect.ReadLiveCacheAt(livePath)
+	if !ok {
+		t.Fatalf("live_session.json not written, stdout: %s", out.String())
+	}
+	if live.Zai == nil {
+		t.Error("expected zai snapshot in live cache")
+	}
+	if live.FetchedAt.IsZero() {
+		t.Error("expected non-zero fetchedAt")
+	}
+}
+
+func TestRunCollectAllFailureKeepsCache(t *testing.T) {
+	t.Setenv("ZAI_BASE_URL", "")
+	t.Setenv("ZAI_AUTH_TOKEN", "")
+	t.Setenv("ANTHROPIC_BASE_URL", "")
+	t.Setenv("ANTHROPIC_AUTH_TOKEN", "")
+	t.Setenv("OPENAI_ADMIN_KEY", "")
+	t.Setenv("PATH", t.TempDir()) // codex 로컬 바이너리 탐색 차단 — 전 실패 전제 보장
+	tmp := t.TempDir()
+	creds := writeCreds(t, tmp, `{}`)
+	livePath := filepath.Join(tmp, "live_session.json")
+	sentinel := `{"fetchedAt":"2026-09-27T00:00:00Z","zai":{"provider":"zai","token_remaining_5h":0.42}}`
+	if err := os.WriteFile(livePath, []byte(sentinel), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	var out, errOut bytes.Buffer
+	code := runCollect(&out, &errOut, []string{"chatgpt"}, creds, filepath.Join(tmp, "cache"), livePath)
+	if code != 0 {
+		t.Fatalf("expected exit 0, got %d, stderr: %s", code, errOut.String())
+	}
+	data, err := os.ReadFile(livePath)
+	if err != nil {
+		t.Fatalf("live cache lost: %v", err)
+	}
+	if string(data) != sentinel {
+		t.Errorf("cache must be untouched on total failure, got: %s", data)
 	}
 }

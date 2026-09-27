@@ -32,7 +32,7 @@ ROADMAP v0.6.0. Claude Code(claude 엔진)는 v0.5.1까지 토큰·컨텍스트 
 **비목표**
 
 1. 403 setup-token 폴백(`/v1/messages` ratelimit-unified 헤더) — YAGNI. 정식 OAuth 로그인 사용자는 해당 없음
-2. 연속 폴링 백오프 상태기계(OMC 지수 백오프·per-identity backoffs) — 수동 1회성 collect에 불필요. v0.8.0 데몬 시점 재검토
+2. 연속 폴링 백오프 상태기계(OMC 지수 백오프·per-identity backoffs) — 수동 1회성 collect에 불필요. v0.9.0 Beta(트레이 상시 폴링 도입)로 이관
 3. 세션/일일 단위 사용량 이력 — API가 5h/7d 창만 제공
 4. 다중 계정 — v0.7.0 범위
 5. gemini 수집 — [collect-all 스펙](./2026-09-26-collect-all-providers-design.md) 결정 유지
@@ -188,5 +188,5 @@ TDD. `go test -race ./...` 포함 전체 통과가 완료 조건.
 ## 향후 작업
 
 1. 403 setup-token 폴백(`/v1/messages` ratelimit-unified 헤더) — setup-token 사용자 발생 시
-2. v0.8.0 데몬 도입 시 연속 폴링 백오프 상태기계 이식
+2. 연속 폴링 백오프 상태기계 이관 — v0.9.0 Beta (트레이 상시 폴링 도입, 데몬은 v1.1.0)
 3. 다중 계정 라벨링 — v0.7.0
