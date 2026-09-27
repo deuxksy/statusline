@@ -1,6 +1,6 @@
-# statusline v0.2 개발자 및 사용자 문서 (OKF)
+# statusline 개발자 및 사용자 문서 (OKF)
 
-`statusline` v0.2 프로젝트의 **Open Knowledge Framework (OKF)** 문서 허브입니다.
+`statusline` 프로젝트의 **Open Knowledge Framework (OKF)** 문서 허브입니다.
 
 본 문서는 개발자와 사용자의 탐색 목적에 맞춰 [Diátaxis 프레임워크](https://diataxis.fr/) 체계에 따라 4개의 카테고리로 정리되어 있습니다.
 
