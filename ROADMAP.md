@@ -105,14 +105,14 @@
 
 ## 🔲 v0.8.0 — GUI 트레이 위젯 최초 도입 (`fyne-io/systray`) 🌟
 
-- [ ] **v0.8.1 — macOS** 상단 메뉴바 위젯 (텍스트 `SetTitle` 및 아이콘 표시) — 우선 구현
+- [X] **v0.8.1 — macOS** 상단 메뉴바 위젯 (텍스트 `SetTitle`) — 2026-09-27 실측 완료
 - [ ] **v0.8.5 — Windows** 시스템 트레이 위젯 (툴팁 및 네이티브 팝업 메뉴)
-- [ ] 단일 Go 바이너리로 최소 리소스(초경량/저전력) 구동 (`statusline tray` 서브커맨드)
-- [ ] collect 전 provider 캐시 적재 확장 — `live_session.json` 표준화 (v1.1.0에서 조기 이관)
-- [ ] 캐시 mtime 감시 + TTL 만료 시 자가 스폰 갱신 (`SpawnSelfCollect` 패턴 확장)
-- [ ] 메뉴바 타이틀 = 메인 provider 잔여 요약 (기본 zai), 드롭다운에서 메인 전환
-- [ ] provider별 Quota 드롭다운 메뉴 — CLI 수집 데이터 기준 (다중 계정 표시는 v0.7.0 완료 후 확장, IDE 에이전트 데이터 통합은 v1.1.0)
-- [ ] CLI ↔ Tray 간 공유 데이터 레이어 — collect 캐시 파일 폴링 (IPC/소켓은 v1.1.0 데몬 시점 검토)
+- [X] 단일 Go 바이너리로 최소 리소스(초경량/저전력) 구동 (`statusline tray` 서브커맨드)
+- [X] collect 전 provider 캐시 적재 확장 — `live_session.json` 표준화 (v1.1.0에서 조기 이관)
+- [X] 캐시 폴링(5s) + `FetchedAt` TTL(5분) 만료 시 자가 스폰 갱신 (`SpawnSelfCollect` 패턴, marker 60s 백프레셔)
+- [X] 메뉴바 타이틀 = 메인 provider 잔여 요약 (기본 zai), 드롭다운에서 메인 전환 (`tray.primary` 저장)
+- [X] provider별 Quota 드롭다운 메뉴 — CLI 수집 데이터 기준 (다중 계정 표시는 v0.7.0 완료 후 확장, IDE 에이전트 데이터 통합은 v1.1.0)
+- [X] CLI ↔ Tray 간 공유 데이터 레이어 — collect 캐시 파일 폴링 (IPC/소켓은 v1.1.0 데몬 시점 검토)
 
 ## 🔲 v0.9.0 — Beta (공개 베타 & 안정화)
 
