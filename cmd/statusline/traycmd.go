@@ -38,8 +38,9 @@ type trayApp struct {
 	cachePath   string
 	refreshPath string
 
-	mu    sync.Mutex // cfg.Tray.Primary 보호 (클릭 goroutine ↔ poll)
-	items map[string]*systray.MenuItem
+	mu     sync.Mutex // cfg.Tray.Primary 보호 (클릭 goroutine ↔ poll)
+	pollMu sync.Mutex // poll 직렬화 — ticker·setPrimary poll이 겹칠 때 MenuItem.SetTitle 동시 호출 방지(systray item 필드는 lock 없는 write)
+	items  map[string]*systray.MenuItem
 }
 
 func (a *trayApp) onReady() {
@@ -101,7 +102,10 @@ func (a *trayApp) spawnCollect() {
 }
 
 // poll — 캐시 읽기 → 갱신 판정·스폰 → 타이틀·메뉴 갱신. recover로 fail-soft 유지.
+// pollMu로 직렬화 — systray MenuItem.SetTitle은 내부 필드를 lock 없이 쓴다(v1.12.2).
 func (a *trayApp) poll() {
+	a.pollMu.Lock()
+	defer a.pollMu.Unlock()
 	defer func() { _ = recover() }() // 트레이는 어떤 입력·I/O 실패로도 크래시하지 않는다
 
 	now := time.Now()
