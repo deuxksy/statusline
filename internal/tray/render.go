@@ -85,20 +85,31 @@ func resetAt(ms int64, now time.Time) string {
 	return at.Format("01-02")
 }
 
+// ZaiQuotaLine — zai 잔여 라인 본문("87% · reset 17:00"). fiveH=true → 5h 창, false → MCP 월간.
+// snap이 nil이면 "데이터 없음" (traycmd 고정 슬롯 플레이스홀더).
+func ZaiQuotaLine(snap *collect.ZaiSnapshot, now time.Time, fiveH bool) string {
+	if snap == nil {
+		return "데이터 없음"
+	}
+	remain, ms := snap.McpRemaining, snap.McpResetsAt
+	if fiveH {
+		remain, ms = snap.TokenRemaining, snap.TokenResetsAt
+	}
+	line := pct(remain) + "%"
+	if r := resetAt(ms, now); r != "" {
+		line += " · reset " + r
+	}
+	return line
+}
+
 // MenuLines — 드롭다운 라인. 부재 provider는 라인 생략(스펙: 실패·미수집 구분 없음).
 func MenuLines(live collect.LiveSession, primary string, now time.Time) []string {
 	var lines []string
 	if live.Zai != nil {
-		fiveH := "zai 5h " + pct(live.Zai.TokenRemaining) + "%"
-		if r := resetAt(live.Zai.TokenResetsAt, now); r != "" {
-			fiveH += " · reset " + r
-		}
-		lines = append(lines, fiveH)
-		mcp := "zai MCP " + pct(live.Zai.McpRemaining) + "%"
-		if r := resetAt(live.Zai.McpResetsAt, now); r != "" {
-			mcp += " · reset " + r
-		}
-		lines = append(lines, mcp)
+		lines = append(lines,
+			"zai 5h "+ZaiQuotaLine(live.Zai, now, true),
+			"zai MCP "+ZaiQuotaLine(live.Zai, now, false),
+		)
 	}
 	if len(live.Codex) > 0 {
 		lines = append(lines, "chatgpt rate "+strings.TrimPrefix(ChatGPTTitle(live.Codex), "c"))

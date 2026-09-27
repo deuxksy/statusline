@@ -88,6 +88,9 @@ func main() {
 		}
 		return
 	}
+	if flag.NArg() > 0 && flag.Arg(0) == "tray" {
+		os.Exit(runTray(configPath))
+	}
 
 	// Fail-soft stdin read
 	var rawInput []byte
