@@ -39,11 +39,14 @@ func TestTitleMissing(t *testing.T) {
 
 func TestChatGPTTitleMalformed(t *testing.T) {
 	cases := map[string]map[string]json.RawMessage{
-		"nil":        nil,
-		"empty":      {},
-		"absent key": {"account": json.RawMessage(`{}`)},
-		"garbage":    {"rate_limits": json.RawMessage(`{`)},
-		"no windows": {"rate_limits": json.RawMessage(`{}`)},
+		"nil":          nil,
+		"empty":        {},
+		"absent key":   {"account": json.RawMessage(`{}`)},
+		"garbage":      {"rate_limits": json.RawMessage(`{`)},
+		"no windows":   {"rate_limits": json.RawMessage(`{"ordinaryUsageAllowed":true}`)},
+		"legacy snake": {"rate_limits": json.RawMessage(`{"primary":{"used_percent":52}}`)},
+		"negative pct": {"rate_limits": json.RawMessage(`{"rateLimits":{"primary":{"usedPercent":-5}}}`)},
+		"over pct":     {"rate_limits": json.RawMessage(`{"rateLimits":{"primary":{"usedPercent":120}}}`)},
 	}
 	for name, codex := range cases {
 		if got := tray.ChatGPTTitle(codex); got != "c-" {
@@ -53,11 +56,20 @@ func TestChatGPTTitleMalformed(t *testing.T) {
 }
 
 func TestChatGPTTitleWithRateLimits(t *testing.T) {
-	// 잔여 최솟값 = 사용률 최댓값 창: primary 20.4% 사용 → 잔여 79.6 → 80
+	// 실측 스펙(2026-09-27, codex-cli 0.157.1 app-server):
+	// rate_limits.rateLimits.{primary,secondary}.usedPercent (camelCase, 래퍼 중첩).
+	// 잔여 최솟값 = 사용률 최댓값 창: primary 52 → 잔여 48.
 	codex := map[string]json.RawMessage{
-		"rate_limits": json.RawMessage(`{"primary":{"used_percent":20.4},"secondary":{"used_percent":12.9}}`),
+		"rate_limits": json.RawMessage(`{"ordinaryUsageAllowed":true,"rateLimits":{"limitId":"codex","primary":{"usedPercent":52,"windowDurationMins":300,"resetsAt":1790515699},"secondary":{"usedPercent":8,"windowDurationMins":10080,"resetsAt":1791031381}}}`),
 	}
-	if got := tray.ChatGPTTitle(codex); got != "c80" {
+	if got := tray.ChatGPTTitle(codex); got != "c48" {
+		t.Errorf("got %q, want c48", got)
+	}
+	// 소수점 반올림: primary 20.4 사용 → 잔여 79.6 → 80
+	frac := map[string]json.RawMessage{
+		"rate_limits": json.RawMessage(`{"rateLimits":{"primary":{"usedPercent":20.4},"secondary":{"usedPercent":12.9}}}`),
+	}
+	if got := tray.ChatGPTTitle(frac); got != "c80" {
 		t.Errorf("got %q, want c80", got)
 	}
 }

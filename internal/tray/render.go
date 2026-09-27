@@ -28,30 +28,33 @@ func Title(primary string, live collect.LiveSession) string {
 }
 
 type rateWindow struct {
-	UsedPercent float64 `json:"used_percent"`
+	UsedPercent float64 `json:"usedPercent"`
 }
 
 // ChatGPTTitle — codex 스냅샷 rate_limits에서 잔여 최솟값(=사용률 최댓값 창)을 표시.
-// 스키마는 실측 전 Unverified(스펙) — 미제공·파손·창 부재는 전부 "c-"로 흡수한다.
+// 실측 스펙(2026-09-27, codex-cli 0.157.1): rate_limits.rateLimits.{primary,secondary}.usedPercent.
+// 미제공·파손·창 부재·범위 밖(0~100 외) 값은 전부 "c-"로 흡수한다.
 func ChatGPTTitle(codex map[string]json.RawMessage) string {
 	raw, ok := codex["rate_limits"]
 	if !ok {
 		return "c-"
 	}
-	var rl struct {
-		Primary   *rateWindow `json:"primary"`
-		Secondary *rateWindow `json:"secondary"`
+	var outer struct {
+		RateLimits *struct {
+			Primary   *rateWindow `json:"primary"`
+			Secondary *rateWindow `json:"secondary"`
+		} `json:"rateLimits"`
 	}
-	if json.Unmarshal(raw, &rl) != nil {
+	if json.Unmarshal(raw, &outer) != nil || outer.RateLimits == nil {
 		return "c-"
 	}
 	used := -1.0
-	for _, w := range []*rateWindow{rl.Primary, rl.Secondary} {
+	for _, w := range []*rateWindow{outer.RateLimits.Primary, outer.RateLimits.Secondary} {
 		if w != nil && w.UsedPercent > used {
 			used = w.UsedPercent
 		}
 	}
-	if used < 0 {
+	if used < 0 || used > 100 {
 		return "c-"
 	}
 	remain := 100 - used
