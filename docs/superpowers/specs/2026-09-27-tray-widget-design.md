@@ -87,8 +87,8 @@ type LiveSession struct {
 - 배선: main.go 서브커맨드 분기에서 `tray` 감지 → `systray.Run(tray.OnReady, tray.OnExit)` 콜백 등록 — systray import는 traycmd/tray 패키지로 국한, 다른 패키지로 새지 않는다
 - 폴링: 5초 간격 캐시 읽기 (fsnotify 미사용 — 의존성 최소)
 - 갱신 조건 3종 — 모두 동일 경로(marker 획득 → 스폰): ① 캐시 부재 ② 읽기 실패(파손 포함) ③ `FetchedAt` 기준 TTL 5분 만료. 최초 실행(파일 없음)도 ①으로 즉시 수집된다
-- refresh marker(`live_session.json.refresh`, `O_EXCL` 60s): 스폰 실패·완료 시 모두 **제거**(`ClearZaiRefreshAt` 패턴 대칭) — marker가 남으면 다음 폴링이 재획득하지 못한다. CLI zai 어태치의 스폰은 기존 `zai.json.refresh`(별도 marker)를 쓰며 두 스폰이 동시에 떠도 collect는 멱등적이라 무해하다
-- 드롭다운 "지금 갱신": marker 우회 즉시 스폰. 진행 중 스폰이 있으면 요청 병합(중복 스폰 없음)
+- refresh marker(`live_session.json.refresh`, `O_EXCL` 60s) — `zai.json.refresh`와 동일 계약: 갱신 완료(collect가 캐시 쓸 때)에 제거되고, 스폰 실패 시 **유지되어 60초 백프레셔**로 작동한다(5초 폴링이 매 주기 재스폰하지 않는다 — `zai_attach.go` "marker 스틸로 백프레셔" 관행 대칭). CLI zai 어태치의 스폰은 기존 `zai.json.refresh`(별도 marker)를 쓰며 두 스폰이 동시에 떠도 collect는 멱등적이라 무해하다
+- 드롭다운 "지금 갱신": TTL·부재 조건 없이 즉시 스폰하되 **marker 가드는 준수** — 진행 중(marker 존재)이면 요청 병합(중복 스폰 없음)
 
 ### 타이틀 렌더 (순수 함수 — `internal/tray/render.go`)
 
@@ -145,7 +145,7 @@ config(`statusline init` 관리 파일)에 `tray` 섹션 추가 — `tray.primar
 | :--- | :--- |
 | 캐시 부재/파손/전 provider 오류 | 타이틀 `…`, 드롭다운 "데이터 없음" + 즉시 갱신 스폰 |
 | provider 부분 실패 | 해당 항목 생략("데이터 없음"), 나머지 정상 표시 — 캐시가 성공 provider만 기록하므로 실패·미수집을 구분하지 않는다. chatgpt 번들의 부분 실패(codex 성공·platform 실패)는 `Platform` 필드 부재로 표현 |
-| 스폰 실패 | 에러 출력 없음, marker 제거 후 다음 폴링(5s) 재획득 |
+| 스폰 실패 | 에러 출력 없음, marker 유지(60s 백프레셔) 후 다음 폴링에서 재획득 |
 | 캐시 디렉터리 생성/쓰기·rename 실패 | 트레이 계속 동작, 타이틀 `…`, 다음 폴링 재시도 |
 | config(`tray.primary`) 저장 실패 | 메모리 상태로 동작, 재시도 없음 |
 | config `tray.primary` 무효값 | 기본 `zai` 폴백, 경고 없음 |
@@ -160,7 +160,7 @@ TDD. `go test -race ./...` 전체 통과가 완료 조건. systray(AppKit/Win32)
 | live_cache | 병합 쓰기(성공 provider만 교체·단독 수집 시 타 provider 유지), 성공 0개 시 기존 캐시 유지, atomic write, `FetchedAt` TTL 판정, 파손 JSON 흡수 |
 | 타이틀 렌더 | zai/chatgpt 각 형태, 잔여율 반올림, rate_limits 미제공 `c-`, 캐시 부재 `…`, 무효 primary 폴백 |
 | 메뉴 문자열 | 리셋 시간 포맷(Unix ms → 로컬), provider 부분 실패 시 항목 생략 |
-| 폴링/스폰 | 갱신 조건 3종(부재/파손/TTL 만료), marker 획득/스틸(60s)/제거, 스폰 실패 후 재획득, 수동 갱신 병합 |
+| 폴링/스폰 | 갱신 조건 3종(부재/파손/TTL 만료), marker 획득/스틸(60s)/완료 시 제거, 스폰 실패 시 60s 백프레셔(재시도 없음), 수동 갱신 marker 가드 병합 |
 | 통합 | collect 실행 → live_session.json → 렌더 파이프라인 (systray 없이) |
 | macOS 실측 | 메뉴바 타이틀·드롭다운 실동작 — 수동 검증 (구현 후) |
 
