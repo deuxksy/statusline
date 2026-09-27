@@ -89,8 +89,9 @@ type zaiCreds struct {
 
 // runCollect — provider별 병렬 수집 후 메인 고루틴에서 단일 병합.
 // 공유 map에 고루틴이 직접 쓰지 않는다(Go map 동시 쓰기 패닉 방지 — 스펙 실행 구조).
+// 성공 provider가 있으면 live_session.json에 병합 적재하고 refresh marker를 제거한다.
 // 반환값 = exit code.
-func runCollect(stdout, stderr io.Writer, providers []string, credsPath, zaiCachePath string) int {
+func runCollect(stdout, stderr io.Writer, providers []string, credsPath, zaiCachePath, liveCachePath string) int {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -175,6 +176,15 @@ func runCollect(stdout, stderr io.Writer, providers []string, credsPath, zaiCach
 	if err := json.NewEncoder(stdout).Encode(out); err != nil {
 		fmt.Fprintf(stderr, "encode: %v\n", err)
 		return 1
+	}
+	// live_session.json 병합 적재 — 성공 provider만 교체(전 실패 시 기존 캐시 불변).
+	// 쓰기 실패는 marker 제거 없이 흡수(fail-soft): marker가 60s 백프레셔로 재시도를 가드한다.
+	if out.Codex != nil || out.Platform != nil || out.Zai != nil {
+		prev, _ := collect.ReadLiveCacheAt(liveCachePath)
+		merged := collect.MergeLiveSession(prev, out.Codex, out.Platform, out.Zai, time.Now().UTC())
+		if err := collect.WriteLiveCacheAt(liveCachePath, merged); err == nil {
+			collect.ClearZaiRefreshAt(collect.LiveRefreshPath(liveCachePath))
+		}
 	}
 	return 0
 }
