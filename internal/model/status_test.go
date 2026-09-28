@@ -26,6 +26,9 @@ func TestUnifiedStatusDefaultsGeneric(t *testing.T) {
 	if status.Capabilities.HasPermission != false {
 		t.Errorf("expected HasPermission false by default for generic")
 	}
+	if status.Capabilities.HasQuota != false {
+		t.Errorf("expected HasQuota false by default for generic")
+	}
 }
 
 func TestUnifiedStatusCapabilitiesClaudeAndAntigravity(t *testing.T) {
@@ -52,5 +55,19 @@ func TestUnifiedStatusCapabilitiesClaudeAndAntigravity(t *testing.T) {
 				t.Errorf("expected HasPermission true for %s", engine)
 			}
 		})
+	}
+}
+
+func TestUnifiedStatusHasQuota(t *testing.T) {
+	// antigravity만 HasQuota=true
+	agy := model.NewUnifiedStatus("antigravity")
+	if !agy.Capabilities.HasQuota {
+		t.Errorf("expected HasQuota true for antigravity")
+	}
+
+	// claude는 HasQuota=false
+	claude := model.NewUnifiedStatus("claude")
+	if claude.Capabilities.HasQuota {
+		t.Errorf("expected HasQuota false for claude")
 	}
 }

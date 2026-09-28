@@ -1,0 +1,87 @@
+{
+  "accountId": "<redacted>",
+  "ordinaryUsageAllowed": true,
+  "rateLimitResetCredits": {
+    "availableCount": 3,
+    "credits": [
+      {
+        "description": "Thanks for using Codex! You've been granted one free rate limit reset.",
+        "expiresAt": 1791091950,
+        "grantedAt": 1788499950,
+        "id": "<redacted>",
+        "resetType": "codexRateLimits",
+        "status": "available",
+        "title": "Full reset (Weekly + 5 hr)"
+      },
+      {
+        "description": "Thanks for using Codex! You've been granted one free rate limit reset.",
+        "expiresAt": 1791151761,
+        "grantedAt": 1788559761,
+        "id": "<redacted>",
+        "resetType": "codexRateLimits",
+        "status": "available",
+        "title": "Full reset (Weekly + 5 hr)"
+      },
+      {
+        "description": "Thanks for using Codex! You've been granted one free rate limit reset.",
+        "expiresAt": 1792701180,
+        "grantedAt": 1790109180,
+        "id": "<redacted>",
+        "resetType": "codexRateLimits",
+        "status": "available",
+        "title": "Full reset (Weekly + 5 hr)"
+      }
+    ]
+  },
+  "rateLimitUpsell": null,
+  "rateLimits": {
+    "credits": {
+      "balance": null,
+      "hasCredits": false,
+      "unlimited": false
+    },
+    "individualLimit": null,
+    "limitId": "codex",
+    "limitName": null,
+    "normalModelSlug": null,
+    "planType": "team",
+    "primary": {
+      "resetsAt": 1790366542,
+      "usedPercent": 71,
+      "windowDurationMins": 300
+    },
+    "rateLimitReachedType": null,
+    "secondary": {
+      "resetsAt": 1790573243,
+      "usedPercent": 69,
+      "windowDurationMins": 10080
+    },
+    "spendControlReached": false
+  },
+  "rateLimitsByLimitId": {
+    "codex": {
+      "credits": {
+        "balance": null,
+        "hasCredits": false,
+        "unlimited": false
+      },
+      "individualLimit": null,
+      "limitId": "codex",
+      "limitName": null,
+      "normalModelSlug": null,
+      "planType": "team",
+      "primary": {
+        "resetsAt": 1790366542,
+        "usedPercent": 71,
+        "windowDurationMins": 300
+      },
+      "rateLimitReachedType": null,
+      "secondary": {
+        "resetsAt": 1790573243,
+        "usedPercent": 69,
+        "windowDurationMins": 10080
+      },
+      "spendControlReached": false
+    }
+  }
+}

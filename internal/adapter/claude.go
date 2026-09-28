@@ -19,13 +19,19 @@ func (c *ClaudeAdapter) Parse(input []byte, env map[string]string) (*model.Unifi
 			Percentage int `json:"percentage"`
 		} `json:"contextBar"`
 		ContextTokens int `json:"contextTokens"`
-		Thinking      struct {
+		ContextWindow struct {
+			TotalInputTokens  int `json:"total_input_tokens"`
+			ContextWindowSize int `json:"context_window_size"`
+		} `json:"context_window"`
+		Thinking struct {
 			State string `json:"state"`
 		} `json:"thinking"`
 		ThinkingState string   `json:"thinkingState"`
 		ActiveSkills  []string `json:"activeSkills"`
 		LastTool      string   `json:"lastTool"`
 		Cwd           string   `json:"cwd"`
+		Permission    string   `json:"permission"`
+		TerminalWidth int      `json:"terminal_width"`
 	}
 
 	if err := json.Unmarshal(input, &raw); err == nil {
@@ -35,19 +41,30 @@ func (c *ClaudeAdapter) Parse(input []byte, env map[string]string) (*model.Unifi
 				st.Model = modelStr
 			} else {
 				var modelObj struct {
-					DisplayName string `json:"displayName"`
-					Name        string `json:"name"`
+					DisplayName string `json:"display_name"` // CC 2.x 표준 stdin 필드
+					OmcDisplay  string `json:"displayName"`  // OMC 래퍼 폴백
+					Name        string `json:"name"`         // OMC 래퍼 폴백
+					ID          string `json:"id"`
 				}
 				if err := json.Unmarshal(raw.Model, &modelObj); err == nil {
-					if modelObj.DisplayName != "" {
+					switch {
+					case modelObj.DisplayName != "":
 						st.Model = modelObj.DisplayName
-					} else {
+					case modelObj.OmcDisplay != "":
+						st.Model = modelObj.OmcDisplay
+					case modelObj.Name != "":
 						st.Model = modelObj.Name
+					default:
+						st.Model = modelObj.ID
 					}
 				}
 			}
 		}
-		if raw.ContextTokens > 0 {
+		// CC 2.x 표준 stdin 필드가 우선. contextBar/contextTokens는 OMC 래퍼 폴백.
+		if raw.ContextWindow.TotalInputTokens > 0 {
+			st.ContextTokens = raw.ContextWindow.TotalInputTokens
+			st.ContextLimit = raw.ContextWindow.ContextWindowSize
+		} else if raw.ContextTokens > 0 {
 			st.ContextTokens = raw.ContextTokens
 		} else if raw.ContextBar.Percentage > 0 {
 			st.ContextTokens = raw.ContextBar.Percentage
@@ -65,6 +82,12 @@ func (c *ClaudeAdapter) Parse(input []byte, env map[string]string) (*model.Unifi
 		}
 		if raw.Cwd != "" {
 			st.Cwd = raw.Cwd
+		}
+		if raw.Permission != "" {
+			st.Permission = raw.Permission
+		}
+		if raw.TerminalWidth > 0 {
+			st.TerminalWidth = raw.TerminalWidth
 		}
 	}
 	return st, nil

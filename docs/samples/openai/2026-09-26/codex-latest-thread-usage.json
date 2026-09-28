@@ -1,0 +1,11 @@
+{
+  "dailyUsageBuckets": null,
+  "summary": {
+    "currentStreakDays": null,
+    "lifetimeTokens": null,
+    "longestRunningTurnSec": null,
+    "longestStreakDays": null,
+    "peakDailyTokens": null
+  },
+  "threadUsage": null
+}

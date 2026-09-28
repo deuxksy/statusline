@@ -16,6 +16,9 @@ func TestLoadConfigEmbeddedDefault(t *testing.T) {
 	if cfg.Thresholds.ContextWarning != 70 {
 		t.Errorf("expected 70 contextWarning, got %d", cfg.Thresholds.ContextWarning)
 	}
+	if cfg.Layout.Line1Width != 28 {
+		t.Errorf("expected 28 line1Width, got %d", cfg.Layout.Line1Width)
+	}
 }
 
 func TestSaveDefaultConfig(t *testing.T) {
@@ -34,5 +37,47 @@ func TestSaveDefaultConfig(t *testing.T) {
 	loadedCfg := config.LoadConfig(configPath)
 	if loadedCfg.Theme != "sleek_dark" {
 		t.Errorf("expected loaded config theme to be sleek_dark, got %s", loadedCfg.Theme)
+	}
+	if !loadedCfg.Elements.Permission {
+		t.Errorf("expected loaded config permission to be true by default")
+	}
+	if loadedCfg.Layout.Line1Width != 28 {
+		t.Errorf("expected loaded config line1Width to be 28, got %d", loadedCfg.Layout.Line1Width)
+	}
+}
+
+func TestLoadConfigTrayDefault(t *testing.T) {
+	if cfg := config.LoadConfig("/non/existent/path/config.json"); cfg.Tray.Primary != "zai" {
+		t.Errorf("absent config: expected tray.primary zai, got %q", cfg.Tray.Primary)
+	}
+	p := filepath.Join(t.TempDir(), "config.json")
+	if err := os.WriteFile(p, []byte(`{}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if cfg := config.LoadConfig(p); cfg.Tray.Primary != "zai" {
+		t.Errorf("empty config: expected tray.primary zai, got %q", cfg.Tray.Primary)
+	}
+}
+
+func TestLoadConfigTrayValue(t *testing.T) {
+	p := filepath.Join(t.TempDir(), "config.json")
+	if err := os.WriteFile(p, []byte(`{"tray":{"primary":"chatgpt"}}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if cfg := config.LoadConfig(p); cfg.Tray.Primary != "chatgpt" {
+		t.Errorf("expected tray.primary chatgpt, got %q", cfg.Tray.Primary)
+	}
+}
+
+func TestSaveConfigRoundTrip(t *testing.T) {
+	p := filepath.Join(t.TempDir(), "sub", "config.json")
+	cfg := config.DefaultConfig()
+	cfg.Tray.Primary = "chatgpt"
+	if err := config.SaveConfig(p, cfg); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+	got := config.LoadConfig(p)
+	if got.Tray.Primary != "chatgpt" {
+		t.Errorf("round trip: expected chatgpt, got %q", got.Tray.Primary)
 	}
 }

@@ -1,0 +1,28 @@
+{
+  "summary": {
+    "lifetimeTokens": null,
+    "peakDailyTokens": null,
+    "longestRunningTurnSec": null,
+    "currentStreakDays": null,
+    "longestStreakDays": null
+  },
+  "dailyUsageBuckets": null,
+  "threadUsage": {
+    "threadId": "thread-example",
+    "estimatedUsageCreditsMicros": 120000,
+    "estimatedUsageUsdMicros": null,
+    "groups": [
+      {
+        "model": "gpt-6-astra",
+        "reasoningEffort": "low",
+        "speed": null,
+        "inputTokens": 42064,
+        "cachedInputTokens": 41600,
+        "netNewInputTokens": 464,
+        "outputTokens": 132,
+        "totalTokens": 42196,
+        "estimatedUsageCreditsMicros": 120000
+      }
+    ]
+  }
+}

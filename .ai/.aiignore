@@ -1,0 +1,69 @@
+# Go binaries
+/statusline
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binaries and coverage
+*.test
+*.out
+coverage.html
+
+# IDE & Editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project specific local state
+.omc/
+.superpowers/
+.serena/
+.mimosa/
+key.txt
+
+
+# APM dependencies
+apm_modules/
+
+# ===== ↑ .gitignore 동기화 영역 — ZCode가 이 위쪽만 다시 씀 =====
+.git/
+.hg/
+.svn/
+node_modules/
+bower_components/
+jspm_packages/
+__pycache__/
+site-packages/
+venv/
+coverage/
+htmlcov/
+lcov-report/
+cmakefiles/
+cmake-build-*/
+bazel-*/
+pods/
+deriveddata/
+storybook-static/
+playwright-report/
+test-results/
+allure-results/
+allure-report/
+cdk.out/
+*.egg-info/
+*.dist-info/
+eggs/
+pip-wheel-metadata/
+wheels/
+# ----- ↑ ZCode 기본 배제 규칙 — 커스텀 규칙은 이 줄 아래에 작성 (동기화/복원 시 유지) -----
+# 커스텀 규칙은 아래에 작성
+
+# MCP server artifacts
+logs/
+*.sqlite3

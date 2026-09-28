@@ -1,0 +1,10 @@
+{
+  "zai": {
+    "fetched_at": "2026-09-26T05:52:18.065242Z",
+    "provider": "zai",
+    "token_remaining_5h": 0.99,
+    "token_resets_at_ms": 1790419335629,
+    "mcp_remaining_month": 0.6599999999999999,
+    "mcp_resets_at_ms": 1791987638997
+  }
+}

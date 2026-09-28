@@ -24,3 +24,17 @@ Thumbs.db
 # Project specific local state
 .omc/
 .superpowers/
+.serena/
+.mimosa/
+.omx/
+.zcode/
+key.txt
+
+
+# APM dependencies
+apm_modules/
+
+# MCP server artifacts
+logs/
+*.log
+*.sqlite3

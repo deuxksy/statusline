@@ -12,7 +12,7 @@ func ParseInput(cliFlag string, rawInput []byte, env map[string]string) (*model.
 			targetEngine = "claude"
 		} else if bytes.Contains(rawInput, []byte("antigravity")) || env["ANTIGRAVITY_APP_DIR"] != "" {
 			targetEngine = "antigravity"
-		} else if env["CODEX_ENV"] != "" {
+		} else if bytes.Contains(rawInput, []byte(`"product": "codex"`)) || bytes.Contains(rawInput, []byte(`"product":"codex"`)) || env["CODEX_ENV"] != "" {
 			targetEngine = "codex"
 		} else {
 			targetEngine = "generic"
@@ -31,5 +31,15 @@ func ParseInput(cliFlag string, rawInput []byte, env map[string]string) (*model.
 		st := model.NewUnifiedStatus("generic")
 		return st, nil
 	}
-	return a.Parse(rawInput, env)
+	st, err := a.Parse(rawInput, env)
+	if err != nil {
+		return st, err
+	}
+	if targetEngine == "claude" && st != nil {
+		if p := ProviderFromEnv(env, st.Model); p != "" {
+			st.Provider = p
+			st.Capabilities.HasQuota = true
+		}
+	}
+	return st, nil
 }

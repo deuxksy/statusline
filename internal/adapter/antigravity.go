@@ -3,6 +3,9 @@ package adapter
 import (
 	"encoding/json"
 	"math"
+	"strings"
+	"time"
+
 	"statusline/internal/model"
 )
 
@@ -37,6 +40,15 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 		Workspace         struct {
 			CurrentDir string `json:"current_dir"`
 		} `json:"workspace"`
+		Quota map[string]struct {
+			RemainingFraction float64 `json:"remaining_fraction"`
+			ResetTime         string  `json:"reset_time"`
+			ResetTimeCamel    string  `json:"resetTime"`
+			ResetInSeconds    int64   `json:"reset_in_seconds"`
+			ResetInSecCamel   int64   `json:"resetInSeconds"`
+		} `json:"quota"`
+		ToolConfirmationPending bool `json:"tool_confirmation_pending"`
+		TerminalWidth           int  `json:"terminal_width"`
 	}
 
 	if err := json.Unmarshal(input, &raw); err == nil {
@@ -92,6 +104,68 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 			st.Cwd = raw.Cwd
 		} else if raw.Workspace.CurrentDir != "" {
 			st.Cwd = raw.Workspace.CurrentDir
+		}
+		// quota 파싱: gemini-*/3p-* prefix로 카테고리 그룹핑
+		if len(raw.Quota) > 0 {
+			categories := map[string]*model.QuotaCategory{}
+			for key, q := range raw.Quota {
+				var catName, period string
+				if strings.HasPrefix(key, "gemini-") {
+					catName = "gemini"
+					period = strings.TrimPrefix(key, "gemini-")
+				} else if strings.HasPrefix(key, "3p-") {
+					catName = "3rd"
+					period = strings.TrimPrefix(key, "3p-")
+				} else {
+					continue
+				}
+				cat, ok := categories[catName]
+				if !ok {
+					cat = &model.QuotaCategory{Name: catName}
+					categories[catName] = cat
+				}
+
+				resetTimeStr := q.ResetTime
+				if resetTimeStr == "" {
+					resetTimeStr = q.ResetTimeCamel
+				}
+				var resetsAt int64
+				if resetTimeStr != "" {
+					if t, err := time.Parse(time.RFC3339Nano, resetTimeStr); err == nil {
+						resetsAt = t.UnixMilli()
+					} else if t, err := time.Parse(time.RFC3339, resetTimeStr); err == nil {
+						resetsAt = t.UnixMilli()
+					}
+				}
+				resetInSec := q.ResetInSeconds
+				if resetInSec == 0 {
+					resetInSec = q.ResetInSecCamel
+				}
+				if resetsAt == 0 && resetInSec > 0 {
+					resetsAt = time.Now().Add(time.Duration(resetInSec) * time.Second).UnixMilli()
+				}
+
+				switch period {
+				case "5h":
+					cat.FiveH = q.RemainingFraction
+					cat.FiveHResetsAt = resetsAt
+				case "weekly":
+					cat.Weekly = q.RemainingFraction
+					cat.WeeklyResetsAt = resetsAt
+				}
+			}
+			// gemini 먼저, 3p 나중에 (안정적 순서)
+			for _, name := range []string{"gemini", "3rd"} {
+				if cat, ok := categories[name]; ok {
+					st.Quota = append(st.Quota, *cat)
+				}
+			}
+		}
+		if raw.ToolConfirmationPending {
+			st.Permission = "pending"
+		}
+		if raw.TerminalWidth > 0 {
+			st.TerminalWidth = raw.TerminalWidth
 		}
 	}
 	return st, nil
