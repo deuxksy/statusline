@@ -12,6 +12,9 @@ go build -o statusline ./cmd/statusline
 
 # Antigravity 샘플 페이로드로 테스트 실행
 cat docs/samples/antigravity.json | ./statusline --cli=antigravity
+
+# Claude Code 샘플 페이로드로 테스트 실행
+cat docs/samples/claude.json | ./statusline --cli=claude
 ```
 
 ---
@@ -27,7 +30,7 @@ cat docs/samples/antigravity.json | ./statusline --cli=antigravity
 - [튜토리얼 개요](./docs/okf/tutorials/index.md) - [시작하기 (Getting Started)](./docs/okf/tutorials/getting-started.md): 빠른 설치, 기본 사용법 및 파이프라인 구성.
 
 ### 🛠️ 사용 방법 안내 (How-To Guides)
-- [사용 가이드 개요](./docs/okf/how-to-guides/index.md) - [Codex 데이터 수집](./docs/okf/how-to-guides/use-codex.md), [레이아웃 및 요소 설정](./docs/okf/how-to-guides/configure-elements.md), [신규 CLI 어댑터 추가](./docs/okf/how-to-guides/add-new-cli-adapter.md) 가이드.
+- [사용 가이드 개요](./docs/okf/how-to-guides/index.md) - [Codex 데이터 수집](./docs/okf/how-to-guides/use-codex.md), [트레이 위젯 사용](./docs/okf/how-to-guides/use-tray.md), [레이아웃 및 요소 설정](./docs/okf/how-to-guides/configure-elements.md), [신규 CLI 어댑터 추가](./docs/okf/how-to-guides/add-new-cli-adapter.md) 가이드.
 
 ### 📖 레퍼런스 (Reference)
 - [문서 허브 (Docs Hub)](./docs/README.md) - 전체 문서 디렉토리 구조 및 역할 안내.
