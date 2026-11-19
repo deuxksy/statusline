@@ -9,6 +9,8 @@ type QuotaCategory struct {
 	FiveHResetsAt   int64   // Unix 밀리초
 	WeeklyResetsAt  int64   // Unix 밀리초
 	MonthlyResetsAt int64   // Unix 밀리초
+	Tickets         int     // 보유 reset ticket 수 (Z.AI 전용, 0이면 미표시)
+	TicketsExpire   string  // 가장 이른 유효 티켓 만료 일자 (YYYY-MM-DD, z.ai UTC+8)
 }
 
 type TokenUsage struct {

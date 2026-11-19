@@ -27,6 +27,8 @@ func AttachZaiQuotaAt(st *model.UnifiedStatus, ttl time.Duration, authToken, cac
 			FiveHResetsAt:   snap.TokenResetsAt,
 			Monthly:         snap.McpRemaining,
 			MonthlyResetsAt: snap.McpResetsAt,
+			Tickets:         snap.ResetTickets,
+			TicketsExpire:   snap.ResetTicketsExpire,
 		}}
 	}
 	stale := !ok || time.Since(mtime) > ttl

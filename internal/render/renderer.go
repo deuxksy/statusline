@@ -397,7 +397,8 @@ func formatZaiQuota(cats []model.QuotaCategory, now time.Time) string {
 	return cat.Name + " " + fiveH + " " + mcp
 }
 
-// renderZaiQuota — formatZaiQuota의 스타일 버전 (📊 prefix, 라벨·비율별 색상)
+// renderZaiQuota — formatZaiQuota의 스타일 버전 (📊 prefix, 라벨·비율별 색상).
+// 보유 reset ticket이 있으면 접미 표시. 만료 3일 이하면 위험색(QuotaBad).
 func renderZaiQuota(cats []model.QuotaCategory, p ThemePalette) string {
 	if len(cats) == 0 {
 		return ""
@@ -415,5 +416,38 @@ func renderZaiQuota(cats []model.QuotaCategory, p ThemePalette) string {
 	}
 	fiveHPart := quotaColor(cat.FiveH, p).Render(fiveH)
 	mcpPart := quotaColor(cat.Monthly, p).Render(mcp)
-	return "📊 " + label + " " + fiveHPart + " " + mcpPart
+	out := "📊 " + label + " " + fiveHPart + " " + mcpPart
+	if cat.Tickets > 0 {
+		tk := fmt.Sprintf("🎟️x%d", cat.Tickets)
+		if cat.TicketsExpire != "" {
+			tk += "(" + ticketExpireShort(cat.TicketsExpire) + ")"
+		}
+		style := lipgloss.NewStyle()
+		if ticketExpireSoon(cat.TicketsExpire, now) {
+			style = style.Foreground(p.QuotaBad)
+		}
+		out += " " + style.Render(tk)
+	}
+	return out
+}
+
+// ticketExpireShort — "2026-12-22" → "12/22". 짧은 입력은 그대로.
+func ticketExpireShort(expire string) string {
+	if len(expire) >= 10 {
+		return strings.ReplaceAll(expire[5:10], "-", "/")
+	}
+	return expire
+}
+
+// ticketExpireSoon — z.ai 만료 일자(UTC+8 하루 끝 기준)까지 3일 이하인지.
+func ticketExpireSoon(expire string, now time.Time) bool {
+	if len(expire) < 10 {
+		return false
+	}
+	cst := time.FixedZone("CST", 8*3600)
+	end, err := time.ParseInLocation("2006-01-02", expire[:10], cst)
+	if err != nil {
+		return false
+	}
+	return end.AddDate(0, 0, 1).Sub(now) <= 72*time.Hour
 }

@@ -274,6 +274,70 @@ func TestRenderQuotaWithCountdown(t *testing.T) {
 	}
 }
 
+func TestRenderZaiResetTickets(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Provider = "zai"
+	st.Quota = []model.QuotaCategory{
+		{Name: "zai", FiveH: 0.23, Monthly: 0.99, Tickets: 2, TicketsExpire: "2026-12-22"},
+	}
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	if !strings.Contains(output, "🎟️x2") {
+		t.Errorf("expected '🎟️x2' in output, got: %q", output)
+	}
+	if !strings.Contains(output, "12/22") {
+		t.Errorf("expected expire date '12/22' in output, got: %q", output)
+	}
+}
+
+func TestRenderZaiTicketsHiddenWhenZero(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Provider = "zai"
+	st.Quota = []model.QuotaCategory{
+		{Name: "zai", FiveH: 0.23, Monthly: 0.99}, // Tickets 미설정(0) → 숨김
+	}
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	if strings.Contains(output, "🎟️") {
+		t.Errorf("expected tickets hidden when Tickets=0, got: %q", output)
+	}
+}
+
+func TestRenderZaiTicketsExpiringRed(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Provider = "zai"
+	st.Quota = []model.QuotaCategory{
+		{Name: "zai", FiveH: 0.23, Monthly: 0.99, Tickets: 2, TicketsExpire: time.Now().Add(24 * time.Hour).UTC().Format("2006-01-02")},
+	}
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	// 만료 3일 이하 → 위험색(QuotaBad)으로 렌더. ANSI 24bit red #ef4444 = 239;68;68
+	if !strings.Contains(output, "\x1b[38;2;239;68;68m🎟️") {
+		t.Errorf("expected expiring tickets in red (#ef4444), got: %q", output)
+	}
+}
+
+func TestRenderZaiTicketsNotExpiringKeepsColor(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.Provider = "zai"
+	st.Quota = []model.QuotaCategory{
+		{Name: "zai", FiveH: 0.23, Monthly: 0.99, Tickets: 2, TicketsExpire: time.Now().Add(30 * 24 * time.Hour).UTC().Format("2006-01-02")},
+	}
+
+	cfg := config.DefaultConfig()
+	output := render.Render(st, cfg)
+
+	if strings.Contains(output, "\x1b[38;2;239;68;68m🎟️") {
+		t.Errorf("expected non-expiring tickets NOT in red, got: %q", output)
+	}
+}
+
 func TestRenderQuotaDisabled(t *testing.T) {
 	st := model.NewUnifiedStatus("antigravity")
 	st.Quota = []model.QuotaCategory{
