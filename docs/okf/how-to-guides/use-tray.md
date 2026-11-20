@@ -26,7 +26,7 @@ macOS 메뉴바에 AI 구독 잔여량 위젯을 상주시키는 방법을 다�
 
 ## 드롭다운 메뉴
 
-- **provider별 상세** — zai 5h/MCP 잔여와 리셋 시간, chatgpt rate. 데이터가 없는 provider는 "데이터 없음"으로 표시됩니다.
+- **provider별 상세** — zai 5h/MCP 잔여와 리셋 시간, reset ticket 보유 수와 만료 일자(`zai tickets 2장 · 12/22`, 만료 3일 이하면 ⚠️ 접두), chatgpt rate. 데이터가 없는 provider는 "데이터 없음"으로 표시됩니다.
 - **메인 전환** (`✓`/`○`) — 타이틀에 노출할 provider를 바꿉니다. 선택은 `config.json`의 `tray.primary`로 저장되어 재시작 후에도 유지됩니다.
 - **지금 갱신** — 캐시 TTL과 무관하게 즉시 수집을 실행합니다(동시 실행 방지 가드는 준수).
 - **종료**

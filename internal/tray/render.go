@@ -3,6 +3,7 @@ package tray
 
 import (
 	"encoding/json"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -105,6 +106,43 @@ func ZaiQuotaLine(snap *collect.ZaiSnapshot, now time.Time, fiveH bool) string {
 	return line
 }
 
+// zaiTicketLine — 보유 reset ticket 라인("zai tickets 2장 · 12/22"). 만료 3일 이하면 ⚠️ 접두.
+// 미보유(0장)·만료 미상은 빈 문자열.
+func zaiTicketLine(snap *collect.ZaiSnapshot, now time.Time) string {
+	if snap == nil || snap.ResetTickets <= 0 {
+		return ""
+	}
+	line := fmt.Sprintf("zai tickets %d장", snap.ResetTickets)
+	if e := ticketExpireShort(snap.ResetTicketsExpire); e != "" {
+		line += " · " + e
+	}
+	if ticketExpireSoon(snap.ResetTicketsExpire, now) {
+		line = "⚠️ " + line
+	}
+	return line
+}
+
+// ticketExpireShort — "2026-12-22" → "12/22". 짧은 입력은 그대로.
+func ticketExpireShort(expire string) string {
+	if len(expire) >= 10 {
+		return strings.ReplaceAll(expire[5:10], "-", "/")
+	}
+	return expire
+}
+
+// ticketExpireSoon — z.ai 만료 일자(UTC+8 하루 끝 기준)까지 3일 이하인지.
+func ticketExpireSoon(expire string, now time.Time) bool {
+	if len(expire) < 10 {
+		return false
+	}
+	cst := time.FixedZone("CST", 8*3600)
+	end, err := time.ParseInLocation("2006-01-02", expire[:10], cst)
+	if err != nil {
+		return false
+	}
+	return end.AddDate(0, 0, 1).Sub(now) <= 72*time.Hour
+}
+
 // MenuLines — 드롭다운 라인. 부재 provider는 라인 생략(스펙: 실패·미수집 구분 없음).
 func MenuLines(live collect.LiveSession, primary string, now time.Time) []string {
 	var lines []string
@@ -113,6 +151,9 @@ func MenuLines(live collect.LiveSession, primary string, now time.Time) []string
 			"zai 5h "+ZaiQuotaLine(live.Zai, now, true),
 			"zai MCP "+ZaiQuotaLine(live.Zai, now, false),
 		)
+		if tk := zaiTicketLine(live.Zai, now); tk != "" {
+			lines = append(lines, tk)
+		}
 	}
 	if len(live.Codex) > 0 {
 		lines = append(lines, "chatgpt rate "+strings.TrimPrefix(ChatGPTTitle(live.Codex), "c"))
