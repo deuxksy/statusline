@@ -2,6 +2,12 @@
 
 `statusline`은 AI 코딩 어시스턴트(Antigravity, Claude Code, Codex)를 위한 고성능 단일 행 상태바 생성기입니다. Go 언어로 작성되었으며, STDIN을 통해 JSON 상태 스트림을 입력받아 5ms 이내의 빠른 속도로 실시간 실행 문맥을 렌더링합니다.
 
+**실행 예시 — Claude Code (`--cli=claude`):**
+
+```text
+statusline  main            │  CLAUDE │ 📊 zai 5h:70%(0h8m) mo:98%(22d3h) 🎟️x2(12/22)
+```
+
 ---
 
 ## 🚀 빠른 시작 (Quick Start)
