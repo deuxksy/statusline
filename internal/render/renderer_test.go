@@ -40,12 +40,14 @@ func TestRenderOutput(t *testing.T) {
 
 func TestRenderGitStatusFixedSpacing(t *testing.T) {
 	cfg := config.DefaultConfig()
+	cfg.Elements.EngineLabel = false
 
 	// 1. Dirty git repo
 	stDirty := model.NewUnifiedStatus("claude")
 	stDirty.GitRepo = "repo"
 	stDirty.GitBranch = "main"
 	stDirty.GitStatus = "*"
+	stDirty.Model = "Sonnet"
 	outDirty := render.Render(stDirty, cfg)
 
 	// 2. Clean git repo
@@ -53,6 +55,7 @@ func TestRenderGitStatusFixedSpacing(t *testing.T) {
 	stClean.GitRepo = "repo"
 	stClean.GitBranch = "main"
 	stClean.GitStatus = ""
+	stClean.Model = "Sonnet"
 	outClean := render.Render(stClean, cfg)
 
 	plainDirty := ansi.Strip(outDirty)
@@ -73,6 +76,7 @@ func TestRenderGitStatusFixedSpacing(t *testing.T) {
 	stLong := model.NewUnifiedStatus("claude")
 	stLong.GitRepo = "repo"
 	stLong.GitBranch = "feature/a-very-long-branch-name-12345"
+	stLong.Model = "Sonnet"
 	plainLong := ansi.Strip(render.Render(stLong, cfg))
 	idxLong := strings.Index(plainLong, "│")
 	if idxLong == -1 {
@@ -88,6 +92,7 @@ func TestRenderGitStatusFixedSpacing(t *testing.T) {
 
 	// 3. Unconstrained mode (Line1Width = 0)
 	cfg0 := config.DefaultConfig()
+	cfg0.Elements.EngineLabel = false
 	cfg0.Layout.Line1Width = 0
 	plainDirty0 := ansi.Strip(render.Render(stDirty, cfg0))
 	plainClean0 := ansi.Strip(render.Render(stClean, cfg0))
@@ -101,6 +106,7 @@ func TestRenderGitStatusFixedSpacing(t *testing.T) {
 	// 4. Non-git directory (no branch/repo) with Line1Width = 0 should not have phantom space
 	stNonGit := model.NewUnifiedStatus("claude")
 	stNonGit.Cwd = "/tmp/testdir"
+	stNonGit.Model = "Sonnet"
 	plainNonGit := ansi.Strip(render.Render(stNonGit, cfg0))
 	if strings.Contains(plainNonGit, "testdir  │") {
 		t.Errorf("expected non-git statusline not to have phantom space, got: %q", plainNonGit)
@@ -439,5 +445,142 @@ func TestRenderWrapModeTruncate(t *testing.T) {
 	// 터미널 줄바꿈 방지: 출력에 개행(\n)이 없어야 함
 	if strings.Contains(output, "\n") {
 		t.Errorf("expected single line output without newlines, got: %q", output)
+	}
+}
+
+func TestRenderCycleModeAndSandbox(t *testing.T) {
+	cfg := config.DefaultConfig()
+
+	for _, tc := range []struct {
+		mode string
+		want string
+	}{
+		{"plan", "📋 plan"},
+		{"accept-edits", "✏️ accept-edits"},
+		{"auto", "⚡ auto"},
+		{"custom-mode", "custom-mode"},
+	} {
+		st := model.NewUnifiedStatus("antigravity")
+		st.CycleMode = tc.mode
+		st.Sandbox = true
+		plain := ansi.Strip(render.Render(st, cfg))
+		if !strings.Contains(plain, tc.want) {
+			t.Errorf("mode %q: expected %q in %q", tc.mode, tc.want, plain)
+		}
+		if !strings.Contains(plain, "🛡️ sandbox") {
+			t.Errorf("mode %q: expected sandbox badge in %q", tc.mode, plain)
+		}
+	}
+
+	// 비활성 설정 및 기본값(미설정) 시 숨김
+	stDefault := model.NewUnifiedStatus("antigravity")
+	plainDefault := ansi.Strip(render.Render(stDefault, cfg))
+	if strings.Contains(plainDefault, "sandbox") || strings.Contains(plainDefault, "plan") {
+		t.Errorf("expected cycleMode and sandbox hidden when unset, got %q", plainDefault)
+	}
+
+	cfgOff := config.DefaultConfig()
+	cfgOff.Elements.CycleMode = false
+	cfgOff.Elements.Sandbox = false
+	stSet := model.NewUnifiedStatus("antigravity")
+	stSet.CycleMode = "plan"
+	stSet.Sandbox = true
+	plainOff := ansi.Strip(render.Render(stSet, cfgOff))
+	if strings.Contains(plainOff, "plan") || strings.Contains(plainOff, "sandbox") {
+		t.Errorf("expected cycleMode and sandbox hidden when disabled in config, got %q", plainOff)
+	}
+}
+
+func TestRenderModelWithReasoningEffort(t *testing.T) {
+	cases := []struct {
+		name        string
+		model       string
+		effort      string
+		modelFormat string
+		want        string
+		notWant     string
+	}{
+		{
+			name:   "low effort appended",
+			model:  "gpt-6-astra",
+			effort: "low",
+			want:   "gpt-6-astra (low)",
+		},
+		{
+			name:   "medium effort normalized to med",
+			model:  "gpt-6-astra",
+			effort: "medium",
+			want:   "gpt-6-astra (med)",
+		},
+		{
+			name:    "medium already in model name",
+			model:   "Gemini 4 Hydrogen (Medium)",
+			effort:  "medium",
+			want:    "Gemini 4 Hydrogen (Medium)",
+			notWant: "(med)",
+		},
+		{
+			name:        "short format flash-med not duplicated",
+			model:       "Gemini 3.8 Flash (Medium)",
+			effort:      "medium",
+			modelFormat: "short",
+			want:        "flash-med",
+			notWant:     "(med)",
+		},
+		{
+			name:    "empty effort adds no parens",
+			model:   "Gemini 4 Hydrogen",
+			effort:  "",
+			want:    "Gemini 4 Hydrogen",
+			notWant: "(",
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			cfg := config.DefaultConfig()
+			if tc.modelFormat != "" {
+				cfg.Elements.ModelFormat = tc.modelFormat
+			}
+			st := model.NewUnifiedStatus("antigravity")
+			st.Model = tc.model
+			st.ReasoningEffort = tc.effort
+
+			plain := ansi.Strip(render.Render(st, cfg))
+			if !strings.Contains(plain, tc.want) {
+				t.Errorf("expected %q in %q", tc.want, plain)
+			}
+			if tc.notWant != "" && strings.Contains(plain, tc.notWant) {
+				t.Errorf("expected NOT to contain %q in %q", tc.notWant, plain)
+			}
+		})
+	}
+}
+
+func TestRenderEngineLabelFirst(t *testing.T) {
+	st := model.NewUnifiedStatus("antigravity")
+	st.GitRepo = "statusline"
+	st.GitBranch = "main"
+	st.Model = "Gemini 4 Hydrogen"
+
+	plain := ansi.Strip(render.Render(st, config.DefaultConfig()))
+	if !strings.HasPrefix(plain, " ANTIGRAVITY ") {
+		t.Errorf("expected output to start with ' ANTIGRAVITY ', got: %q", plain)
+	}
+	if strings.Index(plain, "ANTIGRAVITY") >= strings.Index(plain, "statusline") {
+		t.Errorf("expected ANTIGRAVITY before statusline, got: %q", plain)
+	}
+	if strings.Count(plain, "ANTIGRAVITY") != 1 {
+		t.Errorf("expected ANTIGRAVITY to appear exactly once, got: %q", plain)
+	}
+
+	cfg := config.DefaultConfig()
+	cfg.Elements.EngineLabel = false
+	plainDisabled := ansi.Strip(render.Render(st, cfg))
+	if strings.Contains(plainDisabled, "ANTIGRAVITY") {
+		t.Errorf("expected ANTIGRAVITY not to be rendered when EngineLabel=false, got: %q", plainDisabled)
+	}
+	if !strings.HasPrefix(plainDisabled, "statusline") {
+		t.Errorf("expected line1 ('statusline') to be first when EngineLabel=false, got: %q", plainDisabled)
 	}
 }

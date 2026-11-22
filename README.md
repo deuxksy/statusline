@@ -5,7 +5,7 @@
 **실행 예시 — Claude Code (`--cli=claude`):**
 
 ```text
-statusline  main            │  CLAUDE │ 📊 zai 5h:70%(0h8m) mo:98%(22d3h) 🎟️x2(12/22)
+ CLAUDE  │ statusline  main            │ 📊 zai 5h:70%(0h8m) mo:98%(22d3h) 🎟️x2(12/22)
 ```
 
 ---

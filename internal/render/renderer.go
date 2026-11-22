@@ -156,6 +156,22 @@ func formatModelName(name, format string) string {
 	}
 }
 
+func formatModelWithEffort(displayName, effort string) string {
+	norm := strings.ToLower(strings.TrimSpace(effort))
+	if norm == "" {
+		return displayName
+	}
+	short := norm
+	if norm == "medium" {
+		short = "med"
+	}
+	lowerName := strings.ToLower(displayName)
+	if strings.Contains(lowerName, norm) || strings.Contains(lowerName, short) {
+		return displayName
+	}
+	return displayName + " (" + short + ")"
+}
+
 func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p ThemePalette) string {
 	switch item {
 	case "permission":
@@ -204,7 +220,30 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 	case "model":
 		if cfg.Elements.Model && st.Model != "" {
 			displayName := formatModelName(st.Model, cfg.Elements.ModelFormat)
+			displayName = formatModelWithEffort(displayName, st.ReasoningEffort)
 			return lipgloss.NewStyle().Foreground(p.ModelFg).Bold(true).Render(displayName)
+		}
+	case "cycleMode":
+		if cfg.Elements.CycleMode && st.CycleMode != "" {
+			var label string
+			fg := p.StatusFg
+			switch st.CycleMode {
+			case "plan":
+				label = "📋 plan"
+				fg = p.QuotaLabel
+			case "accept-edits":
+				label = "✏️ accept-edits"
+			case "auto":
+				label = "⚡ auto"
+				fg = p.QuotaWarn
+			default:
+				label = st.CycleMode
+			}
+			return lipgloss.NewStyle().Foreground(fg).Render(label)
+		}
+	case "sandbox":
+		if cfg.Elements.Sandbox && st.Sandbox {
+			return lipgloss.NewStyle().Foreground(p.BranchFg).Render("🛡️ sandbox")
 		}
 	case "thinking":
 		if cfg.Elements.Thinking && st.Capabilities.HasThinking && st.ThinkingState != "" {
@@ -309,9 +348,13 @@ func Render(st *model.UnifiedStatus, cfg *config.Config) string {
 	}
 
 	palette := getPalette(cfg.Theme)
+	engineSeg := renderSegment("engineLabel", st, cfg, palette)
 
 	var line1Segments []string
 	for _, item := range cfg.Layout.Line1 {
+		if item == "engineLabel" {
+			continue
+		}
 		if seg := renderSegment(item, st, cfg, palette); seg != "" {
 			line1Segments = append(line1Segments, seg)
 		}
@@ -319,13 +362,16 @@ func Render(st *model.UnifiedStatus, cfg *config.Config) string {
 
 	var mainSegments []string
 	for _, item := range cfg.Layout.Main {
+		if item == "engineLabel" {
+			continue
+		}
 		if seg := renderSegment(item, st, cfg, palette); seg != "" {
 			mainSegments = append(mainSegments, seg)
 		}
 	}
 
 	// Fallback if layout iteration yields nothing but we have engine label
-	if len(mainSegments) == 0 && cfg.Elements.EngineLabel && st.EngineName != "" {
+	if len(mainSegments) == 0 && engineSeg == "" && cfg.Elements.EngineLabel && st.EngineName != "" {
 		badge := lipgloss.NewStyle().Bold(true).Foreground(palette.BadgeFg).Background(palette.BadgeBg).Padding(0, 1)
 		mainSegments = append(mainSegments, badge.Render(strings.ToUpper(st.EngineName)))
 	}
@@ -341,16 +387,17 @@ func Render(st *model.UnifiedStatus, cfg *config.Config) string {
 	}
 	main := strings.Join(mainSegments, " │ ")
 
-	result := ""
-	if line1 != "" {
-		if main != "" {
-			result = line1 + " │ " + main
-		} else {
-			result = line1
-		}
-	} else {
-		result = main
+	var parts []string
+	if engineSeg != "" {
+		parts = append(parts, engineSeg)
 	}
+	if line1 != "" {
+		parts = append(parts, line1)
+	}
+	if main != "" {
+		parts = append(parts, main)
+	}
+	result := strings.Join(parts, " │ ")
 
 	// wrapMode 처리 (truncate)
 	if cfg.WrapMode == "truncate" && st.TerminalWidth > 0 {

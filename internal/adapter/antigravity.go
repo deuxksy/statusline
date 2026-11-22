@@ -24,8 +24,9 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 			Percentage int `json:"percentage"`
 		} `json:"contextBar"`
 		ContextWindow struct {
-			UsedPercentage   float64 `json:"used_percentage"`
-			TotalInputTokens int     `json:"total_input_tokens"`
+			UsedPercentage    float64 `json:"used_percentage"`
+			TotalInputTokens  int     `json:"total_input_tokens"`
+			ContextWindowSize int     `json:"context_window_size"`
 		} `json:"context_window"`
 		Thinking struct {
 			State string `json:"state"`
@@ -47,8 +48,12 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 			ResetInSeconds    int64   `json:"reset_in_seconds"`
 			ResetInSecCamel   int64   `json:"resetInSeconds"`
 		} `json:"quota"`
-		ToolConfirmationPending bool `json:"tool_confirmation_pending"`
-		TerminalWidth           int  `json:"terminal_width"`
+		ToolConfirmationPending bool   `json:"tool_confirmation_pending"`
+		TerminalWidth           int    `json:"terminal_width"`
+		CycleMode               string `json:"cycle_mode"`
+		Sandbox                 struct {
+			Enabled bool `json:"enabled"`
+		} `json:"sandbox"`
 	}
 
 	if err := json.Unmarshal(input, &raw); err == nil {
@@ -62,6 +67,7 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 					DisplayNameSnake string `json:"display_name"`
 					Name             string `json:"name"`
 					ID               string `json:"id"`
+					Effort           string `json:"effort"`
 				}
 				if err := json.Unmarshal(raw.Model, &modelObj); err == nil {
 					if modelObj.DisplayName != "" {
@@ -73,10 +79,20 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 					} else if modelObj.Name != "" {
 						st.Model = modelObj.Name
 					}
+					if modelObj.Effort != "" {
+						st.ReasoningEffort = modelObj.Effort
+					}
 				}
 			}
 		}
-		if raw.ContextWindow.UsedPercentage > 0 {
+		if raw.ContextWindow.ContextWindowSize > 0 {
+			st.ContextLimit = raw.ContextWindow.ContextWindowSize
+			if raw.ContextWindow.UsedPercentage > 0 {
+				st.ContextTokens = int(math.Round(raw.ContextWindow.UsedPercentage / 100.0 * float64(raw.ContextWindow.ContextWindowSize)))
+			} else if raw.ContextWindow.TotalInputTokens > 0 {
+				st.ContextTokens = raw.ContextWindow.TotalInputTokens
+			}
+		} else if raw.ContextWindow.UsedPercentage > 0 {
 			st.ContextTokens = int(math.Round(raw.ContextWindow.UsedPercentage))
 		} else if raw.ContextTokens > 0 {
 			st.ContextTokens = raw.ContextTokens
@@ -164,6 +180,10 @@ func (a *AntigravityAdapter) Parse(input []byte, env map[string]string) (*model.
 		if raw.ToolConfirmationPending {
 			st.Permission = "pending"
 		}
+		if raw.CycleMode != "" {
+			st.CycleMode = raw.CycleMode
+		}
+		st.Sandbox = raw.Sandbox.Enabled
 		if raw.TerminalWidth > 0 {
 			st.TerminalWidth = raw.TerminalWidth
 		}

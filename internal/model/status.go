@@ -55,6 +55,8 @@ type UnifiedStatus struct {
 
 	Permission    string
 	ThinkingState string
+	CycleMode     string
+	Sandbox       bool
 
 	Quota []QuotaCategory
 
