@@ -42,6 +42,8 @@ This reference specifies the exact STDIN JSON payload structures received from A
 }
 ```
 
+어댑터가 추가로 읽는 field: `sandbox.enabled`, `tool_confirmation_pending`, `terminal_width`. `gemini-*` 외 quota key(예: `3p-5h`, `3p-weekly`)는 `3rd` segment로 표시된다.
+
 ---
 
 ## 2. Claude Code Payload Spec
@@ -60,6 +62,8 @@ Sample location: [`docs/samples/claude.json`](../../samples/claude.json) — OMC
 
 Native CC stdin은 `model.id`/`model.display_name`(snake_case)을 보낸다. 모델명 우선순위: `display_name` → `displayName`(OMC 래퍼) → `name` → `id`.
 
+추가로 읽는 field: `context_window.total_input_tokens`, `context_window.context_window_size`, `contextTokens`, `thinkingState`, `cwd`, `permission`, `terminal_width`.
+
 ---
 
 ## 3. Codex Widget Snapshot
@@ -71,3 +75,4 @@ Sample: [`docs/samples/codex.json`](../../samples/codex.json). This is a normali
 - `info.model_context_window`: model context capacity.
 - `rate_limits.primary` and `secondary`: used percentages, window durations, and Unix reset times. The adapter renders remaining percentages by subtracting from 100.
 - Cost is unavailable in this local sample. OpenAI Platform organization costs and Codex subscription limits are separate data sources.
+- Renderer snapshot fields sent by the MCP statusline provider (`integrations/codex/statusline.py`): `statusline_snapshot`, `speed`, `permission`, `context_used`, `context_token_count`, `reset_tickets`, `reset_tickets_expire`. Setup is in [Codex MCP 상태바 설정](../how-to-guides/use-codex.md#6-codex-mcp-상태바-설정).

@@ -1,6 +1,6 @@
 # Codex 데이터 수집 사용 가이드
 
-현재 Codex 연동은 **조회용 CLI**다. `collect`는 현재 상태를 JSON으로 가져오고, `watch`는 로컬 세션에 새로 기록되는 토큰·컨텍스트 이벤트를 출력한다. 수집 결과를 상태바나 OS 위젯에 자동 표시하는 기능은 아직 없다.
+현재 Codex 연동은 **조회용 CLI**와 **MCP 상태바**다. `collect`는 현재 상태를 JSON으로 가져오고, `watch`는 로컬 세션에 새로 기록되는 토큰·컨텍스트 이벤트를 출력한다. 수집 결과는 [트레이 위젯 가이드](./use-tray.md)의 위젯이 캐시를 통해 표시하고, Codex 하단 상태바는 6절의 MCP provider가 그린다.
 
 ## collect — 전 provider 수집
 
@@ -66,7 +66,7 @@ Platform 조회는 Codex 구독 상태와 별도다. `OPENAI_ADMIN_KEY`가 있�
 ./statusline --cli=codex < docs/samples/codex.json
 ```
 
-이 샘플은 로컬 세션에서 정규화한 fixture이며 app-server 원본 응답이 아니다. 현재 렌더러는 `collect` 결과를 자동으로 받아 표시하지 않는다. Codex 내장 `/statusline` 명령도 이 바이너리로 교체되지 않는다.
+이 샘플은 로컬 세션에서 정규화한 fixture이며 app-server 원본 응답이 아니다. 현재 렌더러는 `collect` 결과를 자동으로 받아 표시하지 않는다. Codex 하단에 표시하려면 6절의 MCP provider를 등록한다.
 
 ## 6. Codex MCP 상태바 설정
 

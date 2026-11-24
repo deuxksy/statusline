@@ -84,7 +84,7 @@ graph TD
    - 모든 입력은 `internal/adapter`와 `internal/collect`를 거쳐 단일 포맷인 `model.UnifiedStatus` 구조체로 표준화됩니다.
    - 이 코어 로직은 CLI, 백그라운드 데몬, 위젯 앱 어디서나 동일하게 import되어 재사용됩니다.
 3. **공유 상태 브릿지 (Bridge)**:
-   - 터미널 CLI는 초저지연(<5ms)으로 화면을 그리면서 동시에 `~/.cache/statusline/live_session.json`에 스냅샷을 덤프합니다.
+   - `collect`가 수집 결과를 `~/.cache/statusline/live_session.json`에 병합 적재합니다. 터미널 CLI 렌더 경로는 이 파일을 쓰지 않습니다.
    - 위젯과 대시보드는 이 표준 캐시 파일을 구독(Consume)하여 화면을 갱신합니다.
 4. **프레젠테이션 (Outputs)**:
    - UI 껍데기만 Lipgloss(CLI) ➔ systray(트레이) ➔ Wails(웹뷰)로 교체되며, 비즈니스 로직과 데이터 파이프라인은 100% 공유됩니다.
