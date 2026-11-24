@@ -23,6 +23,8 @@ cat docs/samples/antigravity.json | ./statusline --cli=antigravity
 cat docs/samples/claude.json | ./statusline --cli=claude
 ```
 
+Codex CLI 하단에 적용하려면 [Codex MCP 상태바 설정](./docs/okf/how-to-guides/use-codex.md#6-codex-mcp-상태바-설정)을 참고하세요.
+
 ---
 
 ## 📚 문서 인덱스 (Diátaxis Framework)

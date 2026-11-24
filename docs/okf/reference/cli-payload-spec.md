@@ -6,7 +6,7 @@ This reference specifies the exact STDIN JSON payload structures received from A
 
 ## 1. Antigravity (`agy`) Payload Spec
 
-Sample location: [`docs/samples/antigravity.json`](file:///Users/crong/git/statusline/docs/samples/antigravity.json)
+샘플 위치는 [`docs/samples/antigravity.json`](../../samples/antigravity.json)입니다.
 
 ```json
 {

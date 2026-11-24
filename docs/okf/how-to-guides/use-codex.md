@@ -68,6 +68,11 @@ Platform 조회는 Codex 구독 상태와 별도다. `OPENAI_ADMIN_KEY`가 있�
 
 이 샘플은 로컬 세션에서 정규화한 fixture이며 app-server 원본 응답이 아니다. 현재 렌더러는 `collect` 결과를 자동으로 받아 표시하지 않는다. Codex 내장 `/statusline` 명령도 이 바이너리로 교체되지 않는다.
 
+## 6. Codex MCP 상태바 설정
+
+저장소 루트에서 `go build -o statusline ./cmd/statusline`을 실행한 뒤 `codex mcp add statusline-tickets -- python3 -u "$PWD/integrations/codex/statusline.py"`로 등록합니다.
+Codex의 `/experimental`에서 **Custom status line**을 활성화하고 재시작한 뒤, `/statusline`에서 `Statusline · 초기화 티켓` provider를 선택합니다.
+
 ## 문제 해결
 
 - `collect` 대신 `GENERIC`이 출력된다면 1단계의 빌드를 다시 수행한다.

@@ -4,6 +4,8 @@ package model
 type QuotaCategory struct {
 	Name            string
 	FiveH           float64 // 5시간 잔여 비율 (0.0~1.0)
+	OmitFiveH       bool
+	OmitWeekly      bool
 	Weekly          float64 // 주간 잔여 비율 (0.0~1.0)
 	Monthly         float64 // 월간 잔여 비율 (Z.AI MCP 등, 0.0~1.0)
 	FiveHResetsAt   int64   // Unix 밀리초
@@ -52,6 +54,9 @@ type UnifiedStatus struct {
 	ActiveSkills []string
 	LastSkill    string
 	LastTool     string
+
+	ResetTickets       int
+	ResetTicketsExpire string
 
 	Permission    string
 	ThinkingState string

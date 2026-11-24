@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -175,6 +176,20 @@ func formatModelWithEffort(displayName, effort string) string {
 func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p ThemePalette) string {
 	switch item {
 	case "permission":
+		if cfg.Elements.Permission && st.EngineName == "codex" && st.Permission != "" {
+			label := st.Permission
+			switch strings.ToLower(label) {
+			case "ask for approval":
+				label = "🙋"
+			case "approve for me":
+				label = "🤖"
+			case "full access":
+				label = "🔓"
+			case "read only":
+				label = "👁️"
+			}
+			return lipgloss.NewStyle().Foreground(p.StatusFg).Render(label)
+		}
 		if cfg.Elements.Permission && st.Capabilities.HasPermission && (st.Permission == "pending" || st.Permission == "waiting") {
 			return lipgloss.NewStyle().Bold(true).Foreground(p.WaitFg).Background(p.WaitBg).Padding(0, 1).Render("🔒 WAITING")
 		}
@@ -238,6 +253,14 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 				fg = p.QuotaWarn
 			default:
 				label = st.CycleMode
+				if st.EngineName == "codex" {
+					switch strings.ToLower(label) {
+					case "standard":
+						label = "🚶"
+					case "fast":
+						label = "🏃"
+					}
+				}
 			}
 			return lipgloss.NewStyle().Foreground(fg).Render(label)
 		}
@@ -250,7 +273,8 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 			return lipgloss.NewStyle().Foreground(p.ThinkingFg).Render("🧠 " + st.ThinkingState)
 		}
 	case "contextBar":
-		if cfg.Elements.ContextBar && cfg.Elements.ShowTokens && st.Capabilities.HasTokens && st.ContextTokens > 0 {
+		if cfg.Elements.ContextBar && cfg.Elements.ShowTokens && st.Capabilities.HasTokens &&
+			(st.ContextTokens > 0 || st.EngineName == "codex") {
 			if st.ContextLimit > 0 {
 				pct := int(math.Round(float64(st.ContextTokens) / float64(st.ContextLimit) * 100))
 				text := fmt.Sprintf("%s/%s(%d%%)", humanizeTokens(st.ContextTokens), humanizeTokens(st.ContextLimit), pct)
@@ -276,7 +300,14 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 			if st.Provider == "zai" || st.Provider == "zhipu" {
 				return renderZaiQuota(st.Quota, p)
 			}
-			return renderQuota(st.Quota, p)
+			quota := renderQuota(st.Quota, p)
+			if st.ResetTickets > 0 {
+				quota += " " + ticketLabel(st.ResetTickets, st.ResetTicketsExpire)
+			}
+			return quota
+		}
+		if cfg.Elements.Quota && st.ResetTickets > 0 {
+			return ticketLabel(st.ResetTickets, st.ResetTicketsExpire)
 		}
 	}
 	return ""
@@ -337,7 +368,14 @@ func renderQuota(categories []model.QuotaCategory, p ThemePalette) string {
 		}
 		fiveH := quotaColor(cat.FiveH, p).Render(fiveHStr)
 		weekly := quotaColor(cat.Weekly, p).Render(weeklyStr)
-		parts = append(parts, fmt.Sprintf("%s %s %s", label, fiveH, weekly))
+		segments := []string{label}
+		if !cat.OmitFiveH {
+			segments = append(segments, fiveH)
+		}
+		if !cat.OmitWeekly {
+			segments = append(segments, weekly)
+		}
+		parts = append(parts, strings.Join(segments, " "))
 	}
 	return "📊 " + strings.Join(parts, " │ ")
 }
@@ -360,8 +398,24 @@ func Render(st *model.UnifiedStatus, cfg *config.Config) string {
 		}
 	}
 
+	mainItems := cfg.Layout.Main
+	if st.EngineName == "codex" {
+		permission := slices.Index(mainItems, "permission")
+		anchor := slices.Index(mainItems, "cycleMode")
+		if anchor < 0 {
+			anchor = slices.Index(mainItems, "model")
+		}
+		if permission >= 0 && anchor >= 0 && permission != anchor+1 {
+			mainItems = slices.Delete(slices.Clone(mainItems), permission, permission+1)
+			if permission < anchor {
+				anchor--
+			}
+			mainItems = slices.Insert(mainItems, anchor+1, "permission")
+		}
+	}
+
 	var mainSegments []string
-	for _, item := range cfg.Layout.Main {
+	for _, item := range mainItems {
 		if item == "engineLabel" {
 			continue
 		}
@@ -465,10 +519,7 @@ func renderZaiQuota(cats []model.QuotaCategory, p ThemePalette) string {
 	mcpPart := quotaColor(cat.Monthly, p).Render(mcp)
 	out := "📊 " + label + " " + fiveHPart + " " + mcpPart
 	if cat.Tickets > 0 {
-		tk := fmt.Sprintf("🎟️x%d", cat.Tickets)
-		if cat.TicketsExpire != "" {
-			tk += "(" + ticketExpireShort(cat.TicketsExpire) + ")"
-		}
+		tk := ticketLabel(cat.Tickets, cat.TicketsExpire)
 		style := lipgloss.NewStyle()
 		if ticketExpireSoon(cat.TicketsExpire, now) {
 			style = style.Foreground(p.QuotaBad)
@@ -476,6 +527,14 @@ func renderZaiQuota(cats []model.QuotaCategory, p ThemePalette) string {
 		out += " " + style.Render(tk)
 	}
 	return out
+}
+
+func ticketLabel(count int, expires string) string {
+	label := fmt.Sprintf("🎟️x%d", count)
+	if expires != "" {
+		label += "(" + ticketExpireShort(expires) + ")"
+	}
+	return label
 }
 
 // ticketExpireShort — "2026-12-22" → "12/22". 짧은 입력은 그대로.
