@@ -102,3 +102,32 @@ func TestMenuLines(t *testing.T) {
 		}
 	}
 }
+
+func TestMenuLinesTicket(t *testing.T) {
+	now := time.Date(2026, 11, 20, 0, 0, 0, 0, time.Local)
+	live := collect.LiveSession{Zai: &collect.ZaiSnapshot{
+		TokenRemaining:     0.97,
+		ResetTickets:       2,
+		ResetTicketsExpire: "2026-12-22",
+	}}
+	lines := tray.MenuLines(live, "zai", now)
+	joined := strings.Join(lines, "\n")
+	if !strings.Contains(joined, "zai tickets 2장 · 12/22") {
+		t.Errorf("menu missing ticket line, got:\n%s", joined)
+	}
+	if strings.Contains(joined, "⚠️") {
+		t.Errorf("ticket expiring in a month must not warn, got:\n%s", joined)
+	}
+
+	// 만료 3일 이하 → ⚠️ 접두
+	live.Zai.ResetTicketsExpire = "2026-11-21"
+	if got := strings.Join(tray.MenuLines(live, "zai", now), "\n"); !strings.Contains(got, "⚠️ zai tickets 2장 · 11/21") {
+		t.Errorf("ticket expiring within 3 days must warn, got:\n%s", got)
+	}
+
+	// 보유 0장 → 라인 생략
+	live.Zai.ResetTickets = 0
+	if got := strings.Join(tray.MenuLines(live, "zai", now), "\n"); strings.Contains(got, "tickets") {
+		t.Errorf("zero tickets must omit line, got:\n%s", got)
+	}
+}

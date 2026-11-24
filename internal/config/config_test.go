@@ -3,6 +3,7 @@ package config_test
 import (
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"statusline/internal/config"
@@ -79,5 +80,55 @@ func TestSaveConfigRoundTrip(t *testing.T) {
 	got := config.LoadConfig(p)
 	if got.Tray.Primary != "chatgpt" {
 		t.Errorf("round trip: expected chatgpt, got %q", got.Tray.Primary)
+	}
+}
+
+func TestLoadConfigMigratesLegacyLayout(t *testing.T) {
+	tests := []struct {
+		name       string
+		json       string
+		wantMain   []string
+		wantSchema string
+	}{
+		{
+			name:       "legacy 1.0 inserts cycleMode and sandbox after model",
+			json:       `{"$schema":"1.0","layout":{"main":["permission","engineLabel","model","thinking"]}}`,
+			wantMain:   []string{"permission", "engineLabel", "model", "cycleMode", "sandbox", "thinking"},
+			wantSchema: "1.1",
+		},
+		{
+			name:       "missing schema without model appends cycleMode and sandbox",
+			json:       `{"layout":{"main":["engineLabel","thinking"]}}`,
+			wantMain:   []string{"engineLabel", "thinking", "cycleMode", "sandbox"},
+			wantSchema: "1.1",
+		},
+		{
+			name:       "legacy already containing cycleMode inserts only sandbox",
+			json:       `{"$schema":"1.0","layout":{"main":["permission","engineLabel","model","cycleMode","thinking"]}}`,
+			wantMain:   []string{"permission", "engineLabel", "model", "cycleMode", "sandbox", "thinking"},
+			wantSchema: "1.1",
+		},
+		{
+			name:       "current schema 1.1 preserves layout untouched",
+			json:       `{"$schema":"1.1","layout":{"main":["engineLabel","model"]}}`,
+			wantMain:   []string{"engineLabel", "model"},
+			wantSchema: "1.1",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := filepath.Join(t.TempDir(), "config.json")
+			if err := os.WriteFile(p, []byte(tt.json), 0o600); err != nil {
+				t.Fatal(err)
+			}
+			cfg := config.LoadConfig(p)
+			if cfg.Schema != tt.wantSchema {
+				t.Errorf("schema = %q, want %q", cfg.Schema, tt.wantSchema)
+			}
+			if !reflect.DeepEqual(cfg.Layout.Main, tt.wantMain) {
+				t.Errorf("layout.main = %v, want %v", cfg.Layout.Main, tt.wantMain)
+			}
+		})
 	}
 }

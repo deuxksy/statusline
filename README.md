@@ -2,6 +2,12 @@
 
 `statusline`은 AI 코딩 어시스턴트(Antigravity, Claude Code, Codex)를 위한 고성능 단일 행 상태바 생성기입니다. Go 언어로 작성되었으며, STDIN을 통해 JSON 상태 스트림을 입력받아 5ms 이내의 빠른 속도로 실시간 실행 문맥을 렌더링합니다.
 
+**실행 예시 — Claude Code (`--cli=claude`):**
+
+```text
+ CLAUDE  │ statusline  main            │ 📊 zai 5h:70%(0h8m) mo:98%(22d3h) 🎟️x2(12/22)
+```
+
 ---
 
 ## 🚀 빠른 시작 (Quick Start)
@@ -12,7 +18,12 @@ go build -o statusline ./cmd/statusline
 
 # Antigravity 샘플 페이로드로 테스트 실행
 cat docs/samples/antigravity.json | ./statusline --cli=antigravity
+
+# Claude Code 샘플 페이로드로 테스트 실행
+cat docs/samples/claude.json | ./statusline --cli=claude
 ```
+
+Codex CLI 하단에 적용하려면 [Codex MCP 상태바 설정](./docs/okf/how-to-guides/use-codex.md#6-codex-mcp-상태바-설정)을 참고하세요.
 
 ---
 
@@ -27,7 +38,7 @@ cat docs/samples/antigravity.json | ./statusline --cli=antigravity
 - [튜토리얼 개요](./docs/okf/tutorials/index.md) - [시작하기 (Getting Started)](./docs/okf/tutorials/getting-started.md): 빠른 설치, 기본 사용법 및 파이프라인 구성.
 
 ### 🛠️ 사용 방법 안내 (How-To Guides)
-- [사용 가이드 개요](./docs/okf/how-to-guides/index.md) - [Codex 데이터 수집](./docs/okf/how-to-guides/use-codex.md), [레이아웃 및 요소 설정](./docs/okf/how-to-guides/configure-elements.md), [신규 CLI 어댑터 추가](./docs/okf/how-to-guides/add-new-cli-adapter.md) 가이드.
+- [사용 가이드 개요](./docs/okf/how-to-guides/index.md) - [Codex 데이터 수집](./docs/okf/how-to-guides/use-codex.md), [트레이 위젯 사용](./docs/okf/how-to-guides/use-tray.md), [레이아웃 및 요소 설정](./docs/okf/how-to-guides/configure-elements.md), [신규 CLI 어댑터 추가](./docs/okf/how-to-guides/add-new-cli-adapter.md) 가이드.
 
 ### 📖 레퍼런스 (Reference)
 - [문서 허브 (Docs Hub)](./docs/README.md) - 전체 문서 디렉토리 구조 및 역할 안내.

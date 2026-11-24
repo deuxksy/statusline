@@ -34,7 +34,7 @@ func EnrichGit(status *model.UnifiedStatus, cwd string, timeoutMs int) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutMs)*time.Millisecond)
 	defer cancel()
 
-	cmdStatus := exec.CommandContext(ctx, "git", "status", "--porcelain", "-uno")
+	cmdStatus := exec.CommandContext(ctx, "git", "--no-optional-locks", "status", "--porcelain", "-uno")
 	cmdStatus.Dir = cwd
 	outStatus, err := cmdStatus.Output()
 	if err == nil && len(strings.TrimSpace(string(outStatus))) > 0 {

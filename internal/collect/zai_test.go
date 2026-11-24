@@ -119,3 +119,64 @@ func TestZaiInputGuards(t *testing.T) {
 		t.Error("provider 부재(SSRF 가드) 시 오류여야 함")
 	}
 }
+
+// newZaiServerWithTickets — quota/limit과 ticket list를 동시에 목업하는 서버.
+func newZaiServerWithTickets(t *testing.T, quotaBody, ticketsBody string, ticketsStatus int) *httptest.Server {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/biz/customer-package-reset/list" {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(ticketsStatus)
+			_, _ = w.Write([]byte(ticketsBody))
+			return
+		}
+		if r.URL.Path != "/api/monitor/usage/quota/limit" {
+			http.NotFound(w, r)
+			return
+		}
+		if got := r.Header.Get("Authorization"); got != "test-token" {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte(quotaBody))
+	}))
+	t.Cleanup(srv.Close)
+	return srv
+}
+
+// 실측 응답 스키마 (2026-11-19) — 유효 2 + 만료 1 축약
+const zaiTicketsBody = `{"code":200,"msg":"Operation successful","success":true,"data":{
+  "fiveHourResets":[
+    {"recordId":7,"grantType":"GLOBAL","expireTime":"2026-12-22 23:59:59","available":true},
+    {"recordId":8,"grantType":"GLOBAL","expireTime":"2026-12-22 23:59:59","available":true},
+    {"recordId":2641890,"grantType":"DIRECT","expireTime":"2026-11-12 20:10:25","available":false}
+  ],
+  "weekResets":[]}}`
+
+func TestZaiResetTickets(t *testing.T) {
+	srv := newZaiServerWithTickets(t, zaiBodyBoth, zaiTicketsBody, http.StatusOK)
+	snap, err := Zai(context.Background(), srv.Client(), srv.URL, "test-token", "zai")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if snap.ResetTickets != 2 {
+		t.Errorf("ResetTickets = %d, want 2 (available=true만 집계)", snap.ResetTickets)
+	}
+	if snap.ResetTicketsExpire != "2026-12-22" {
+		t.Errorf("ResetTicketsExpire = %q, want 2026-12-22 (가장 이른 유효 티켓 만료 일자)", snap.ResetTicketsExpire)
+	}
+}
+
+func TestZaiResetTicketsFailSoft(t *testing.T) {
+	// newZaiServer는 티켓 경로를 404 처리 — quota 수집은 유지되고 티켓만 0이어야 함
+	srv := newZaiServer(t, http.StatusOK, zaiBodyBoth)
+	snap, err := Zai(context.Background(), srv.Client(), srv.URL, "test-token", "zai")
+	if err != nil {
+		t.Fatalf("티켓 404는 전체 오류가 아니어야 함: %v", err)
+	}
+	if snap.ResetTickets != 0 {
+		t.Errorf("티켓 404 시 ResetTickets = %d, want 0", snap.ResetTickets)
+	}
+}

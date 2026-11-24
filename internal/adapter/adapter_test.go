@@ -417,3 +417,76 @@ func TestAntigravityAdapterNoQuota(t *testing.T) {
 		t.Errorf("expected 0 quota categories, got %d", len(status.Quota))
 	}
 }
+
+func TestAntigravityAdapterCycleModeAndSandbox(t *testing.T) {
+	a := &adapter.AntigravityAdapter{}
+	input, err := os.ReadFile("../../docs/samples/antigravity.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	status, err := a.Parse(input, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if status.CycleMode != "accept-edits" {
+		t.Errorf("expected cycle mode 'accept-edits', got %q", status.CycleMode)
+	}
+	if status.Sandbox {
+		t.Errorf("expected sandbox false for sample payload")
+	}
+
+	statusOn, err := a.Parse([]byte(`{"cycle_mode":"plan","sandbox":{"enabled":true}}`), nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if statusOn.CycleMode != "plan" {
+		t.Errorf("expected cycle mode 'plan', got %q", statusOn.CycleMode)
+	}
+	if !statusOn.Sandbox {
+		t.Errorf("expected sandbox true")
+	}
+}
+
+func TestAntigravityAdapterContextWindowAndEffort(t *testing.T) {
+	a := &adapter.AntigravityAdapter{}
+
+	input, err := os.ReadFile("../../docs/samples/antigravity.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	status, err := a.Parse(input, nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if status.ContextLimit != 1048576 {
+		t.Errorf("expected ContextLimit 1048576, got %d", status.ContextLimit)
+	}
+	if status.ContextTokens != 44068 {
+		t.Errorf("expected ContextTokens 44068, got %d", status.ContextTokens)
+	}
+	if status.ReasoningEffort != "medium" {
+		t.Errorf("expected ReasoningEffort 'medium', got %q", status.ReasoningEffort)
+	}
+
+	fallbackStatus, err := a.Parse([]byte(`{"context_window":{"context_window_size":0,"used_percentage":45}}`), nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if fallbackStatus.ContextLimit != 0 {
+		t.Errorf("expected ContextLimit 0, got %d", fallbackStatus.ContextLimit)
+	}
+	if fallbackStatus.ContextTokens != 45 {
+		t.Errorf("expected ContextTokens 45, got %d", fallbackStatus.ContextTokens)
+	}
+
+	inputTokensStatus, err := a.Parse([]byte(`{"context_window":{"context_window_size":200000,"used_percentage":0,"total_input_tokens":12000}}`), nil)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if inputTokensStatus.ContextLimit != 200000 {
+		t.Errorf("expected ContextLimit 200000, got %d", inputTokensStatus.ContextLimit)
+	}
+	if inputTokensStatus.ContextTokens != 12000 {
+		t.Errorf("expected ContextTokens 12000, got %d", inputTokensStatus.ContextTokens)
+	}
+}

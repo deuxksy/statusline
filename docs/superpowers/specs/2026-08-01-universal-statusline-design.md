@@ -35,6 +35,22 @@ statusline init
 statusline --config=~/.config/statusline/config.json
 ```
 
+### CLI별 상태바 등록 방식
+
+| CLI | 등록 위치 | 호출 방식 |
+| --- | --- | --- |
+| Claude Code | `~/.claude/settings.json`의 `statusLine.command` | `statusline --cli=claude`를 실행하고 STDIN으로 JSON을 전달합니다. stdout을 상태바에 표시합니다. |
+| Antigravity CLI (agy) | `~/.gemini/antigravity-cli/settings.json`의 `statusline.command` | `statusline --cli=antigravity`를 실행하고 agy 형식의 JSON을 STDIN으로 전달합니다. stdout을 상태바에 표시합니다. |
+| Codex CLI 0.171.0 | `config.toml`의 `tui.status_line_provider` | MCP 서버와 도구 이름을 지정합니다. Codex가 MCP resource를 읽어 반환된 UI 트리를 상태바에 표시합니다. |
+
+Codex의 MCP provider는 상태바를 교체할 때 사용하는 설정입니다. `statusline --cli=codex`는 STDIN JSON으로 Go 렌더러를 테스트하는 데 사용할 수 있습니다. [Codex 0.171.0 설정 스키마](https://raw.githubusercontent.com/openai/codex/rust-v0.171.0/codex-rs/core/config.schema.json#L5845)
+
+### Codex 초기화 티켓 표시
+
+Codex 기본 상태바에 `/usage`에서 확인하는 **초기화 티켓 잔여 수와 보유 티켓 중 가장 이른 만료일**을 선택 항목으로 추가합니다. Claude Code의 Z.ai 표시 형식을 따라 사용량 바로 뒤에 `🎟️x2(12/22)`를 표시합니다. 사용량 데이터가 없으면 티켓만 표시합니다. 잔여 수가 양수이고 만료일을 확인할 수 없으면 `🎟️x2`로 표시합니다. [Z.ai 렌더러](../../../internal/render/renderer.go#L448) · [Codex 초기화 티켓 안내](https://help.openai.com/en/articles/20001498-how-resets-work-in-codex)
+
+Codex의 공식 커스텀 MCP provider를 사용합니다. MCP 연결부는 세션 스냅샷을 기존 Go 렌더러에 전달하고 전경색, 배지 배경색, 굵기와 고정 폭 여백을 Codex UI 트리로 변환합니다. 레이아웃은 `statusline` 설정을 따릅니다. 티켓 정보는 로컬 app-server의 읽기 전용 `account/rateLimits/read`를 MCP 프로세스의 첫 상태바 요청에서 백그라운드로 한 번 조회합니다. 조회한 수량은 프로세스가 다시 시작될 때 갱신됩니다. [공식 create-statusline 가이드](https://github.com/openai/codex/blob/rust-v0.171.0/codex-rs/skills/src/assets/samples/create-statusline/SKILL.md)
+
 ### Auto-Detection Strategy (`--cli=auto` by default)
 When `--cli=auto` is used (which is the default when no `--cli` flag is passed), `statusline` detects the host environment using the following fallback pipeline:
 1. **Stdin JSON Schema Discriminator**: Inspects payload key structures (e.g., `omcLabel` / `sessionHealth` $\rightarrow$ `claude`, `antigravity_version` $\rightarrow$ `antigravity`).

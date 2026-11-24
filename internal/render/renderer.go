@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -156,9 +157,39 @@ func formatModelName(name, format string) string {
 	}
 }
 
+func formatModelWithEffort(displayName, effort string) string {
+	norm := strings.ToLower(strings.TrimSpace(effort))
+	if norm == "" {
+		return displayName
+	}
+	short := norm
+	if norm == "medium" {
+		short = "med"
+	}
+	lowerName := strings.ToLower(displayName)
+	if strings.Contains(lowerName, norm) || strings.Contains(lowerName, short) {
+		return displayName
+	}
+	return displayName + " (" + short + ")"
+}
+
 func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p ThemePalette) string {
 	switch item {
 	case "permission":
+		if cfg.Elements.Permission && st.EngineName == "codex" && st.Permission != "" {
+			label := st.Permission
+			switch strings.ToLower(label) {
+			case "ask for approval":
+				label = "🙋"
+			case "approve for me":
+				label = "🤖"
+			case "full access":
+				label = "🔓"
+			case "read only":
+				label = "👁️"
+			}
+			return lipgloss.NewStyle().Foreground(p.StatusFg).Render(label)
+		}
 		if cfg.Elements.Permission && st.Capabilities.HasPermission && (st.Permission == "pending" || st.Permission == "waiting") {
 			return lipgloss.NewStyle().Bold(true).Foreground(p.WaitFg).Background(p.WaitBg).Padding(0, 1).Render("🔒 WAITING")
 		}
@@ -204,14 +235,46 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 	case "model":
 		if cfg.Elements.Model && st.Model != "" {
 			displayName := formatModelName(st.Model, cfg.Elements.ModelFormat)
+			displayName = formatModelWithEffort(displayName, st.ReasoningEffort)
 			return lipgloss.NewStyle().Foreground(p.ModelFg).Bold(true).Render(displayName)
+		}
+	case "cycleMode":
+		if cfg.Elements.CycleMode && st.CycleMode != "" {
+			var label string
+			fg := p.StatusFg
+			switch st.CycleMode {
+			case "plan":
+				label = "📋 plan"
+				fg = p.QuotaLabel
+			case "accept-edits":
+				label = "✏️ accept-edits"
+			case "auto":
+				label = "⚡ auto"
+				fg = p.QuotaWarn
+			default:
+				label = st.CycleMode
+				if st.EngineName == "codex" {
+					switch strings.ToLower(label) {
+					case "standard":
+						label = "🚶"
+					case "fast":
+						label = "🏃"
+					}
+				}
+			}
+			return lipgloss.NewStyle().Foreground(fg).Render(label)
+		}
+	case "sandbox":
+		if cfg.Elements.Sandbox && st.Sandbox {
+			return lipgloss.NewStyle().Foreground(p.BranchFg).Render("🛡️ sandbox")
 		}
 	case "thinking":
 		if cfg.Elements.Thinking && st.Capabilities.HasThinking && st.ThinkingState != "" {
 			return lipgloss.NewStyle().Foreground(p.ThinkingFg).Render("🧠 " + st.ThinkingState)
 		}
 	case "contextBar":
-		if cfg.Elements.ContextBar && cfg.Elements.ShowTokens && st.Capabilities.HasTokens && st.ContextTokens > 0 {
+		if cfg.Elements.ContextBar && cfg.Elements.ShowTokens && st.Capabilities.HasTokens &&
+			(st.ContextTokens > 0 || st.EngineName == "codex") {
 			if st.ContextLimit > 0 {
 				pct := int(math.Round(float64(st.ContextTokens) / float64(st.ContextLimit) * 100))
 				text := fmt.Sprintf("%s/%s(%d%%)", humanizeTokens(st.ContextTokens), humanizeTokens(st.ContextLimit), pct)
@@ -237,7 +300,14 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 			if st.Provider == "zai" || st.Provider == "zhipu" {
 				return renderZaiQuota(st.Quota, p)
 			}
-			return renderQuota(st.Quota, p)
+			quota := renderQuota(st.Quota, p)
+			if st.ResetTickets > 0 {
+				quota += " " + ticketLabel(st.ResetTickets, st.ResetTicketsExpire)
+			}
+			return quota
+		}
+		if cfg.Elements.Quota && st.ResetTickets > 0 {
+			return ticketLabel(st.ResetTickets, st.ResetTicketsExpire)
 		}
 	}
 	return ""
@@ -298,7 +368,14 @@ func renderQuota(categories []model.QuotaCategory, p ThemePalette) string {
 		}
 		fiveH := quotaColor(cat.FiveH, p).Render(fiveHStr)
 		weekly := quotaColor(cat.Weekly, p).Render(weeklyStr)
-		parts = append(parts, fmt.Sprintf("%s %s %s", label, fiveH, weekly))
+		segments := []string{label}
+		if !cat.OmitFiveH {
+			segments = append(segments, fiveH)
+		}
+		if !cat.OmitWeekly {
+			segments = append(segments, weekly)
+		}
+		parts = append(parts, strings.Join(segments, " "))
 	}
 	return "📊 " + strings.Join(parts, " │ ")
 }
@@ -309,23 +386,46 @@ func Render(st *model.UnifiedStatus, cfg *config.Config) string {
 	}
 
 	palette := getPalette(cfg.Theme)
+	engineSeg := renderSegment("engineLabel", st, cfg, palette)
 
 	var line1Segments []string
 	for _, item := range cfg.Layout.Line1 {
+		if item == "engineLabel" {
+			continue
+		}
 		if seg := renderSegment(item, st, cfg, palette); seg != "" {
 			line1Segments = append(line1Segments, seg)
 		}
 	}
 
+	mainItems := cfg.Layout.Main
+	if st.EngineName == "codex" {
+		permission := slices.Index(mainItems, "permission")
+		anchor := slices.Index(mainItems, "cycleMode")
+		if anchor < 0 {
+			anchor = slices.Index(mainItems, "model")
+		}
+		if permission >= 0 && anchor >= 0 && permission != anchor+1 {
+			mainItems = slices.Delete(slices.Clone(mainItems), permission, permission+1)
+			if permission < anchor {
+				anchor--
+			}
+			mainItems = slices.Insert(mainItems, anchor+1, "permission")
+		}
+	}
+
 	var mainSegments []string
-	for _, item := range cfg.Layout.Main {
+	for _, item := range mainItems {
+		if item == "engineLabel" {
+			continue
+		}
 		if seg := renderSegment(item, st, cfg, palette); seg != "" {
 			mainSegments = append(mainSegments, seg)
 		}
 	}
 
 	// Fallback if layout iteration yields nothing but we have engine label
-	if len(mainSegments) == 0 && cfg.Elements.EngineLabel && st.EngineName != "" {
+	if len(mainSegments) == 0 && engineSeg == "" && cfg.Elements.EngineLabel && st.EngineName != "" {
 		badge := lipgloss.NewStyle().Bold(true).Foreground(palette.BadgeFg).Background(palette.BadgeBg).Padding(0, 1)
 		mainSegments = append(mainSegments, badge.Render(strings.ToUpper(st.EngineName)))
 	}
@@ -341,16 +441,17 @@ func Render(st *model.UnifiedStatus, cfg *config.Config) string {
 	}
 	main := strings.Join(mainSegments, " │ ")
 
-	result := ""
-	if line1 != "" {
-		if main != "" {
-			result = line1 + " │ " + main
-		} else {
-			result = line1
-		}
-	} else {
-		result = main
+	var parts []string
+	if engineSeg != "" {
+		parts = append(parts, engineSeg)
 	}
+	if line1 != "" {
+		parts = append(parts, line1)
+	}
+	if main != "" {
+		parts = append(parts, main)
+	}
+	result := strings.Join(parts, " │ ")
 
 	// wrapMode 처리 (truncate)
 	if cfg.WrapMode == "truncate" && st.TerminalWidth > 0 {
@@ -397,7 +498,8 @@ func formatZaiQuota(cats []model.QuotaCategory, now time.Time) string {
 	return cat.Name + " " + fiveH + " " + mcp
 }
 
-// renderZaiQuota — formatZaiQuota의 스타일 버전 (📊 prefix, 라벨·비율별 색상)
+// renderZaiQuota — formatZaiQuota의 스타일 버전 (📊 prefix, 라벨·비율별 색상).
+// 보유 reset ticket이 있으면 접미 표시. 만료 3일 이하면 위험색(QuotaBad).
 func renderZaiQuota(cats []model.QuotaCategory, p ThemePalette) string {
 	if len(cats) == 0 {
 		return ""
@@ -415,5 +517,43 @@ func renderZaiQuota(cats []model.QuotaCategory, p ThemePalette) string {
 	}
 	fiveHPart := quotaColor(cat.FiveH, p).Render(fiveH)
 	mcpPart := quotaColor(cat.Monthly, p).Render(mcp)
-	return "📊 " + label + " " + fiveHPart + " " + mcpPart
+	out := "📊 " + label + " " + fiveHPart + " " + mcpPart
+	if cat.Tickets > 0 {
+		tk := ticketLabel(cat.Tickets, cat.TicketsExpire)
+		style := lipgloss.NewStyle()
+		if ticketExpireSoon(cat.TicketsExpire, now) {
+			style = style.Foreground(p.QuotaBad)
+		}
+		out += " " + style.Render(tk)
+	}
+	return out
+}
+
+func ticketLabel(count int, expires string) string {
+	label := fmt.Sprintf("🎟️x%d", count)
+	if expires != "" {
+		label += "(" + ticketExpireShort(expires) + ")"
+	}
+	return label
+}
+
+// ticketExpireShort — "2026-12-22" → "12/22". 짧은 입력은 그대로.
+func ticketExpireShort(expire string) string {
+	if len(expire) >= 10 {
+		return strings.ReplaceAll(expire[5:10], "-", "/")
+	}
+	return expire
+}
+
+// ticketExpireSoon — z.ai 만료 일자(UTC+8 하루 끝 기준)까지 3일 이하인지.
+func ticketExpireSoon(expire string, now time.Time) bool {
+	if len(expire) < 10 {
+		return false
+	}
+	cst := time.FixedZone("CST", 8*3600)
+	end, err := time.ParseInLocation("2006-01-02", expire[:10], cst)
+	if err != nil {
+		return false
+	}
+	return end.AddDate(0, 0, 1).Sub(now) <= 72*time.Hour
 }

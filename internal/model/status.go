@@ -4,11 +4,15 @@ package model
 type QuotaCategory struct {
 	Name            string
 	FiveH           float64 // 5시간 잔여 비율 (0.0~1.0)
+	OmitFiveH       bool
+	OmitWeekly      bool
 	Weekly          float64 // 주간 잔여 비율 (0.0~1.0)
 	Monthly         float64 // 월간 잔여 비율 (Z.AI MCP 등, 0.0~1.0)
 	FiveHResetsAt   int64   // Unix 밀리초
 	WeeklyResetsAt  int64   // Unix 밀리초
 	MonthlyResetsAt int64   // Unix 밀리초
+	Tickets         int     // 보유 reset ticket 수 (Z.AI 전용, 0이면 미표시)
+	TicketsExpire   string  // 가장 이른 유효 티켓 만료 일자 (YYYY-MM-DD, z.ai UTC+8)
 }
 
 type TokenUsage struct {
@@ -51,8 +55,13 @@ type UnifiedStatus struct {
 	LastSkill    string
 	LastTool     string
 
+	ResetTickets       int
+	ResetTicketsExpire string
+
 	Permission    string
 	ThinkingState string
+	CycleMode     string
+	Sandbox       bool
 
 	Quota []QuotaCategory
 

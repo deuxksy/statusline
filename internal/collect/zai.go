@@ -14,14 +14,16 @@ import (
 
 // ZaiSnapshot — quota/limit 정규화 스냅샷. 비율은 전부 잔여(0.0~1.0), 리셋은 Unix 밀리초.
 type ZaiSnapshot struct {
-	FetchedAt       time.Time `json:"fetched_at"`
-	Provider        string    `json:"provider"`
-	TokenRemaining  float64   `json:"token_remaining_5h"`
-	TokenResetsAt   int64     `json:"token_resets_at_ms"`
-	McpRemaining    float64   `json:"mcp_remaining_month"`
-	McpResetsAt     int64     `json:"mcp_resets_at_ms"`
-	WeeklyRemaining float64   `json:"weekly_remaining,omitempty"` // unit=6 주간 버킷 — 기록 전용, 표시 미사용
-	WeeklyResetsAt  int64     `json:"weekly_resets_at_ms,omitempty"`
+	FetchedAt          time.Time `json:"fetched_at"`
+	Provider           string    `json:"provider"`
+	TokenRemaining     float64   `json:"token_remaining_5h"`
+	TokenResetsAt      int64     `json:"token_resets_at_ms"`
+	McpRemaining       float64   `json:"mcp_remaining_month"`
+	McpResetsAt        int64     `json:"mcp_resets_at_ms"`
+	WeeklyRemaining    float64   `json:"weekly_remaining,omitempty"` // unit=6 주간 버킷 — 기록 전용, 표시 미사용
+	WeeklyResetsAt     int64     `json:"weekly_resets_at_ms,omitempty"`
+	ResetTickets       int       `json:"reset_tickets,omitempty"`        // 보유 1-time Reset ticket 수 (available=true만)
+	ResetTicketsExpire string    `json:"reset_tickets_expire,omitempty"` // 가장 이른 유효 티켓 만료 일자 (YYYY-MM-DD)
 }
 
 // zaiUnitWeekly — 주간 TOKENS_LIMIT 버킷의 unit 코드 (OMC HUD 주석: observed, undocumented)
@@ -77,7 +79,13 @@ func Zai(ctx context.Context, client *http.Client, baseURL, authToken, provider 
 	if err != nil {
 		return snap, err
 	}
-	return normalizeZai(limits, provider, time.Now().UTC())
+	snap, err = normalizeZai(limits, provider, time.Now().UTC())
+	if err != nil {
+		return snap, err
+	}
+	// reset ticket 목록 — 미공개 콘솔 API이므로 실패는 0값으로 흡수(fail-soft), quota 수집은 항상 유지
+	snap.ResetTickets, snap.ResetTicketsExpire = fetchZaiResetTickets(ctx, client, baseURL, authToken)
+	return snap, nil
 }
 
 // parseZaiLimits — {limits:[...]}와 {data:{limits:[...]}} envelope 모두 수용
@@ -228,4 +236,56 @@ func RunZaiCollect(ctx context.Context, client *http.Client, baseURL, authToken,
 	ClearZaiRefreshAt(refreshPath)
 	result.Zai = &snap
 	return result
+}
+
+// zaiTicket — /api/biz/customer-package-reset/list 항목 (미공개 콘솔 API, 2026-11-19 실측 스키마)
+type zaiTicket struct {
+	ExpireTime string `json:"expireTime"` // "2026-12-22 23:59:59" (UTC+8, tz 미표기)
+	Available  bool   `json:"available"`
+}
+
+type zaiTicketsEnvelope struct {
+	Data struct {
+		FiveHourResets []zaiTicket `json:"fiveHourResets"`
+	} `json:"data"`
+}
+
+// fetchZaiResetTickets — 유효(available) 티켓 수와 가장 이른 만료 일자. 모든 실패는 0값으로 흡수.
+func fetchZaiResetTickets(ctx context.Context, client *http.Client, baseURL, authToken string) (int, string) {
+	if client == nil {
+		client = http.DefaultClient
+	}
+	u, err := url.Parse(baseURL)
+	if err != nil || u.Host == "" {
+		return 0, ""
+	}
+	endpoint := u.Scheme + "://" + u.Host + "/api/biz/customer-package-reset/list?targetType=PERSONAL"
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+	if err != nil {
+		return 0, ""
+	}
+	req.Header.Set("Authorization", authToken)
+	resp, err := client.Do(req)
+	if err != nil {
+		return 0, ""
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return 0, ""
+	}
+	var env zaiTicketsEnvelope
+	if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&env); err != nil {
+		return 0, ""
+	}
+	count, earliest := 0, ""
+	for _, t := range env.Data.FiveHourResets {
+		if !t.Available {
+			continue
+		}
+		count++
+		if len(t.ExpireTime) >= 10 && (earliest == "" || t.ExpireTime < earliest) {
+			earliest = t.ExpireTime[:10]
+		}
+	}
+	return count, earliest
 }
