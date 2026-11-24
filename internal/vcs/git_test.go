@@ -171,6 +171,26 @@ func TestEnrichGitDirtyStatus(t *testing.T) {
 	}
 	run("add", "tracked.txt")
 	run("commit", "-m", "add tracked")
+
+	// 변경된 mtime은 Git이 index의 stat 캐시를 갱신하도록 유도한다.
+	mtime := time.Now().Add(-time.Hour)
+	if err := os.Chtimes(tracked, mtime, mtime); err != nil {
+		t.Fatal(err)
+	}
+	index := filepath.Join(repo, ".git", "index")
+	before, err := os.Stat(index)
+	if err != nil {
+		t.Fatal(err)
+	}
+	vcs.EnrichGit(model.NewUnifiedStatus("generic"), repo, 500)
+	after, err := os.Stat(index)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !os.SameFile(before, after) {
+		t.Fatal("git status replaced the index")
+	}
+
 	if err := os.WriteFile(tracked, []byte("b"), 0o644); err != nil {
 		t.Fatalf("write: %v", err)
 	}
