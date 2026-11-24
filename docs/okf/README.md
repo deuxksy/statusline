@@ -35,13 +35,14 @@
 - [add-new-cli-adapter.md](./how-to-guides/add-new-cli-adapter.md): 새로운 AI 에이전트 CLI 호스트 어댑터 구현하기.
 
 ### 3. 📖 [레퍼런스 (Reference)](./reference/index.md) *(정보 중심)*
-기술 명세, 스키마 및 아키텍처 상세 정보입니다.
+기술 명세, 스키마 및 CLI 안내입니다.
 - [cli-payload-spec.md](./reference/cli-payload-spec.md): Antigravity (`agy`), Claude Code, Codex용 STDIN JSON 페이로드 상세 스키마.
 - [openai-data-sources.md](./reference/openai-data-sources.md): Codex 로컬 API와 OpenAI Platform API의 수집 필드 및 사용 범위.
 - [configuration-schema.md](./reference/configuration-schema.md): `config.json` 구성 항목, 레이아웃 속성 및 임계값 옵션.
-- [architecture.md](./reference/architecture.md): 레이어별 누적 재활용 아키텍처 다이어그램과 원칙.
+- [cli.md](./reference/cli.md): command·option·exit code·환경변수·파일.
 
 ### 4. 💡 [설명 및 개념 (Explanation)](./explanation/index.md) *(이해 중심)*
 설계 배경, 기술적 선택 이유 및 성능 구조 안내입니다.
-- [design-decisions.md](./explanation/design-decisions.md): 단일 행 렌더링, 안심 실패(fail-soft) 설계 및 5ms 이내 응답 보장 설계 결정.
+- [design-decisions.md](./explanation/design-decisions.md): 단일 행 렌더링, 안심 실패(fail-soft) 설계 및 5ms 렌더 예산 설계 결정.
+- [architecture.md](./explanation/architecture.md): arc42 12절로 정리한 현재 구조 - 컨텍스트·컨테이너·런타임 뷰, 횡단 개념, 품질 요구, 리스크.
 - [diataxis-framework.md](./explanation/diataxis-framework.md): OKF v0.2에서 Diátaxis 프레임워크를 도입한 이유와 활용법.

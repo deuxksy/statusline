@@ -40,13 +40,13 @@ go build -o statusline ./cmd/statusline
 
 ## 3. OpenAI Platform Usage·Costs 연결
 
-Platform 조회는 Codex 구독 상태와 별도다. `OPENAI_ADMIN_KEY`가 있으면 이를 우선 사용하고, 없으면 `~/.config/statusline/credentials.json`에서 `openai_admin_key`를 읽는다. 파일 권한은 `0600`이어야 한다. 현재 로컬 설정 파일의 구조는 다음과 같다. 예시 값은 실제 키가 아니다.
+Platform 조회는 Codex 구독 상태와 별도다. 키는 환경변수 `OPENAI_ADMIN_KEY`로 두거나 `~/.config/statusline/credentials.json`에 넣는다. 파일 권한은 `0600`이어야 한다. 파일 형식은 다음과 같다. 예시 값은 실제 키가 아니다.
 
 ```json
 {"openai_admin_key":"<관리자 키>"}
 ```
 
-관리자 키가 없으면 Platform 요청을 보내지 않고 Codex 로컬 데이터만 수집한다. 일반 `OPENAI_API_KEY`는 대체 키로 사용하지 않는다. Platform 응답 오류는 `errors.platform`에 표시되며 Codex 수집 결과와 분리된다. `~/.config/statusline/config.json`은 표시 설정용이며 인증 키를 읽지 않는다.
+조회 우선순위, 키가 없을 때의 동작, 오류 처리는 [OpenAI 데이터 출처](../reference/openai-data-sources.md#openai-platform-연결)의 연결 규칙을 따른다. `~/.config/statusline/config.json`은 표시 설정용이며 인증 키를 읽지 않는다.
 
 ## 4. 실행 중 토큰·컨텍스트 변경 보기
 
@@ -66,7 +66,7 @@ Platform 조회는 Codex 구독 상태와 별도다. `OPENAI_ADMIN_KEY`가 있�
 ./statusline --cli=codex < docs/samples/codex.json
 ```
 
-이 샘플은 로컬 세션에서 정규화한 fixture이며 app-server 원본 응답이 아니다. 현재 렌더러는 `collect` 결과를 자동으로 받아 표시하지 않는다. Codex 하단에 표시하려면 6절의 MCP provider를 등록한다.
+이 샘플의 성격은 [CLI 페이로드 명세](../reference/cli-payload-spec.md#3-codex-widget-snapshot)를 따른다. 이 경로의 렌더러는 `collect` 결과를 받지 않는다. Codex 하단에 표시하려면 6절의 MCP provider를 등록한다.
 
 ## 6. Codex MCP 상태바 설정
 

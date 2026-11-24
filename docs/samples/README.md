@@ -4,9 +4,9 @@
 
 ## Files
 
-- [`antigravity.json`](./antigravity.json) : Real STDIN payload from Google Antigravity (agy) CLI.
+- [`antigravity.json`](./antigravity.json) : Real STDIN payload from Google Antigravity (agy) CLI. Email, session IDs and local paths are replaced with generic values.
 - [`claude.json`](./claude.json) : Sample STDIN payload from Claude Code / OMC.
-- [`codex.json`](./codex.json): 2026-09-26 로컬 Codex 세션 JSONL에서 추출한 위젯용 테스트 샘플. `turn_context`의 모델·추론 수준과 `event_msg`의 `token_count`에 있는 `info`·`rate_limits`를 합쳤으며, `product`는 식별용으로 추가했습니다. Codex가 직접 제공하는 STDIN 스키마가 아닙니다. 작업 경로는 `/workspace/statusline`으로 익명화했고 대화·세션 식별자는 제외했습니다. 사용량과 reset 시각은 수집 당시의 스냅샷입니다. Codex 어댑터는 이 값을 파싱하며, 실시간 위젯 수집은 로컬 app-server API 연결이 필요합니다.
+- [`codex.json`](./codex.json): 2026-09-26 로컬 Codex 세션 JSONL에서 추출한 렌더러 fixture. `product`는 식별용으로 추가했습니다. 작업 경로는 `/workspace/statusline`으로 익명화했고 대화·세션 식별자는 제외했습니다. 사용량과 reset 시각은 수집 당시의 스냅샷입니다. 구조와 출처는 [CLI 페이로드 명세](../okf/reference/cli-payload-spec.md#3-codex-widget-snapshot)를 참조하세요.
 - [`openai/`](./openai/README.md): `statusline collect`로 실제 조회한 Codex·OpenAI Platform 응답의 익명화 스냅샷.
 - [`openai/schema-examples/`](./openai/schema-examples/README.md): API 스키마 기반 합성 예시. 실제 응답이 아닙니다.
 - [`zai/quota-limit-response.json`](./zai/quota-limit-response.json): 2026-09-26 실측 수치 기반 Z.AI `quota/limit` API 응답 재구성 샘플 (raw 응답 미보관, 소비 필드만 포함).

@@ -1,6 +1,6 @@
 # statusline
 
-`statusline`은 AI 코딩 어시스턴트(Antigravity, Claude Code, Codex)를 위한 고성능 단일 행 상태바 생성기입니다. Go 언어로 작성되었으며, STDIN을 통해 JSON 상태 스트림을 입력받아 5ms 이내의 빠른 속도로 실시간 실행 문맥을 렌더링합니다.
+`statusline`은 AI 코딩 어시스턴트(Antigravity, Claude Code, Codex)를 위한 고성능 단일 행 상태바 생성기입니다. Go 언어로 작성되었으며, STDIN을 통해 JSON 상태 스트림을 입력받아 5ms 렌더 예산을 목표로 실시간 실행 문맥을 렌더링합니다.
 
 **실행 예시 — Claude Code (`--cli=claude`):**
 
@@ -44,10 +44,10 @@ Codex CLI 하단에 적용하려면 [Codex MCP 상태바 설정](./docs/okf/how-
 - [문서 허브 (Docs Hub)](./docs/README.md) - 전체 문서 디렉토리 구조 및 역할 안내.
 - [OKF 스펙 허브](./docs/okf/README.md) - OKF 기술 문서 중앙 인덱스.
 - [STDIN 페이로드 샘플](./docs/samples/README.md) - CLI 호스트별 입력 샘플 및 테스트 명령어.
-- [레퍼런스 개요](./docs/okf/reference/index.md) - [CLI 페이로드 명세](./docs/okf/reference/cli-payload-spec.md), [OpenAI 데이터 소스](./docs/okf/reference/openai-data-sources.md), [설정 파일 스키마](./docs/okf/reference/configuration-schema.md), [아키텍처 레퍼런스](./docs/okf/reference/architecture.md).
+- [레퍼런스 개요](./docs/okf/reference/index.md) - [CLI 페이로드 명세](./docs/okf/reference/cli-payload-spec.md), [OpenAI 데이터 소스](./docs/okf/reference/openai-data-sources.md), [설정 파일 스키마](./docs/okf/reference/configuration-schema.md), [CLI 레퍼런스](./docs/okf/reference/cli.md).
 
 ### 💡 설명/개념 (Explanation)
-- [개념 문서 개요](./docs/okf/explanation/index.md) - [설계 결정 사항](./docs/okf/explanation/design-decisions.md), [Diátaxis 프레임워크](./docs/okf/explanation/diataxis-framework.md).
+- [개념 문서 개요](./docs/okf/explanation/index.md) - [설계 결정 사항](./docs/okf/explanation/design-decisions.md), [아키텍처](./docs/okf/explanation/architecture.md), [Diátaxis 프레임워크](./docs/okf/explanation/diataxis-framework.md).
 
 ---
 

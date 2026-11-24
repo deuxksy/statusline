@@ -57,7 +57,7 @@
 
 - [X] OpenAI Codex 어댑터 고도화 및 컨텍스트/토큰 파싱
 - [X] 구독 플랜 인식 및 표시 (ChatGPT Plus / Team / Enterprise)
-- [X] OpenAI Platform Admin API 연동 및 누적 비용(`total_cost`) 실시간 추적
+- [X] OpenAI Platform Admin API 연동 — `collect`가 Usage·Costs를 `platform` 객체로 수집 (비용 표시·누적은 미구현)
 - [X] Rate limits 및 잔여 쿼터 실시간 표시
 - [X] Codex / OpenAI 읽기 전용 능동 수집기 및 스트림 감시 구현 (`statusline collect`, `statusline watch`)
 
