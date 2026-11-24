@@ -455,9 +455,9 @@ func TestRenderCycleModeAndSandbox(t *testing.T) {
 		mode string
 		want string
 	}{
-		{"plan", "📋 plan"},
-		{"accept-edits", "✏️ accept-edits"},
-		{"auto", "⚡ auto"},
+		{"plan", "👁️"},
+		{"accept-edits", "🤖"},
+		{"auto", "🔓"},
 		{"custom-mode", "custom-mode"},
 	} {
 		st := model.NewUnifiedStatus("antigravity")
@@ -475,7 +475,7 @@ func TestRenderCycleModeAndSandbox(t *testing.T) {
 	// 비활성 설정 및 기본값(미설정) 시 숨김
 	stDefault := model.NewUnifiedStatus("antigravity")
 	plainDefault := ansi.Strip(render.Render(stDefault, cfg))
-	if strings.Contains(plainDefault, "sandbox") || strings.Contains(plainDefault, "plan") {
+	if strings.Contains(plainDefault, "sandbox") || strings.Contains(plainDefault, "👁️") {
 		t.Errorf("expected cycleMode and sandbox hidden when unset, got %q", plainDefault)
 	}
 
@@ -486,7 +486,7 @@ func TestRenderCycleModeAndSandbox(t *testing.T) {
 	stSet.CycleMode = "plan"
 	stSet.Sandbox = true
 	plainOff := ansi.Strip(render.Render(stSet, cfgOff))
-	if strings.Contains(plainOff, "plan") || strings.Contains(plainOff, "sandbox") {
+	if strings.Contains(plainOff, "👁️") || strings.Contains(plainOff, "sandbox") {
 		t.Errorf("expected cycleMode and sandbox hidden when disabled in config, got %q", plainOff)
 	}
 }

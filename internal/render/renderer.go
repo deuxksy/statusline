@@ -244,12 +244,12 @@ func renderSegment(item string, st *model.UnifiedStatus, cfg *config.Config, p T
 			fg := p.StatusFg
 			switch st.CycleMode {
 			case "plan":
-				label = "📋 plan"
+				label = "👁️"
 				fg = p.QuotaLabel
 			case "accept-edits":
-				label = "✏️ accept-edits"
+				label = "🤖"
 			case "auto":
-				label = "⚡ auto"
+				label = "🔓"
 				fg = p.QuotaWarn
 			default:
 				label = st.CycleMode
