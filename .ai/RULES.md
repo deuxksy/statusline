@@ -11,6 +11,6 @@
 
 ## Development Principles
 
-- KISS & DRY: The render path is a pure I/O stream filter — no network calls, no daemons (5ms budget). `tray` and `collect` are opt-in separate processes (v0.8.1+), never part of rendering.
+- KISS & DRY: The render path is a pure I/O stream filter — no network calls, no daemons (5ms budget). `tray` and `collect` are separate processes, never linked into rendering; the render path only fire-and-forget spawns `collect` when the quota cache is stale (5min TTL).
 - Fail-soft: Never emit raw tracebacks or error logs to stdout; output clean minimal fallback on pipe/JSON errors.
 - Target execution speed: <5ms rendering budget for the statusline rendering path.
