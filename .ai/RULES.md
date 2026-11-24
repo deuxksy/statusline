@@ -7,7 +7,7 @@
 - Test: `go test -v ./...`
 - Test single package: `go test -v ./internal/adapter`
 - Quota collect (one-shot): `./statusline collect --provider=zai`
-- Tray widget (dev): `go build -o statusline ./cmd/statusline && ./statusline tray`
+- Tray widget (dev): `mise run tray` (builds the binary first)
 
 ## Development Principles
 
