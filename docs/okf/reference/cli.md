@@ -73,7 +73,7 @@ subcommand가 없으면 렌더 모드로 동작한다. STDIN으로 JSON을 한 �
 ### `tray`
 
 - 5초마다 `live_session.json`을 읽어 menu bar의 title과 menu를 갱신한다.
-- cache가 없거나 5분이 지났으면 `collect --provider=all`을 background로 실행한다.
+- cache가 없거나 5분(`fetchedAt` 기준)이 지났으면 `collect --provider=all`을 background로 실행한다.
 - 표시 규칙은 [트레이 위젯 사용하기](../how-to-guides/use-tray.md)를 따른다.
 
 ## Exit code
