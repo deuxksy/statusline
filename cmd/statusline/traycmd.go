@@ -1,6 +1,7 @@
 package main
 
 import (
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -38,9 +39,10 @@ type trayApp struct {
 	cachePath   string
 	refreshPath string
 
-	mu     sync.Mutex // cfg.Tray.Primary 보호 (클릭 goroutine ↔ poll)
-	pollMu sync.Mutex // poll 직렬화 — ticker·setPrimary poll이 겹칠 때 MenuItem.SetTitle 동시 호출 방지(systray item 필드는 lock 없는 write)
-	items  map[string]*systray.MenuItem
+	mu        sync.Mutex // cfg.Tray.Primary 보호 (클릭 goroutine ↔ poll)
+	pollMu    sync.Mutex // poll 직렬화 — ticker·setPrimary poll이 겹칠 때 MenuItem.SetTitle 동시 호출 방지(systray item 필드는 lock 없는 write)
+	items     map[string]*systray.MenuItem
+	iconLabel string // pollMu로 보호
 }
 
 func (a *trayApp) onReady() {
@@ -119,8 +121,12 @@ func (a *trayApp) poll() {
 	a.mu.Unlock()
 
 	title := tray.Title(primary, live)
-	systray.SetTitle(title)   // macOS 메뉴바 상시 텍스트
-	systray.SetTooltip(title) // Windows 트레이(v0.8.5) 폴백 표시
+	if runtime.GOOS == "windows" {
+		a.updateWindowsTray(title, systray.SetTooltip, systray.SetIcon)
+	} else {
+		systray.SetTitle(title)
+		systray.SetTooltip(title)
+	}
 
 	if a.items == nil {
 		return
@@ -140,4 +146,14 @@ func (a *trayApp) poll() {
 	}
 	a.items["mainZai"].SetTitle(zaiMark + " zai (main)")
 	a.items["mainChatgpt"].SetTitle(chatMark + " chatgpt (main)")
+}
+
+func (a *trayApp) updateWindowsTray(title string, setTooltip func(string), setIcon func([]byte)) {
+	setTooltip(title)
+	label := tray.IconLabel(title)
+	if label == a.iconLabel {
+		return
+	}
+	setIcon(tray.Icon(label))
+	a.iconLabel = label
 }

@@ -1,6 +1,6 @@
 # 트레이 위젯 사용하기
 
-macOS 메뉴바에 AI 구독 잔여량 위젯을 상주시키는 방법을 다룹니다. 위젯은 `collect`가 남긴 통합 캐시(`live_session.json`)를 읽어 표시하므로, 별도 데몬 없이 단일 바이너리로 동작합니다. (Windows 트레이는 v0.8.5 예정)
+macOS 메뉴바와 Windows 시스템 트레이에 AI 구독 잔여량을 표시합니다. 위젯은 `collect`가 기록한 통합 캐시(`live_session.json`)를 읽습니다.
 
 ## 사전 준비
 
@@ -13,9 +13,18 @@ macOS 메뉴바에 AI 구독 잔여량 위젯을 상주시키는 방법을 다�
 ./statusline tray
 ```
 
-메뉴바에 위젯이 상주합니다. 종료는 드롭다운의 "종료"를 선택하세요.
+Windows PowerShell에서는 다음과 같이 실행합니다.
 
-## 메뉴바 타이틀 규칙
+```powershell
+go build -o statusline.exe ./cmd/statusline
+.\statusline.exe tray
+```
+
+macOS에서는 메뉴바 타이틀을 클릭하고, Windows에서는 트레이 아이콘을 우클릭해 메뉴를 엽니다. 종료하려면 메뉴에서 "종료"를 선택하세요.
+
+Windows 아이콘은 메인 provider의 대표 잔여율을 `0`~`100`으로 표시합니다. z.ai를 선택하면 5시간 잔여율을, ChatGPT를 선택하면 기존 요약에 사용되는 최소 잔여율을 표시합니다. 데이터가 없으면 `–`가 표시됩니다. 아이콘에 마우스를 올리면 아래 표와 같은 전체 요약을 볼 수 있습니다. 아이콘이 숨겨진 영역에 있으면 Windows 작업 표시줄 설정에서 표시할 수 있습니다.
+
+## macOS 타이틀과 Windows 툴팁 규칙
 
 | 표시 | 의미 |
 | :--- | :--- |
