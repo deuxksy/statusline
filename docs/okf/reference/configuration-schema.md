@@ -6,24 +6,51 @@ The configuration file is loaded from `~/.config/statusline/config.json`.
 
 ## Field Reference
 
+### Top-level
+
+| Field | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `$schema` | string | `"1.1"` | Config version. Files marked `"1.0"` or left unversioned are migrated in memory: `cycleMode` and `sandbox` are inserted after `model` in `layout.main` |
+| `wrapMode` | string | `"truncate"` | Truncate the line with `…` when it exceeds the terminal width |
+| `theme` | string | `"sleek_dark"` | `sleek_dark`, `light`, `nord`, `monokai-dark` |
+
 ### `elements` (object)
 
 | Field | Type | Default | Description |
 |---|---|---|---|
 | `engineLabel` | boolean | `true` | Show engine badge (e.g. `ANTIGRAVITY`, `CLAUDE`, `CODEX`) |
 | `model` | boolean | `true` | Show model display name |
+| `modelFormat` | string | `"full"` | `short` abbreviates known model names (`flash-med`, `sonnet-3.7`, `opus`, `haiku`); other names longer than 12 characters are cut to 10 characters followed by `..` |
 | `gitRepo` | boolean | `true` | Show top-level Git repository folder name |
 | `gitBranch` | boolean | `true` | Show current Git branch (` main`) |
 | `gitStatus` | boolean | `true` | Show Git dirty status (`*`) |
-| `cwd` | boolean | `true` | Show current working directory folder name |
+| `cwd` | boolean | `true` | Show current working directory. Hidden when `gitRepo` already shows the same folder name |
+| `cwdFormat` | string | `"folder"` | `folder` shows the base name; any other value shows the full path |
 | `hostname` | boolean | `false` | Show machine hostname |
-| `contextBar` | boolean | `true` | Show context usage percentage (`[5%]`) |
+| `contextBar` | boolean | `true` | Show context usage: `⚡ 44k/1.0M(4%)` when the context window size is known, `[5%]` otherwise. Requires `showTokens` |
+| `showTokens` | boolean | `true` | Show token counts. With `contextBar` off, the `tokens` layout item shows `44000 tokens` instead |
+| `activeSkills` | boolean | `true` | Show active skills (`⚡ superpowers:brainstorming`) |
+| `lastTool` | boolean | `true` | Show the last tool call (`🔧 view_file`) |
 | `thinking` | boolean | `true` | Show agent/thinking state (`🧠 tool_use`) |
+| `quota` | boolean | `true` | Show the provider quota segment (`📊 gemini 5h:75% wk:34%`, `📊 zai 5h:95%(2h40m) mo:91%(19d22h) 🎟️x2(12/22)`) |
+| `permission` | boolean | `true` | Show Codex permission (`🙋`, `🤖`, `🔓`, `👁️`) and `🔒 WAITING` while a permission request is pending |
+| `cycleMode` | boolean | `true` | Show Antigravity cycle mode (`👁️` plan, `🤖` accept-edits, `🔓` auto) or Codex speed (`🚶` standard, `🏃` fast) |
+| `sandbox` | boolean | `true` | Show `🛡️ sandbox` when the Antigravity sandbox is enabled |
 
 ### `layout` (object)
 
 - `line1`: List of elements to render (merged onto single line in statusbar mode).
 - `main`: List of main status bar elements.
+- `line1Width`: Fixed width of the `line1` group in characters (default `28`). `0` disables padding and truncation.
+
+Item names: `hostname`, `cwd`, `gitRepo`, `gitBranch`, `gitStatus`, `permission`, `engineLabel`, `model`, `cycleMode`, `sandbox`, `thinking`, `contextBar`, `tokens`, `quota`, `activeSkills`, `lastTool`. The engine badge is always rendered first, wherever `engineLabel` appears. For the Codex engine, `permission` is rendered right after `cycleMode` (or `model`).
+
+### `thresholds` (object)
+
+| Field | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `contextWarning` | integer | `70` | Context usage percentage at which the `⚡` segment turns warning color |
+| `contextCritical` | integer | `85` | Context usage percentage at which the `⚡` segment turns critical color |
 
 ### `tray` (object)
 
@@ -46,8 +73,6 @@ Optional local credential store, loaded from `~/.config/statusline/credentials.j
 | `zai_base_url` | string | Z.AI endpoint override | `ZAI_BASE_URL` → `ANTHROPIC_BASE_URL` → file → default |
 
 **Reset tickets:** remaining 1-time Reset tickets are fetched automatically during `collect` from the Z.AI console API (`GET /api/biz/customer-package-reset/list?targetType=PERSONAL`, same auth token, undocumented endpoint) and rendered as `🎟️xN(MM/DD)` next to the quota segment. When expiry is within 3 days the segment turns red (`QuotaBad`). No configuration needed; if the endpoint disappears, tickets silently drop to 0 while quota collection continues (fail-soft).
-
-`elements.zaiTickets` (int, default 0) — remaining 1-time Reset tickets to render as `🎟️xN` next to the quota segment. The Z.AI quota API does not expose ticket state, so keep this count in sync with the dashboard manually (set to 0 when used up).
 
 `zai_base_url` defaults to `https://api.z.ai/api/anthropic` when nothing is set. The `ZAI_*` variables exist to avoid clashing with Claude Code's own `ANTHROPIC_*` environment when both are present (e.g. an official Anthropic setup). Provider detection only accepts `api.z.ai` / `bigmodel.cn` hosts, so a non-Z.AI `ANTHROPIC_BASE_URL` never sends credentials to an unrecognized server.
 

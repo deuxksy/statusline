@@ -13,14 +13,14 @@ Diátaxis organizes documentation into four distinct modes according to two axes
 ```
                        LEARNING (Education)
                                 │
-               Tutorials        │       How-To Guides
-          (Learning-oriented)  │    (Task-oriented)
+               Tutorials        │       Explanation
+          (Learning-oriented)  │ (Understanding-oriented)
                                 │
   PRACTICAL ────────────────────┼──────────────────── THEORETICAL
   (Action)                      │                     (Knowledge)
                                 │
-               Reference        │       Explanation
-         (Information-oriented) │ (Understanding-oriented)
+               How-To Guides    │       Reference
+         (Task-oriented)        │  (Information-oriented)
                                 │
                         WORKING (Execution)
 ```

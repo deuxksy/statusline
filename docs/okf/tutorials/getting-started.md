@@ -1,12 +1,12 @@
-# Tutorial: Getting Started with statusline v0.2
+# Tutorial: Getting Started with statusline
 
-This tutorial guides you through building, configuring, and testing `statusline` v0.2.
+This tutorial guides you through building, configuring, and testing `statusline`.
 
 ---
 
 ## 1. Prerequisites
 
-- Go 1.21+ installed
+- Go 1.26.5 or later installed (the version required by `go.mod`)
 - Terminal emulator (e.g. WezTerm, iTerm2, Kitty) or `tmux`
 
 ## 2. Build statusline
@@ -14,7 +14,8 @@ This tutorial guides you through building, configuring, and testing `statusline`
 Clone the repository and compile the binary:
 
 ```bash
-cd /home/crong/git/statusline
+git clone https://github.com/deuxksy/statusline.git
+cd statusline
 go build -o statusline ./cmd/statusline
 ```
 
@@ -28,12 +29,14 @@ cp ./statusline ~/.local/bin/statusline
 
 Initialize the default configuration file (`~/.config/statusline/config.json`):
 
+Skip this step if the file already exists: `init` overwrites it with the default configuration.
+
 ```bash
 ./statusline init
 ```
 
 Output:
-`Initialized default config at /home/crong/.config/statusline/config.json`
+`Initialized default config at ~/.config/statusline/config.json`
 
 ## 4. Test statusline Pipeline
 
@@ -44,6 +47,6 @@ echo '{"product":"antigravity","model":{"display_name":"Gemini 3.6 Flash (Medium
 ```
 
 Expected Output:
-`statusline  main * │  ANTIGRAVITY  │ Gemini 3.6 Flash (Medium) │ 🧠 tool_use │ [5%]`
+`ANTIGRAVITY  │ statusline  main            │ Gemini 3.6 Flash (Medium) │ 🧠 tool_use │ [5%]`
 
-Congratulations! You have set up and verified `statusline` v0.2.
+Congratulations! You have set up and verified `statusline`.

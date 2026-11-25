@@ -52,19 +52,35 @@ Set `"hostname": false` in `elements`.
 
 ## 2. Antigravity CLI Integration
 
-In `~/.gemini/antigravity-cli/settings.json`, set the `statusline` command:
+In `~/.gemini/antigravity-cli/settings.json`, set the `statusLine` command:
 
 ```json
 {
-  "statusline": {
-    "command": "/home/crong/.local/bin/statusline --cli=auto"
+  "statusLine": {
+    "type": "command",
+    "command": "~/.local/bin/statusline --cli=auto"
   }
 }
 ```
 
 ---
 
-## 3. Tmux Integration
+## 3. Claude Code Integration
+
+In `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "~/.local/bin/statusline --cli=claude"
+  }
+}
+```
+
+---
+
+## 4. Tmux Integration
 
 In `~/.tmux.conf`:
 

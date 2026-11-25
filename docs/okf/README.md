@@ -8,19 +8,19 @@
 
 ## 🧭 Diátaxis 문서 탐색 체계
 
-```
+```text
                   학습 중심 (Learning)
                            │
-             튜토리얼     │    사용 방법 안내
-           (Tutorials)    │    (How-To Guides)
+             튜토리얼     │      설명 및 개념
+           (Tutorials)    │      (Explanation)
                           │
   실무 중심 ──────────────┼────────────── 이론 중심
   (Practical Work)        │               (Theoretical Knowledge)
                           │
-            레퍼런스      │      설명 및 개념
-           (Reference)    │      (Explanation)
+      사용 방법 안내    │      레퍼런스
+      (How-To Guides)     │      (Reference)
                           │
-                 정보 중심 (Information)
+                 작업 중심 (Working)
 ```
 
 ### 1. 🎓 [튜토리얼 (Tutorials)](./tutorials/index.md) *(학습 중심)*
@@ -29,19 +29,20 @@
 
 ### 2. 🛠️ [사용 방법 안내 (How-To Guides)](./how-to-guides/index.md) *(실무 중심)*
 구체적인 작업 목표를 달성하기 위한 실용적인 안내서입니다.
-- [configure-elements.md](./how-to-guides/configure-elements.md): 레이아웃 요소 커스텀, 색상 설정 및 tmux 연동 방법.
+- [configure-elements.md](./how-to-guides/configure-elements.md): 레이아웃 요소 커스텀 및 Antigravity CLI·Claude Code·tmux 연동 방법.
 - [use-codex.md](./how-to-guides/use-codex.md): Codex 계정·한도·사용량 수집과 로컬 이벤트 감시 방법.
 - [use-tray.md](./how-to-guides/use-tray.md): macOS 메뉴바 위젯 실행, 타이틀 규칙 및 메인 provider 전환.
 - [add-new-cli-adapter.md](./how-to-guides/add-new-cli-adapter.md): 새로운 AI 에이전트 CLI 호스트 어댑터 구현하기.
 
 ### 3. 📖 [레퍼런스 (Reference)](./reference/index.md) *(정보 중심)*
-기술 명세, 스키마 및 아키텍처 상세 정보입니다.
+기술 명세, 스키마 및 CLI 안내입니다.
 - [cli-payload-spec.md](./reference/cli-payload-spec.md): Antigravity (`agy`), Claude Code, Codex용 STDIN JSON 페이로드 상세 스키마.
 - [openai-data-sources.md](./reference/openai-data-sources.md): Codex 로컬 API와 OpenAI Platform API의 수집 필드 및 사용 범위.
 - [configuration-schema.md](./reference/configuration-schema.md): `config.json` 구성 항목, 레이아웃 속성 및 임계값 옵션.
-- [architecture.md](./reference/architecture.md): 패키지 구조, 인터페이스 정의 및 데이터 처리 파이프라인.
+- [cli.md](./reference/cli.md): command·option·exit code·환경변수·파일.
 
 ### 4. 💡 [설명 및 개념 (Explanation)](./explanation/index.md) *(이해 중심)*
 설계 배경, 기술적 선택 이유 및 성능 구조 안내입니다.
-- [design-decisions.md](./explanation/design-decisions.md): 단일 행 렌더링, 안심 실패(fail-soft) 설계 및 5ms 이내 응답 보장 설계 결정.
+- [design-decisions.md](./explanation/design-decisions.md): 단일 행 렌더링, 안심 실패(fail-soft) 설계 및 5ms 렌더 예산 설계 결정.
+- [architecture.md](./explanation/architecture.md): arc42 12절로 정리한 현재 구조 - 컨텍스트·컨테이너·런타임 뷰, 횡단 개념, 품질 요구, 리스크.
 - [diataxis-framework.md](./explanation/diataxis-framework.md): OKF v0.2에서 Diátaxis 프레임워크를 도입한 이유와 활용법.

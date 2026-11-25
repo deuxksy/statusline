@@ -1,4 +1,4 @@
-@./.ai/RULES.md
+@[Project Rules](./.ai/RULES.md)
 
 # Antigravity CLI Specific Guidelines
 - 대화에서 로컬 파일을 참조할 때는 절대 경로를 사용하고, 저장소 Markdown 링크에는 상대 경로를 사용한다.

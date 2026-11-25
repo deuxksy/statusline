@@ -12,17 +12,17 @@ This reference specifies the exact STDIN JSON payload structures received from A
 {
   "product": "antigravity",
   "version": "1.2.11",
-  "cwd": "/Users/crong/git/statusline",
-  "session_id": "b2443d60-4e81-4fb4-b229-d084868b9f98",
-  "conversation_id": "b2443d60-4e81-4fb4-b229-d084868b9f98",
+  "cwd": "/workspace/statusline",
+  "session_id": "00000000-0000-4000-8000-000000000000",
+  "conversation_id": "00000000-0000-4000-8000-000000000000",
   "model": {
     "id": "Gemini 3.8 Flash (Medium)",
     "display_name": "Gemini 3.8 Flash (Medium)",
     "effort": "medium"
   },
   "workspace": {
-    "current_dir": "/Users/crong/git/statusline",
-    "project_dir": "/Users/crong/git/statusline"
+    "current_dir": "/workspace/statusline",
+    "project_dir": "/workspace/statusline"
   },
   "context_window": {
     "total_input_tokens": 44068,
@@ -38,9 +38,18 @@ This reference specifies the exact STDIN JSON payload structures received from A
   "agent_state": "working",
   "cycle_mode": "accept-edits",
   "plan_tier": "Google AI Pro",
-  "email": "deuxksy@gmail.com"
+  "email": "user@example.com"
 }
 ```
+
+어댑터가 읽는 field와 우선순위:
+
+- `model`: `displayName` → `display_name` → `id` → `name`. 추론 수준은 `effort`
+- 컨텍스트: `context_window.context_window_size`가 있으면 `used_percentage`를 토큰 수로 환산하고(0이면 `total_input_tokens`), 없으면 `used_percentage`를 백분율로 쓴다. 둘 다 없으면 `contextTokens`, `contextBar.percentage`
+- 작업 상태: `thinkingState` → `thinking.state` → `agent_state`
+- `activeSkills` → `active_skills`, `lastTool` → `last_tool`, `cwd` → `workspace.current_dir`
+- `quota.<key>`: `remaining_fraction`, `reset_time` → `resetTime`(RFC3339). 둘 다 없으면 `reset_in_seconds` → `resetInSeconds`를 현재 시각에 더한다. key prefix가 `gemini-`이면 `gemini`, `3p-`이면 `3rd` segment가 된다
+- `cycle_mode`, `sandbox.enabled`, `tool_confirmation_pending`, `terminal_width`
 
 ---
 
@@ -60,6 +69,8 @@ Sample location: [`docs/samples/claude.json`](../../samples/claude.json) — OMC
 
 Native CC stdin은 `model.id`/`model.display_name`(snake_case)을 보낸다. 모델명 우선순위: `display_name` → `displayName`(OMC 래퍼) → `name` → `id`.
 
+추가로 읽는 field: `context_window.total_input_tokens`, `context_window.context_window_size`, `contextTokens`, `thinkingState`, `cwd`, `permission`, `terminal_width`.
+
 ---
 
 ## 3. Codex Widget Snapshot
@@ -69,5 +80,6 @@ Sample: [`docs/samples/codex.json`](../../samples/codex.json). This is a normali
 - `info.total_token_usage`: cumulative session tokens; it can exceed one context window.
 - `info.last_token_usage`: latest reported model call, used as an approximation for the context percentage.
 - `info.model_context_window`: model context capacity.
-- `rate_limits.primary` and `secondary`: used percentages, window durations, and Unix reset times. The adapter renders remaining percentages by subtracting from 100.
+- `rate_limits.primary` and `secondary`: `used_percent`, `window_minutes`, and `resets_at` (Unix seconds). The adapter reads `used_percent` and `resets_at` and renders remaining percentages as `100 - used_percent`.
 - Cost is unavailable in this local sample. OpenAI Platform organization costs and Codex subscription limits are separate data sources.
+- Renderer snapshot fields sent by the MCP statusline provider (`integrations/codex/statusline.py`): `statusline_snapshot`, `speed`, `permission`, `context_used`, `context_token_count`, `reset_tickets`, `reset_tickets_expire`. Setup is in [Codex MCP 상태바 설정](../how-to-guides/use-codex.md#6-codex-mcp-상태바-설정).

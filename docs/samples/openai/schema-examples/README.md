@@ -11,7 +11,7 @@
 
 Codex 로그인을 처음 설정할 때는 Codex 자체 로그인 흐름(`codex login` 또는 app-server의 `account/login/start`)을 사용한다. 위젯은 로그인 절차를 대신 구현하지 않는다. 로컬 app-server와 Platform REST는 인증을 공유하지 않으므로 ChatGPT 구독 로그인만으로 조직 Usage·Costs API를 조회할 수 없다.
 
-**연결 규칙:** `statusline collect`는 `OPENAI_ADMIN_KEY`를 우선 사용하고, 없으면 `~/.config/statusline/credentials.json`의 `openai_admin_key`를 읽는다. 파일 권한은 `0600`이어야 한다. 둘 다 없으면 Platform Usage·Costs 요청을 보내지 않고 Codex 로컬 데이터만 수집한다. 일반 `OPENAI_API_KEY`나 Codex 로그인 자격 증명으로 관리자 키를 대체하지 않는다. 관리자 인증 실패는 `errors.platform`에 기록하며 Codex 수집 결과를 유지한다. 출력은 원본 응답을 포함할 수 있으므로 공개 저장소에 복사하지 않는다. 위젯 UI 연결은 후속 로드맵 범위다.
+**연결 규칙:** `OPENAI_ADMIN_KEY`와 `credentials.json`의 우선순위, 파일 권한, 키가 없을 때의 동작은 [OpenAI 데이터 출처](../../../okf/reference/openai-data-sources.md#openai-platform-연결)를 따른다. 출력은 원본 응답을 포함할 수 있으므로 공개 저장소에 복사하지 않는다.
 
 `collect`의 `codex.latest_thread`는 최근 수정된 thread의 모델·작업 경로·추론 수준을 포함한다. `codex.latest_thread_usage`는 thread별 추정 사용량 응답이며, 백엔드가 비용을 제공하지 않으면 `threadUsage`가 `null`이다. `statusline watch`는 현재 최근 thread의 로컬 JSONL에서 새 토큰·컨텍스트 이벤트를 읽는다. app-server 알림 구독은 아직 구현하지 않았다.
 

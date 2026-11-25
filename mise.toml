@@ -1,2 +1,31 @@
 [hooks]
 enter = "git pull --ff-only"
+
+[settings]
+idiomatic_version_file_enable_tools = ["go"]
+
+[tasks.build]
+description = "statusline 바이너리 빌드"
+run = "go build -o statusline ./cmd/statusline"
+
+[tasks.check]
+description = "gofmt 검사·go vet·go test"
+run = '''
+set -e
+out=$(gofmt -l cmd internal)
+test -z "$out" || { printf 'gofmt needed:\n%s\n' "$out"; exit 1; }
+go vet ./...
+go test ./...
+'''
+
+[tasks.tray]
+description = "빌드 후 macOS 메뉴바 위젯 실행"
+depends = ["build"]
+run = "./statusline tray"
+
+[tasks.mcp-smoke]
+description = "빌드 후 Codex MCP 상태바 smoke test"
+depends = ["build"]
+run = '''
+printf '%s\n' '{"id":1,"method":"tools/list"}' '{"id":2,"method":"resources/read","params":{"uri":"ui://statusline-tickets/footer"}}' | python3 -u integrations/codex/statusline.py | grep -E '"id": ?2[,}]' | grep '"result"' | grep -c CODEX
+'''

@@ -1,18 +1,18 @@
 {
   "product": "antigravity",
   "version": "1.2.11",
-  "cwd": "/Users/crong/git/statusline",
-  "session_id": "b2443d60-4e81-4fb4-b229-d084868b9f98",
-  "conversation_id": "b2443d60-4e81-4fb4-b229-d084868b9f98",
-  "transcript_path": "/Users/crong/.gemini/antigravity/brain/b2443d60-4e81-4fb4-b229-d084868b9f98/.system_generated/logs/transcript.jsonl",
+  "cwd": "/workspace/statusline",
+  "session_id": "00000000-0000-4000-8000-000000000000",
+  "conversation_id": "00000000-0000-4000-8000-000000000000",
+  "transcript_path": "/home/user/.gemini/antigravity/brain/00000000-0000-4000-8000-000000000000/.system_generated/logs/transcript.jsonl",
   "model": {
     "id": "Gemini 3.8 Flash (Medium)",
     "display_name": "Gemini 3.8 Flash (Medium)",
     "effort": "medium"
   },
   "workspace": {
-    "current_dir": "/Users/crong/git/statusline",
-    "project_dir": "/Users/crong/git/statusline"
+    "current_dir": "/workspace/statusline",
+    "project_dir": "/workspace/statusline"
   },
   "context_window": {
     "total_input_tokens": 44068,
@@ -59,6 +59,6 @@
     "enabled": false
   },
   "plan_tier": "Google AI Pro",
-  "email": "deuxksy@gmail.com",
+  "email": "user@example.com",
   "terminal_width": 239
 }

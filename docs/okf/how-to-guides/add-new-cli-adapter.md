@@ -52,6 +52,16 @@ func ParseInput(cliFlag string, rawInput []byte, env map[string]string) (*model.
 }
 ```
 
+The `if` block above only detects the engine name. `ParseInput` also dispatches engines to adapters in a `switch` further down, so add a case there — otherwise the `default` branch returns a generic status:
+
+```go
+	var a EngineAdapter
+	switch targetEngine {
+	case "my_cli":
+		a = &MyCLIAdapter{}
+	}
+```
+
 ## Step 3: Add Unit Tests
 
 Add a test function in `internal/adapter/adapter_test.go`:
