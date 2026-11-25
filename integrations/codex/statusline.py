@@ -5,7 +5,9 @@ from pathlib import Path
 from threading import Lock, Thread, Timer
 from time import time
 import json
+import os
 import re
+import shutil
 import subprocess
 import sys
 
@@ -45,6 +47,18 @@ class TicketSnapshot:
             self.value = value
 
 
+def _codex_command():
+    env_path = os.environ.get("CODEX_CLI_PATH")
+    if env_path and Path(env_path).is_file():
+        return env_path
+    if sys.platform == "win32":
+        for name in ("codex.exe", "codex.cmd", "codex"):
+            found = shutil.which(name)
+            if found and not found.lower().endswith(".ps1"):
+                return found
+    return shutil.which("codex") or "codex"
+
+
 def load_tickets():
     requests = [
         {"id": 1, "method": "initialize", "params": {
@@ -56,10 +70,10 @@ def load_tickets():
         }},
     ]
     with subprocess.Popen(
-        ["codex", "-c", "mcp_servers.statusline-tickets.enabled=false",
+        [_codex_command(), "-c", "mcp_servers.statusline-tickets.enabled=false",
          "app-server", "--stdio"],
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-        text=True,
+        text=True, encoding="utf-8", errors="replace",
     ) as process:
         # App-server 응답을 받기 전에 stdin을 닫으면 요청이 취소될 수 있다.
         timeout = Timer(8, process.kill)
@@ -77,7 +91,8 @@ def load_tickets():
 
 
 tickets = TicketSnapshot(load_tickets)
-BINARY = Path(__file__).resolve().parents[2] / "statusline"
+_ROOT = Path(__file__).resolve().parents[2]
+BINARY = _ROOT / ("statusline.exe" if sys.platform == "win32" else "statusline")
 SGR = re.compile(r"\x1b\[([0-9;]*)m")
 
 
@@ -145,11 +160,12 @@ def render(state):
     try:
         result = subprocess.run(
             [str(BINARY), "--cli=codex"], input=json.dumps(payload),
-            capture_output=True, text=True, timeout=0.5, check=True,
+            capture_output=True, text=True, encoding="utf-8", errors="replace",
+            timeout=0.5, check=True,
         )
     except (OSError, subprocess.SubprocessError):
         return "statusline: Go renderer unavailable"
-    return ui_tree(result.stdout.rstrip("\n"))
+    return ui_tree(result.stdout.rstrip("\r\n"))
 
 
 def ui_tree(output):

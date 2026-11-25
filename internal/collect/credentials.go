@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"runtime"
 )
 
 // ZaiDefaultBaseURL — credential 폴백 사용 시 URL 미지정의 기본값 (Z.AI 공식 anthropic 호환 엔드포인트)
@@ -24,7 +25,7 @@ func readCredentialsFile(path string) (creds credentialsFile, ok bool, err error
 	if err != nil {
 		return credentialsFile{}, false, err
 	}
-	if info.Mode().Perm()&0077 != 0 {
+	if runtime.GOOS != "windows" && info.Mode().Perm()&0077 != 0 {
 		return credentialsFile{}, false, fmt.Errorf("credential file permissions must be 0600")
 	}
 	data, err := os.ReadFile(path)

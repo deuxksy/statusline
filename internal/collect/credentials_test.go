@@ -3,6 +3,7 @@ package collect
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -22,11 +23,13 @@ func TestAdminKey(t *testing.T) {
 		t.Fatalf("environment: key=%q err=%v", key, err)
 	}
 	t.Setenv("OPENAI_ADMIN_KEY", "")
-	if err := os.Chmod(path, 0644); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := AdminKey(path); err == nil {
-		t.Fatal("insecure permissions accepted")
+	if runtime.GOOS != "windows" {
+		if err := os.Chmod(path, 0644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := AdminKey(path); err == nil {
+			t.Fatal("insecure permissions accepted")
+		}
 	}
 }
 
@@ -52,11 +55,13 @@ func TestZaiAuthToken(t *testing.T) {
 	}
 	t.Setenv("ZAI_AUTH_TOKEN", "")
 	t.Setenv("ANTHROPIC_AUTH_TOKEN", "")
-	if err := os.Chmod(path, 0644); err != nil {
-		t.Fatal(err)
-	}
-	if _, err := ZaiAuthToken(path); err == nil {
-		t.Fatal("insecure permissions accepted")
+	if runtime.GOOS != "windows" {
+		if err := os.Chmod(path, 0644); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := ZaiAuthToken(path); err == nil {
+			t.Fatal("insecure permissions accepted")
+		}
 	}
 }
 
