@@ -8,8 +8,14 @@ import (
 
 const emptyIconLabel = "–"
 
-// IconLabel은 요약에서 아이콘에 들어갈 대표 잔여율을 고른다.
+// IconLabel은 요약에서 아이콘에 들어갈 provider 코드와 대표 잔여율을 고른다.
 func IconLabel(title string) string {
+	switch title {
+	case "…":
+		return "z" + emptyIconLabel
+	case "c-":
+		return "c" + emptyIconLabel
+	}
 	quota, _, _ := strings.Cut(title, " ")
 	if len(quota) < 2 || (quota[0] != 'z' && quota[0] != 'c') {
 		return emptyIconLabel
@@ -24,7 +30,7 @@ func IconLabel(title string) string {
 	if err != nil || percent > 100 {
 		return emptyIconLabel
 	}
-	return strconv.Itoa(percent)
+	return quota[:1] + strconv.Itoa(percent)
 }
 
 // 각 행의 하위 3비트가 왼쪽에서 오른쪽으로 이어지는 픽셀이다.
@@ -33,7 +39,7 @@ var iconDigits = [10][5]uint8{
 	{7, 4, 7, 1, 7}, {7, 4, 7, 5, 7}, {7, 1, 1, 1, 1}, {7, 5, 7, 5, 7}, {7, 5, 7, 1, 7},
 }
 
-// Icon은 IconLabel이 반환하는 숫자 또는 대시를 16px·32px ICO로 인코딩한다.
+// Icon은 IconLabel이 반환하는 글리프를 16px·32px ICO로 인코딩한다.
 func Icon(label string) []byte {
 	const headerSize, entrySize, dibHeaderSize = 6, 16, 40
 	order := binary.LittleEndian
@@ -72,19 +78,24 @@ func paintIcon(pixels []byte, size int, label string) {
 	}
 	scale := size / 16
 	scaleX, scaleY := 2*scale, 2*scale
-	glyphCount := len(label)
-	if label == emptyIconLabel {
-		glyphCount = 1
-	} else if glyphCount == 3 {
+	characters := []rune(label)
+	if len(characters) >= 3 {
 		scaleX = scale
 	}
 	step := 3*scaleX + scale
-	left := (size - (glyphCount*step - scale)) / 2
+	left := (size - (len(characters)*step - scale)) / 2
 	top := (size - 5*scaleY) / 2
-	for i, digit := range label {
-		glyph := [5]uint8{0, 0, 7, 0, 0}
-		if digit >= '0' && digit <= '9' {
-			glyph = iconDigits[digit-'0']
+	for i, character := range characters {
+		var glyph [5]uint8
+		switch {
+		case character >= '0' && character <= '9':
+			glyph = iconDigits[character-'0']
+		case character == 'z':
+			glyph = [5]uint8{0, 0, 7, 2, 7}
+		case character == 'c':
+			glyph = [5]uint8{0, 0, 7, 4, 7}
+		default:
+			glyph = [5]uint8{0, 0, 7, 0, 0}
 		}
 		for y, bits := range glyph {
 			for x := 0; x < 3; x++ {

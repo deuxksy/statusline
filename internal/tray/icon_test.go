@@ -8,8 +8,8 @@ import (
 
 func TestIconLabel(t *testing.T) {
 	for title, want := range map[string]string{
-		"z87 w45": "87", "c48": "48", "z0": "0", "c100": "100",
-		"…": "–", "c-": "–", "z101": "–", "c+4": "–", "bad": "–", "": "–",
+		"z87 w45": "z87", "c48": "c48", "z0": "z0", "c100": "c100", "z100 w100": "z100",
+		"…": "z–", "c-": "c–", "z101": "–", "c+4": "–", "bad": "–", "": "–",
 	} {
 		if got := IconLabel(title); got != want {
 			t.Errorf("IconLabel(%q) = %q, want %q", title, got, want)
@@ -18,7 +18,10 @@ func TestIconLabel(t *testing.T) {
 }
 
 func TestIcon(t *testing.T) {
-	for _, label := range []string{"0", "100", "–"} {
+	if bytes.Equal(Icon("z48"), Icon("c48")) {
+		t.Error("provider glyphs must render differently at the same quota")
+	}
+	for _, label := range []string{"z0", "z100", "c100", "c–", "z–", "–"} {
 		t.Run(label, func(t *testing.T) {
 			ico := Icon(label)
 			if len(ico) < 38 || !bytes.Equal(ico[:6], []byte{0, 0, 1, 0, 2, 0}) {
@@ -58,12 +61,11 @@ func TestIcon(t *testing.T) {
 						height++
 					}
 				}
-				wantGroups, wantHeight := 1, 10*size/16
-				if label == "100" {
-					wantGroups = 3
-				}
+				wantGroups, wantHeight := len([]rune(label)), 10*size/16
 				if label == "–" {
 					wantHeight = 2 * size / 16
+				} else if label == "z–" || label == "c–" {
+					wantHeight = 6 * size / 16
 				}
 				if groups != wantGroups || height != wantHeight {
 					t.Errorf("%dpx icon: %d glyphs, %dpx tall; want %d glyphs, %dpx tall", size, groups, height, wantGroups, wantHeight)

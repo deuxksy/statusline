@@ -23,7 +23,7 @@ func TestUpdateWindowsTray(t *testing.T) {
 	if !slices.Equal(tooltips, titles) {
 		t.Errorf("tooltips = %q, want %q", tooltips, titles)
 	}
-	labels := []string{"87", "48", "87", "–"}
+	labels := []string{"z87", "c87", "c48", "z87", "z–"}
 	if len(icons) != len(labels) {
 		t.Fatalf("got %d icon updates, want %d", len(icons), len(labels))
 	}
