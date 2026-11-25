@@ -35,7 +35,7 @@ subcommand가 없으면 렌더 모드로 동작한다. STDIN으로 JSON을 한 �
 | `init` | 기본 설정 파일을 `--config` 경로에 기록 | 즉시 |
 | `collect` | provider의 잔여량·사용량을 JSON 한 건으로 수집 | 즉시, 최대 10초 |
 | `watch` | 최근 Codex thread의 새 token·context event를 JSON Lines로 출력 | `Ctrl+C` |
-| `tray` | macOS 메뉴바 위젯 | 드롭다운에서 종료하면 |
+| `tray` | macOS 메뉴바·Windows 시스템 트레이 위젯 | 메뉴에서 종료하면 |
 
 ### 렌더 모드
 
@@ -72,7 +72,7 @@ subcommand가 없으면 렌더 모드로 동작한다. STDIN으로 JSON을 한 �
 
 ### `tray`
 
-- 5초마다 `live_session.json`을 읽어 menu bar의 title과 menu를 갱신한다.
+- 5초마다 `live_session.json`을 읽어 macOS 타이틀, Windows 아이콘·툴팁, 위젯 메뉴를 갱신한다.
 - cache가 없거나 5분(`fetchedAt` 기준)이 지났으면 `collect --provider=all`을 background로 실행한다.
 - 표시 규칙은 [트레이 위젯 사용하기](../how-to-guides/use-tray.md)를 따른다.
 

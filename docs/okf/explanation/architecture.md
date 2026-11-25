@@ -21,7 +21,7 @@
 
 ## 1. 소개와 목표
 
-`statusline`은 AI 코딩 어시스턴트 CLI(Claude Code, Antigravity CLI, Codex CLI)의 상태를 받아 한 줄 상태바로 그리고, 구독 잔여량을 수집해 macOS 메뉴바 위젯으로 보여준다.
+`statusline`은 AI 코딩 어시스턴트 CLI(Claude Code, Antigravity CLI, Codex CLI)의 상태를 받아 한 줄 상태바로 그리고, 구독 잔여량을 수집해 macOS 메뉴바와 Windows 시스템 트레이에 표시한다.
 
 이해관계자는 셋이다.
 
@@ -44,7 +44,7 @@
 - **배포 단위**: Go 단일 바이너리. Codex 상태바 provider(`integrations/codex/statusline.py`)만 Python 표준 library로 따로 둔다.
 - **읽기 전용 수집**: Codex 인증 파일과 로그인 상태는 직접 읽거나 바꾸지 않는다.
 - **비밀 값**: git에 추적하는 비밀 값은 `sops`로 암호화하고, sample의 계정 식별 정보는 generic 값으로 바꾼다.
-- **실행 환경**: Go 1.26.5. 위젯은 macOS 메뉴바만 구현했다.
+- **실행 환경**: Go 1.26.5. 위젯은 macOS 메뉴바와 Windows 시스템 트레이를 지원한다.
 
 ## 3. 컨텍스트와 범위
 
@@ -150,7 +150,7 @@ graph TD
 | `internal/config` | 설정 읽기, 기본값, 저장, `$schema` migration | 없음 |
 | `internal/vcs` | `.git` metadata로 branch·repo를 읽고 10ms deadline으로 dirty를 확인한다 | model |
 | `internal/collect` | Codex·OpenAI Platform·Z.AI 수집, 자격 증명, cache 파일, self-spawn, `watch` | model |
-| `internal/tray` | 위젯 title·menu 문자열과 갱신 조건 판정 | collect |
+| `internal/tray` | 위젯 title·menu 문자열, Windows ICO 생성과 갱신 조건 판정 | collect |
 | `integrations/codex/statusline.py` | Codex가 호출하는 stdio MCP provider. Codex 상태를 렌더러 payload로 바꾼다 | 저장소 루트의 `./statusline` |
 
 ### 5.3 렌더 container 내부 (C4 L3)
@@ -220,7 +220,7 @@ sequenceDiagram
             A-->>C: 응답
             C->>F: live_session.json 병합 기록
         end
-        T->>T: 메뉴바 title 갱신
+        T->>T: macOS 타이틀 또는 Windows 아이콘·툴팁 갱신
     end
 ```
 
@@ -277,7 +277,7 @@ ADR record를 위한 `decisions/` directory는 아직 두지 않았다. 결정�
 | 견고성 | 빈 입력, 깨진 JSON, 알 수 없는 engine | 한 줄 기본 출력, exit code 0 |
 | 부분 실패 | provider 하나가 실패한 `collect` | 나머지 source 결과는 cache에 반영, 실패는 `errors`에 기록 |
 | 자원 | 위젯 상주 | 상주 process는 tray 하나, 5초마다 cache 파일만 읽음 |
-| 이식성 | macOS, Linux에서 렌더·수집 | 동일하게 동작. 위젯은 macOS만 |
+| 이식성 | macOS와 Windows에서 `statusline tray` 실행 | macOS는 메뉴바 타이틀, Windows는 provider 코드와 잔여율 아이콘을 표시 |
 
 ## 11. 리스크와 기술 부채
 
@@ -289,7 +289,7 @@ ADR record를 위한 `decisions/` directory는 아직 두지 않았다. 결정�
 | Z.AI token이 오래되면 HTTP 200으로 돌아온다 | 오류 없이 quota segment만 사라진다 | `credentials.json`의 token 갱신. 같은 문서의 token rotation note |
 | Codex MCP 상태바는 Codex 실험 기능과 저장소 루트의 build 산출물에 의존한다 | Codex 버전이 바뀌거나 binary가 없으면 상태바가 비거나 안내 문구가 보인다 | [CLI 페이로드 명세](../reference/cli-payload-spec.md#3-codex-widget-snapshot), `AGENTS.md`의 smoke test |
 | `live_session.json`은 0644로 기록되고 계정 식별 정보를 담을 수 있다 | 여러 사용자가 있는 machine에서 다른 사용자가 읽을 수 있다 | 공유 machine에서는 cache dir 권한 확인 |
-| 위젯은 macOS 전용이다 | Windows 사용자는 `collect` 결과를 JSON으로만 본다 | ROADMAP v0.8.5 |
+| Windows 트레이 아이콘이 숨겨진 영역에 배치될 수 있다 | 작업 표시줄에서 잔여율을 바로 확인하기 어렵다 | 작업 표시줄 설정에서 아이콘 표시 여부를 선택 |
 | `anthropic`, `gemini` provider는 미지원이다 | `collect --provider`가 exit 2로 거절한다 | ROADMAP v0.6.0 |
 
 ## 12. 용어집

@@ -54,7 +54,7 @@ Item names: `hostname`, `cwd`, `gitRepo`, `gitBranch`, `gitStatus`, `permission`
 
 ### `tray` (object)
 
-Tray widget (`statusline tray`, v0.8.1) settings. `primary` is saved back to the config file when the main provider is switched from the tray dropdown.
+macOS 메뉴바와 Windows 시스템 트레이에서 실행하는 `statusline tray`의 설정이다. 위젯 메뉴에서 메인 provider를 전환하면 `primary`를 설정 파일에 저장한다.
 
 | Field | Type | Default | Description |
 |---|---|---|---|

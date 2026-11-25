@@ -25,6 +25,8 @@ cat docs/samples/claude.json | ./statusline --cli=claude
 
 Codex CLI 하단에 적용하려면 [Codex MCP 상태바 설정](./docs/okf/how-to-guides/use-codex.md#6-codex-mcp-상태바-설정)을 참고하세요.
 
+구독 잔여량을 데스크톱에서 보려면 [macOS 메뉴바·Windows 시스템 트레이 실행 방법](./docs/okf/how-to-guides/use-tray.md)을 참고하세요.
+
 ---
 
 ## 📚 문서 인덱스 (Diátaxis Framework)
