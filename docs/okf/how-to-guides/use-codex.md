@@ -20,6 +20,8 @@ statusline collect --provider=zai     # Z.AI quota (zhipu 별칭 지원)
 go build -o statusline ./cmd/statusline
 ```
 
+Windows PowerShell에서는 `go build -o statusline.exe ./cmd/statusline`으로 빌드한다. 아래의 `./statusline` 명령은 `./statusline.exe`로 실행한다.
+
 코드를 수정한 뒤 다시 빌드하지 않으면 이전 바이너리는 `collect`와 `watch`를 알지 못해 `GENERIC` 또는 `CODEX │ codex` 상태바를 출력할 수 있다.
 
 ## 2. Codex 계정·한도·사용량 조회
@@ -40,7 +42,7 @@ go build -o statusline ./cmd/statusline
 
 ## 3. OpenAI Platform Usage·Costs 연결
 
-Platform 조회는 Codex 구독 상태와 별도다. 키는 환경변수 `OPENAI_ADMIN_KEY`로 두거나 `~/.config/statusline/credentials.json`에 넣는다. 파일 권한은 `0600`이어야 한다. 파일 형식은 다음과 같다. 예시 값은 실제 키가 아니다.
+Platform 조회는 Codex 구독 상태와 별도다. 키는 환경변수 `OPENAI_ADMIN_KEY`로 두거나 `~/.config/statusline/credentials.json`에 넣는다. macOS와 Linux에서는 파일 권한을 `0600`으로 설정한다. Windows의 경로는 `%USERPROFILE%\.config\statusline\credentials.json`이다. 파일 형식은 다음과 같다. 예시 값은 실제 키가 아니다.
 
 ```json
 {"openai_admin_key":"<관리자 키>"}
@@ -66,18 +68,47 @@ Platform 조회는 Codex 구독 상태와 별도다. 키는 환경변수 `OPENAI
 ./statusline --cli=codex < docs/samples/codex.json
 ```
 
+Windows PowerShell에서는 `Get-Content -Raw -Encoding utf8 docs/samples/codex.json | ./statusline.exe --cli=codex`를 실행한다.
+
 이 샘플의 성격은 [CLI 페이로드 명세](../reference/cli-payload-spec.md#3-codex-widget-snapshot)를 따른다. 이 경로의 렌더러는 `collect` 결과를 받지 않는다. Codex 하단에 표시하려면 6절의 MCP provider를 등록한다.
 
 ## 6. Codex MCP 상태바 설정
 
-저장소 루트에서 `go build -o statusline ./cmd/statusline`을 실행한 뒤 `codex mcp add statusline-tickets -- python3 -u "$PWD/integrations/codex/statusline.py"`로 등록합니다.
-Codex의 `/experimental`에서 **Custom status line**을 활성화하고 재시작한 뒤, `/statusline`에서 `Statusline · 초기화 티켓` provider를 선택합니다.
+Windows 11의 Codex CLI `0.172.0`에서 확인한 절차다. 먼저 저장소 루트에서 바이너리를 빌드하고 `codex mcp list`로 `statusline-tickets`가 등록돼 있는지 확인한다. 이미 등록돼 있다면 `codex mcp add`는 생략한다.
+
+**Windows PowerShell**
+
+```powershell
+go build -o statusline.exe ./cmd/statusline
+codex mcp list
+```
+
+등록이 필요하면 아래 명령을 실행한다. `$python`에는 Python 실행 파일의 절대 경로를 사용한다.
+
+```powershell
+$python = python -c 'import sys; print(sys.executable)'
+$provider = (Resolve-Path -LiteralPath './integrations/codex/statusline.py').Path
+codex mcp add statusline-tickets -- "$python" -u "$provider"
+```
+
+**macOS·Linux**에서는 `go build -o statusline ./cmd/statusline`으로 빌드하고, 등록이 필요하면 `codex mcp add statusline-tickets -- python3 -u "$PWD/integrations/codex/statusline.py"`를 실행한다.
+
+`codex features enable tui_extensions_statusline`을 실행하거나 `/experimental`에서 **Custom status line**을 켠다. Codex CLI를 종료하고 새 터미널에서 `codex`를 실행한 뒤 `/statusline` → **Choose a status line provider** → **Statusline · 초기화 티켓**을 선택한다.
+
+목록에 **Default status line**만 표시되거나 `F2`에 provider 검색 시간 초과가 표시되면, 사용자 `~/.codex/config.toml`의 기존 `[tui]` 섹션에 다음 값을 설정한다. `status_line_provider`가 이미 있으면 해당 값만 교체한다.
+
+```toml
+[tui]
+status_line_provider = { server = "statusline-tickets", tool = "statusline" }
+```
+
+새 터미널에서 `codex`를 실행해 하단에 `CODEX`로 시작하는 상태바가 표시되는지 확인한다. `/create-statusline`은 새 provider를 작성할 때 사용한다. 이 절차는 저장소의 provider를 등록하거나 재사용한다.
 
 ## 문제 해결
 
 - `collect` 대신 `GENERIC`이 출력된다면 1단계의 빌드를 다시 수행한다.
 - `errors.codex`가 있으면 Codex CLI 설치·로그인 상태와 app-server 실행 가능 여부를 확인한다.
-- `errors.credentials`가 있으면 자격 증명 파일의 JSON 형식과 `0600` 권한을 확인한다.
+- `errors.credentials`가 있으면 자격 증명 파일의 JSON 형식을 확인한다. macOS와 Linux에서는 `0600` 권한도 확인한다.
 - `errors.platform`에 HTTP 403이 있으면 API Platform 조직 관리자 키와 조회 권한을 확인한다.
 - `watch`에 출력이 없다면 선택된 thread에 새 기록이 생겼는지 확인한다.
 

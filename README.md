@@ -23,7 +23,7 @@ cat docs/samples/antigravity.json | ./statusline --cli=antigravity
 cat docs/samples/claude.json | ./statusline --cli=claude
 ```
 
-Codex CLI 하단에 적용하려면 [Codex MCP 상태바 설정](./docs/okf/how-to-guides/use-codex.md#6-codex-mcp-상태바-설정)을 참고하세요.
+Windows 11 PowerShell에서는 [Windows 빌드·설치·샘플 검증](./docs/okf/tutorials/getting-started.md#windows-11-powershell)을 따르세요. 호스트별 적용 방법은 [Antigravity CLI](./docs/okf/how-to-guides/configure-elements.md#2-antigravity-cli-integration), [Claude Code](./docs/okf/how-to-guides/configure-elements.md#3-claude-code-integration), [Codex CLI](./docs/okf/how-to-guides/use-codex.md#6-codex-mcp-상태바-설정)에서 확인할 수 있습니다.
 
 구독 잔여량을 데스크톱에서 보려면 [macOS 메뉴바·Windows 시스템 트레이 실행 방법](./docs/okf/how-to-guides/use-tray.md)을 참고하세요.
 

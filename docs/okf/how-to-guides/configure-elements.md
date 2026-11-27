@@ -63,6 +63,18 @@ In `~/.gemini/antigravity-cli/settings.json`, set the `statusLine` command:
 }
 ```
 
+**Windows 11**에서는 `%USERPROFILE%\.gemini\antigravity-cli\settings.json`의 `statusLine`을 다음처럼 설정한다. `C:\Users\me`를 실제 사용자 경로로 바꾸고 JSON 문자열의 역슬래시를 이중으로 표기한다. 저장 후 `agy`를 재시작해 하단을 확인한다.
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "C:\\Users\\me\\.local\\bin\\statusline.exe --cli=antigravity",
+    "enabled": true
+  }
+}
+```
+
 ---
 
 ## 3. Claude Code Integration
@@ -74,6 +86,17 @@ In `~/.claude/settings.json`:
   "statusLine": {
     "type": "command",
     "command": "~/.local/bin/statusline --cli=claude"
+  }
+}
+```
+
+**Windows 11**에서는 `%USERPROFILE%\.claude\settings.json`의 `statusLine`을 다음처럼 설정한다. `C:/Users/me`를 실제 사용자 경로로 바꾸고 새 Claude Code 세션에서 하단을 확인한다.
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "C:/Users/me/.local/bin/statusline.exe --cli=claude"
   }
 }
 ```

@@ -16,6 +16,12 @@ import (
 // systray.Run은 main goroutine에서 직접 호출해야 한다 (AppKit 런루프 제약 — 스펙).
 // 모든 경로 fail-soft: 어떤 캐시·I/O 실패로도 크래시하지 않는다.
 func runTray(configPath string) int {
+	release, ok := acquireTrayLock()
+	if !ok {
+		return 0
+	}
+	defer release()
+
 	cfg := config.LoadConfig(configPath)
 	cachePath, err := collect.LiveCachePath()
 	if err != nil {

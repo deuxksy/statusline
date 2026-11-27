@@ -7,6 +7,7 @@ idiomatic_version_file_enable_tools = ["go"]
 [tasks.build]
 description = "statusline 바이너리 빌드"
 run = "go build -o statusline ./cmd/statusline"
+run_windows = "go build -o statusline.exe ./cmd/statusline"
 
 [tasks.check]
 description = "gofmt 검사·go vet·go test"
@@ -17,11 +18,20 @@ test -z "$out" || { printf 'gofmt needed:\n%s\n' "$out"; exit 1; }
 go vet ./...
 go test ./...
 '''
+run_windows = [
+  "powershell -NoProfile -Command \"$out = gofmt -l cmd internal; if ($out) { Write-Host ('gofmt needed:`n' + ($out -join '`n')); exit 1 }\"",
+  "go vet ./...",
+  "go test ./...",
+]
 
 [tasks.tray]
-description = "빌드 후 macOS 메뉴바 위젯 실행"
-depends = ["build"]
-run = "./statusline tray"
+description = "빌드 후 시스템 트레이 위젯 실행 (macOS 메뉴바 / Windows 트레이)"
+run = "go build -o statusline ./cmd/statusline && ./statusline tray"
+run_windows = [
+  "powershell -NoProfile -Command \"Get-CimInstance Win32_Process -Filter \\\"Name='statusline.exe'\\\" | Where-Object { $_.CommandLine -match '\\btray\\b' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force }\"",
+  "go build -o statusline.exe ./cmd/statusline",
+  "powershell -NoProfile -Command \"Start-Process -FilePath .\\statusline.exe -ArgumentList tray -WindowStyle Hidden\"",
+]
 
 [tasks.mcp-smoke]
 description = "빌드 후 Codex MCP 상태바 smoke test"
@@ -29,3 +39,4 @@ depends = ["build"]
 run = '''
 printf '%s\n' '{"id":1,"method":"tools/list"}' '{"id":2,"method":"resources/read","params":{"uri":"ui://statusline-tickets/footer"}}' | python3 -u integrations/codex/statusline.py | grep -E '"id": ?2[,}]' | grep '"result"' | grep -c CODEX
 '''
+run_windows = '''python -c "import json, subprocess, sys; reqs = [{'id':1,'method':'tools/list'},{'id':2,'method':'resources/read','params':{'uri':'ui://statusline-tickets/footer'}}]; p = subprocess.run([sys.executable, '-u', 'integrations/codex/statusline.py'], input='\n'.join(map(json.dumps, reqs)) + '\n', capture_output=True, text=True, check=True); n = sum(1 for l in p.stdout.splitlines() if json.loads(l).get('id') == 2 and 'result' in json.loads(l) and 'CODEX' in l); print(n); sys.exit(0 if n == 1 else 1)"'''
