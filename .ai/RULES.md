@@ -7,8 +7,8 @@
 - Test: `go test -v ./...`
 - Test single package: `go test -v ./internal/adapter`
 - Quota collect (one-shot): `./statusline collect --provider=zai`
-- Tray widget on macOS: `mise run tray` (builds the binary first)
-- Tray widget on Windows PowerShell: `go build -o statusline.exe ./cmd/statusline`, then `.\statusline.exe tray`.
+- Tray widget (macOS / Windows Git Bash): `mise run tray` (builds the binary first)
+- Tray widget on Windows PowerShell without sh in PATH: `go build -o statusline.exe ./cmd/statusline`, then `.\statusline.exe tray`.
 
 ## Development Principles
 

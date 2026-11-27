@@ -15,6 +15,8 @@
 
 ## How to Test Statusline Output
 
+Windows PowerShell 명령은 [Windows 11 샘플 검증](../okf/tutorials/getting-started.md#windows-11-powershell)을 참고하세요.
+
 ```bash
 # Test Antigravity
 cat docs/samples/antigravity.json | ./statusline --cli=antigravity

@@ -101,7 +101,7 @@ subcommand가 없으면 렌더 모드로 동작한다. STDIN으로 JSON을 한 �
 | 경로 | 용도 |
 | :--- | :--- |
 | `~/.config/statusline/config.json` | 표시 설정. `--config`로 바꿀 수 있다 |
-| `~/.config/statusline/credentials.json` | 자격 증명. 권한이 `0600`이어야 한다 |
+| `~/.config/statusline/credentials.json` | 자격 증명. macOS와 Linux에서는 권한이 `0600`이어야 한다 |
 | `<user cache dir>/statusline/zai.json` | Z.AI quota cache. 렌더가 읽는다 |
 | `<user cache dir>/statusline/zai.json.refresh` | 렌더 경로의 갱신 marker. 60초 동안 중복 실행을 막는다 |
 | `<user cache dir>/statusline/live_session.json` | `collect` 결과 cache. `tray`가 읽는다 |

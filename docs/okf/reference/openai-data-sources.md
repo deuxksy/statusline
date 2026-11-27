@@ -19,7 +19,7 @@ API별 합성 예시와 전체 필드 목록은 [`docs/samples/openai/schema-exa
 
 ## OpenAI Platform 연결
 
-Platform 조회는 Codex 구독 상태와 별개다. `OPENAI_ADMIN_KEY`가 있으면 우선 사용하고, 없으면 `~/.config/statusline/credentials.json`의 `openai_admin_key`를 읽는다. 이 파일은 권한 `0600`이어야 한다. 두 출처 모두에 키가 없으면 Platform Usage·Costs 요청을 생략하고 Codex 로컬 조회만 유지한다. 일반 `OPENAI_API_KEY`나 Codex 로그인 자격 증명은 관리자 키를 대체하지 않는다. 관리자 인증 실패는 `errors.platform`에 기록되며 Codex 데이터 수집을 중단하지 않는다. 키 파일 작성법은 [Codex 데이터 수집 가이드](../how-to-guides/use-codex.md#3-openai-platform-usagecosts-연결)를 따른다.
+Platform 조회는 Codex 구독 상태와 별개다. `OPENAI_ADMIN_KEY`가 있으면 우선 사용하고, 없으면 `~/.config/statusline/credentials.json`의 `openai_admin_key`를 읽는다. macOS와 Linux에서는 이 파일의 권한이 `0600`이어야 한다. 두 출처 모두에 키가 없으면 Platform Usage·Costs 요청을 생략하고 Codex 로컬 조회만 유지한다. 일반 `OPENAI_API_KEY`나 Codex 로그인 자격 증명은 관리자 키를 대체하지 않는다. 관리자 인증 실패는 `errors.platform`에 기록되며 Codex 데이터 수집을 중단하지 않는다. 키 파일 작성법은 [Codex 데이터 수집 가이드](../how-to-guides/use-codex.md#3-openai-platform-usagecosts-연결)를 따른다.
 
 ## 한도 초기화 시각
 
